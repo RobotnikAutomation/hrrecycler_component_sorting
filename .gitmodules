@@ -1,0 +1,18 @@
+[submodule "egh_gripper_common"]
+	path = egh_gripper_common
+	url = https://github.com/RobotnikAutomation/egh_gripper_common
+[submodule "rbkairos_common"]
+	path = rbkairos_common
+	url = https://github.com/RobotnikAutomation/rbkairos_common
+[submodule "rbkairos_sim"]
+	path = rbkairos_sim
+	url = https://github.com/RobotnikAutomation/rbkairos_sim
+[submodule "robotnik_sensors"]
+	path = robotnik_sensors
+	url = https://github.com/RobotnikAutomation/robotnik_sensors
+[submodule "summit_xl_common"]
+	path = summit_xl_common
+	url = https://github.com/RobotnikAutomation/summit_xl_common
+[submodule "universal_robot"]
+	path = universal_robot
+	url = https://github.com/fmauch/universal_robot.git
