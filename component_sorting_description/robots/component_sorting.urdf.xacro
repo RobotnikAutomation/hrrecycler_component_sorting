@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<robot name="component_sorting" xmlns:xacro="http://wiki.ros.org/xacro">
+
+    <!-- ***************** -->
+    <!-- Imported elements -->
+    <!-- ***************** -->
+
+    <!-- First we import all posible elements defined in the urdf.xacro files. All these elements are defined as macro:xacros -->
+
+    <!-- Import RB-Kairos UR5 OEM VGC10 -->
+    <!-- remember, it creates and instances the macro, so no need to do it here -->
+  	<xacro:arg name="prefix" default="robot_"/>
+    <xacro:property name="prefix" value="$(arg prefix)" />
+
+    <xacro:include filename="$(find rbkairos_description)/robots/versions/rbkairos_ur5_oem_vgc10.urdf.xacro" />
+
+    <!-- Import holder for the boxes -->
+	<xacro:include filename="$(find rbkairos_description)/urdf/box/holder.urdf.xacro" />
+
+    <!-- Holder parameters -->
+    <xacro:property name="center_holder_offset_x" value="-0.195"/>
+    <xacro:property name="center_holder_offset_y" value="0.0"/>
+    <xacro:property name="center_holder_offset_z" value="0.56162"/> 
+
+    <xacro:property name="left_holder_offset_x" value="-0.195"/>
+    <xacro:property name="left_holder_offset_y" value="0.225"/>
+    <xacro:property name="left_holder_offset_z" value="0.56162"/>
+
+    <xacro:property name="right_holder_offset_x" value="-0.195"/>
+    <xacro:property name="right_holder_offset_y" value="-0.225"/>
+    <xacro:property name="right_holder_offset_z" value="0.56162"/>
+
+    <!-- HOLDERS -->
+    <xacro:holder prefix="${prefix}center_" parent="${prefix}base_link">
+        <origin xyz="${center_holder_offset_x} ${center_holder_offset_y} ${center_holder_offset_z}" rpy="0 0 0"/>
+    </xacro:holder>
+
+    <xacro:holder prefix="${prefix}left_" parent="${prefix}base_link">
+        <origin xyz="${left_holder_offset_x} ${left_holder_offset_y} ${left_holder_offset_z}" rpy="0 0 0"/>
+    </xacro:holder>
+
+    <xacro:holder prefix="${prefix}right_" parent="${prefix}base_link">
+        <origin xyz="${right_holder_offset_x} ${right_holder_offset_y} ${right_holder_offset_z}" rpy="0 0 0"/>
+    </xacro:holder> 
+
+</robot>
