@@ -30,6 +30,9 @@
     <xacro:property name="right_holder_offset_y" value="-0.225"/>
     <xacro:property name="right_holder_offset_z" value="0.56162"/>
 
+    <!-- ROBOT -->
+    <xacro:rbkairos_ur5_oem_vgc10 prefix="$(arg prefix)" publish_bf="true" hq="true" load_kinematics_file="$(arg load_kinematics_file)"/>
+
     <!-- HOLDERS -->
     <xacro:holder prefix="${prefix}center_" parent="${prefix}base_link">
         <origin xyz="${center_holder_offset_x} ${center_holder_offset_y} ${center_holder_offset_z}" rpy="0 0 0"/>

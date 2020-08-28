@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<launch>
+
+
+  <!-- arg to config the launch file-->
+  <arg name="robot_id" default="$(optenv ROBOT_ID robot)"/>
+  <arg name="prefix" default="$(arg robot_id)_"/>
+
+  <!-- Robot configuration -->
+  <arg name="x_init_pose" default="0"/>
+  <arg name="y_init_pose" default="0"/>
+  <arg name="z_init_pose" default="0"/>
+  
+  <arg name="ros_planar_move_plugin" default="true"/>
+  <arg name="launch_arm_control" default="true"/>
+  <arg name="arm_controllers" default="pos_traj_controller"/> <!-- controllers can be listed seprated by a blank space -->
+  <arg name="launch_gripper_control" default="false"/>
+  <arg name="gripper_controllers" default="gripper_controller"/> <!-- controllers can be listed seprated by a blank space -->
+    
+  <arg name="world_name" default="" /> <!-- $(find rbkairos_gazebo)/worlds/office.world"/-->
+  <arg name="debug" default="false"/>
+  <arg name="paused" default="false"/>
+  <arg name="headless" default="false"/>
+  <arg name="gui" default="true"/>
+    
+
+  <include file="$(find component_sorting_description)/launch/component_sorting_state_robot.launch" />
+
+  <!-- Launch gazebo -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+      <arg name="world_name" value="$(arg world_name)"/>
+      <arg name="debug" value="$(arg debug)" />
+      <arg name="paused" value="$(arg paused)" />
+      <arg name="headless" value="$(arg headless)"/>
+      <arg name="gui" value="$(arg gui)"/>
+  </include>
+
+  <!-- Spawn model into gazebo -->
+  <node name="urdf_spawner_robot_model" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+      args="-x $(arg x_init_pose) -y $(arg y_init_pose) -z $(arg z_init_pose) -urdf -param robot_description -model $(arg robot_id)" />
+    
+  <include file="$(find rbkairos_control)/launch/rbkairos_control.launch" >
+      <arg name="robot_id" value="$(arg robot_id)"/>
+      <arg name="prefix" value="$(arg prefix)"/>
+      <arg name="sim" value="true"/>
+      <arg name="ros_planar_move_plugin" value="$(arg ros_planar_move_plugin)"/>
+      <arg name="sim_arm_control" value="$(arg launch_arm_control)"/>
+      <arg name="arm_controllers" value="$(arg arm_controllers)"/>
+      <arg name="sim_gripper_control" value="$(arg launch_gripper_control)"/>
+      <arg name="gripper_controllers" value="$(arg gripper_controllers)"/>
+    </include>
+</launch>
