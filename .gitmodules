@@ -22,3 +22,6 @@
 [submodule "robotnik_gazebo_plugins"]
 	path = robotnik_gazebo_plugins
 	url = https://github.com/RobotnikAutomation/robotnik_gazebo_plugins
+[submodule "stomp_ros"]
+	path = stomp_ros
+	url = https://github.com/ros-industrial/stomp_ros
