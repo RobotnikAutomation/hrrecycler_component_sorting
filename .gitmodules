@@ -19,3 +19,6 @@
 [submodule "realsense_gazebo_plugin"]
 	path = realsense_gazebo_plugin
 	url = https://github.com/RobotnikAutomation/realsense_gazebo_plugin
+[submodule "robotnik_gazebo_plugins"]
+	path = robotnik_gazebo_plugins
+	url = https://github.com/RobotnikAutomation/robotnik_gazebo_plugins
