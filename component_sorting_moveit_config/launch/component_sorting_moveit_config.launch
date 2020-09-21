@@ -4,6 +4,7 @@
   <!-- By default, we are not in debug mode -->
   <arg name="debug" default="false" />
   <arg name="sim" default="true" />
+  <arg name="pipeline" default="ompl" />
 
   <!-- Load the URDF, SRDF and other .yaml configuration files on the param server -->
   <include file="$(find component_sorting_moveit_config)/launch/planning_context.launch">
@@ -17,6 +18,7 @@
     <arg name="fake_execution" value="false"/>
     <arg name="info" value="true"/>
     <arg name="debug" value="$(arg debug)"/>
+    <arg name="pipeline" value="$(arg pipeline)" />
     <!--arg name="sim" value="$(arg sim)"/-->
   </include>
 

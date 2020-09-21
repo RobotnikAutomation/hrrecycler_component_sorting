@@ -1,0 +1,20 @@
+<launch>
+  <node name="generate_state_database" pkg="moveit_planners_ompl" type="generate_state_database" output="screen">
+    <param name="use_current_scene" value="false"/>
+    <param name="planning_group" value="arm"/>
+    <param name="output_folder" value="constraint_approximations_upright_path"/>
+
+    <!--path_constraint:-->
+    <rosparam ns="constraints">
+      name: tool0_upright
+      constraints:
+      - type: orientation
+        frame_id: robot_base_link
+        link_name: robot_arm_tool0
+        orientation: [0, 0, 0]
+        tolerances: [0.01, 0.01, 3.15]
+        weight: 100.0
+    </rosparam>
+
+  </node>
+</launch>
