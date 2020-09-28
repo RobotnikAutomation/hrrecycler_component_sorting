@@ -4,6 +4,7 @@ project(component_sorting)
 add_compile_options(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
+  moveit_msgs
   moveit_ros_planning_interface
   rcomponent
   roscpp
@@ -11,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
 )
+
 include_directories(
  include
  ${catkin_INCLUDE_DIRS}

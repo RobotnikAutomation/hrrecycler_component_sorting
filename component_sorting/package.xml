@@ -11,6 +11,7 @@
 
 
   <buildtool_depend>catkin</buildtool_depend>
+  <depend>moveit_msgs</depend>
   <depend>moveit_ros_planning_interface</depend>
   <depend>rcomponent</depend>
   <depend>roscpp</depend>
