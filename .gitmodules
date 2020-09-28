@@ -25,3 +25,6 @@
 [submodule "stomp_ros"]
 	path = stomp_ros
 	url = https://github.com/ros-industrial/stomp_ros
+[submodule "rcomponent"]
+	path = rcomponent
+	url = https://github.com/RobotnikAutomation/rcomponent

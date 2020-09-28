@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+    <node name="component_sorting" pkg="component_sorting" type="component_sorting_node" output="screen">
+        <rosparam command="load" file="$(find component_sorting)/config/component_sorting.yaml" />
+    </node>
+</launch>
