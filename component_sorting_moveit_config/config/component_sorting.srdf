@@ -56,6 +56,57 @@
         <joint name="robot_arm_wrist_2_joint" value="1.557" />
         <joint name="robot_arm_wrist_3_joint" value="1.27285" />
     </group_state>
+    <group_state name="place_center" group="arm">
+        <joint name="robot_arm_elbow_joint" value="1.94635" />
+        <joint name="robot_arm_shoulder_lift_joint" value="-1.93166" />
+        <joint name="robot_arm_shoulder_pan_joint" value="2.82208" />
+        <joint name="robot_arm_wrist_1_joint" value="-1.58368" />
+        <joint name="robot_arm_wrist_2_joint" value="-1.58231" />
+        <joint name="robot_arm_wrist_3_joint" value="-1.87404" />
+    </group_state>
+    <group_state name="place_left" group="arm">
+        <joint name="robot_arm_elbow_joint" value="1.83030" />
+        <joint name="robot_arm_shoulder_lift_joint" value="-1.76425" />
+        <joint name="robot_arm_shoulder_pan_joint" value="2.30554" />
+        <joint name="robot_arm_wrist_1_joint" value="-1.63714" />
+        <joint name="robot_arm_wrist_2_joint" value="-1.58156" />
+        <joint name="robot_arm_wrist_3_joint" value="-2.42967" />
+    </group_state>
+    <group_state name="place_right" group="arm">
+        <joint name="robot_arm_elbow_joint" value="1.81675" />
+        <joint name="robot_arm_shoulder_lift_joint" value="-1.76502" />
+        <joint name="robot_arm_shoulder_pan_joint" value="-2.84464" />
+        <joint name="robot_arm_wrist_1_joint" value="-1.62274" />
+        <joint name="robot_arm_wrist_2_joint" value="-1.58353" />
+        <joint name="robot_arm_wrist_3_joint" value="-1.28748" />
+    </group_state>
+    <group_state name="pre_place_right" group="arm">
+        <joint name="robot_arm_elbow_joint" value="1.07000" />
+        <joint name="robot_arm_shoulder_lift_joint" value="-1.62534" />
+        <joint name="robot_arm_shoulder_pan_joint" value="-2.84780" />
+        <joint name="robot_arm_wrist_1_joint" value="-1.01536" />
+        <joint name="robot_arm_wrist_2_joint" value="-1.58074" />
+        <joint name="robot_arm_wrist_3_joint" value="-1.29768" />
+    </group_state>
+    <group_state name="pre_place_center" group="arm">
+        <joint name="robot_arm_elbow_joint" value="1.19488" />
+        <joint name="robot_arm_shoulder_lift_joint" value="-1.77517" />
+        <joint name="robot_arm_shoulder_pan_joint" value="2.81720" />
+        <joint name="robot_arm_wrist_1_joint" value="-0.99141" />
+        <joint name="robot_arm_wrist_2_joint" value="-1.58154" />
+        <joint name="robot_arm_wrist_3_joint" value="-1.91195" />
+    </group_state>
+    <group_state name="pre_place_left" group="arm">
+        <joint name="robot_arm_elbow_joint" value="1.06937" />
+        <joint name="robot_arm_shoulder_lift_joint" value="-1.62484" />
+        <joint name="robot_arm_shoulder_pan_joint" value="2.30302" />
+        <joint name="robot_arm_wrist_1_joint" value="-1.01581" />
+        <joint name="robot_arm_wrist_2_joint" value="-1.58210" />
+        <joint name="robot_arm_wrist_3_joint" value="-2.41526" />
+    </group_state>
+
+
+
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="gripper_eef" parent_link="robot_arm_tool0" group="gripper" parent_group="arm" />
     <!--VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference (considered fixed with respect to the robot)-->
