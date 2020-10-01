@@ -4,6 +4,7 @@ project(component_sorting)
 add_compile_options(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
+  component_sorting_msgs
   moveit_msgs
   moveit_ros_planning_interface
   rcomponent

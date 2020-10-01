@@ -46,16 +46,24 @@ int ComponentSorting::rosSetup()
   }
 
   bool autostart = false;
-  pickup_as_.reset(new actionlib::SimpleActionServer<moveit_msgs::PickupAction>(pnh_, "pickup", autostart));
-  pickup_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this));
-  pickup_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
-  place_as_.reset(new actionlib::SimpleActionServer<moveit_msgs::PlaceAction>(pnh_, "place", autostart));
-  place_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this));
-  place_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
+  pickup_from_as_.reset(new actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>(pnh_, "pickup_from", autostart));
+  pickup_from_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this, std::string("pickup_from")));
+  pickup_from_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
+  place_on_as_.reset(new actionlib::SimpleActionServer<component_sorting_msgs::PlaceOnAction>(pnh_, "place_on", autostart));
+  place_on_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this, std::string("place_on")));
+  place_on_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
 
-  bool spin_action_thread = true;
-  pickup_ac_.reset(new actionlib::SimpleActionClient<moveit_msgs::PickupAction>(nh_, "pickup", spin_action_thread));
-  place_ac_.reset(new actionlib::SimpleActionClient<moveit_msgs::PlaceAction>(nh_, "place", spin_action_thread));
+  // in case we contact MoveIt through actionlib
+  // pickup_as_.reset(new actionlib::SimpleActionServer<moveit_msgs::PickupAction>(pnh_, "pickup", autostart));
+  // pickup_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this));
+  // pickup_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
+  // place_as_.reset(new actionlib::SimpleActionServer<moveit_msgs::PlaceAction>(pnh_, "place", autostart));
+  // place_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this));
+  // place_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
+  // 
+  // bool spin_action_thread = true;
+  // pickup_ac_.reset(new actionlib::SimpleActionClient<moveit_msgs::PickupAction>(nh_, "pickup", spin_action_thread));
+  // place_ac_.reset(new actionlib::SimpleActionClient<moveit_msgs::PlaceAction>(nh_, "place", spin_action_thread));
 
   return RComponent::rosSetup();
 }
@@ -76,24 +84,30 @@ int ComponentSorting::setup()
     return setup_result;
   }
 
-  ros::Duration timeout = ros::Duration(5);
-  pickup_ac_->waitForServer(timeout);
-  if (pickup_ac_->isServerConnected() == false)
-  {
-    RCOMPONENT_ERROR_STREAM("Cannot connect to pick up client: " << "pickup");
-    return rcomponent::ERROR;
-  }
-  place_ac_->waitForServer(timeout);
-  if (place_ac_->isServerConnected() == false)
-  {
-    RCOMPONENT_ERROR_STREAM("Cannot connect to pick up client: " << "place");
-    return rcomponent::ERROR;
-  }
+  // in case we contact MoveIt through actionlib
+  // ros::Duration timeout = ros::Duration(5);
+  // pickup_ac_->waitForServer(timeout);
+  // if (pickup_ac_->isServerConnected() == false)
+  // {
+  //   RCOMPONENT_ERROR_STREAM("Cannot connect to pick up client: pickup");
+  //   return rcomponent::ERROR;
+  // }
+  // place_ac_->waitForServer(timeout);
+  // if (place_ac_->isServerConnected() == false)
+  // {
+  //   RCOMPONENT_ERROR_STREAM("Cannot connect to pick up client: place");
+  //   return rcomponent::ERROR;
+  // }
+
+  // pickup_as_->start();
+  // RCOMPONENT_INFO_STREAM("Started server: pickup");
+  // place_as_->start();
+  // RCOMPONENT_INFO_STREAM("Started server: place");
   
-  pickup_as_->start();
-  RCOMPONENT_INFO_STREAM("Started server: " << "pickup");
-  place_as_->start();
-  RCOMPONENT_INFO_STREAM("Started server: " << "place");
+  pickup_from_as_->start();
+  RCOMPONENT_INFO_STREAM("Started server: pickup from");
+  place_on_as_->start();
+  RCOMPONENT_INFO_STREAM("Started server: place on");
 }
 
 void ComponentSorting::standbyState()
@@ -105,9 +119,9 @@ void ComponentSorting::readyState()
 {
 }
 
-void ComponentSorting::goalCB()
+void ComponentSorting::goalCB(const std::string& action)
 {
-
+    RCOMPONENT_INFO_STREAM("I have received an action to: " << action);
 }
 
 void ComponentSorting::preemptCB()

@@ -1,0 +1,14 @@
+# An action for placing an object to a location (in the robot or in the table)
+
+# The name of the location to where to place
+string in
+---
+# If place was succesful
+bool success
+
+# Some informational message
+string message
+---
+
+# The internal state that the place action currently is in
+string state

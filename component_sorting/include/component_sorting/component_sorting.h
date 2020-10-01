@@ -13,6 +13,9 @@
 #include <moveit_msgs/PickupAction.h>
 #include <moveit_msgs/PlaceAction.h>
 
+#include <component_sorting_msgs/PickupFromAction.h>
+#include <component_sorting_msgs/PlaceOnAction.h>
+
 class ComponentSorting : public rcomponent::RComponent
 {
 public:
@@ -43,13 +46,17 @@ protected:
   ros::WallDuration move_group_timeout_;
   moveit::planning_interface::MoveGroupInterfacePtr move_group_;
 
-  std::shared_ptr<actionlib::SimpleActionServer<moveit_msgs::PickupAction>> pickup_as_;
-  std::shared_ptr<actionlib::SimpleActionServer<moveit_msgs::PlaceAction>> place_as_;
+  std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>> pickup_from_as_;
+  std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::PlaceOnAction>> place_on_as_;
 
-  std::shared_ptr<actionlib::SimpleActionClient<moveit_msgs::PickupAction>> pickup_ac_;
-  std::shared_ptr<actionlib::SimpleActionClient<moveit_msgs::PlaceAction>> place_ac_;
+  // in case we contact MoveIt through actionlib
+  // std::shared_ptr<actionlib::SimpleActionServer<moveit_msgs::PickupAction>> pickup_as_;
+  // std::shared_ptr<actionlib::SimpleActionServer<moveit_msgs::PlaceAction>> place_as_;
 
-  virtual void goalCB();
+  // std::shared_ptr<actionlib::SimpleActionClient<moveit_msgs::PickupAction>> pickup_ac_;
+  // std::shared_ptr<actionlib::SimpleActionClient<moveit_msgs::PlaceAction>> place_ac_;
+
+  virtual void goalCB(const std::string& action);
   virtual void preemptCB();
 };
 
