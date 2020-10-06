@@ -46,10 +46,12 @@ int ComponentSorting::rosSetup()
   }
 
   bool autostart = false;
-  pickup_from_as_.reset(new actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>(pnh_, "pickup_from", autostart));
+  pickup_from_as_.reset(
+      new actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>(pnh_, "pickup_from", autostart));
   pickup_from_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this, std::string("pickup_from")));
   pickup_from_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
-  place_on_as_.reset(new actionlib::SimpleActionServer<component_sorting_msgs::PlaceOnAction>(pnh_, "place_on", autostart));
+  place_on_as_.reset(
+      new actionlib::SimpleActionServer<component_sorting_msgs::PlaceOnAction>(pnh_, "place_on", autostart));
   place_on_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this, std::string("place_on")));
   place_on_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
 
@@ -60,7 +62,7 @@ int ComponentSorting::rosSetup()
   // place_as_.reset(new actionlib::SimpleActionServer<moveit_msgs::PlaceAction>(pnh_, "place", autostart));
   // place_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this));
   // place_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
-  // 
+  //
   // bool spin_action_thread = true;
   // pickup_ac_.reset(new actionlib::SimpleActionClient<moveit_msgs::PickupAction>(nh_, "pickup", spin_action_thread));
   // place_ac_.reset(new actionlib::SimpleActionClient<moveit_msgs::PlaceAction>(nh_, "place", spin_action_thread));
@@ -103,11 +105,13 @@ int ComponentSorting::setup()
   // RCOMPONENT_INFO_STREAM("Started server: pickup");
   // place_as_->start();
   // RCOMPONENT_INFO_STREAM("Started server: place");
-  
+
   pickup_from_as_->start();
   RCOMPONENT_INFO_STREAM("Started server: pickup from");
   place_on_as_->start();
   RCOMPONENT_INFO_STREAM("Started server: place on");
+
+  return rcomponent::OK;
 }
 
 void ComponentSorting::standbyState()
@@ -117,11 +121,42 @@ void ComponentSorting::standbyState()
 
 void ComponentSorting::readyState()
 {
+  if (pickup_from_as_->isActive() == false)
+  {
+    ROS_INFO_THROTTLE(3, "I do not have a goal");
+    return;
+  }
+
+  ROS_INFO_THROTTLE(3, "I have a new goal!");
+  //  geometry_msgs::Pose target_pose;
+  //  target_pose.orientation.x = 0.0;
+  //  target_pose.orientation.y = 0.0;
+  //  target_pose.orientation.z = 1.0;
+  //  target_pose.orientation.w = 0.0;
+  //  target_pose.position.x = 0.111;
+  //  target_pose.position.y = -0.230;
+  //  target_pose.position.z = 0.221;
+  //
+  //  move_group_->setPoseTarget(target_pose);
+
+  std::vector<double> joints(move_group_->getJointValueTarget().getJointModelGroup("arm")->getVariableNames().size());
+  move_group_->setJointValueTarget(joints);
+  moveit::planning_interface::MoveGroupInterface::Plan plan;
+
+  ROS_INFO_THROTTLE(3, "About to plan");
+  ROS_INFO_STREAM("Plan solved: " << move_group_->plan(plan));
+  //== moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  ROS_INFO_THROTTLE(3, "About to move");
+  move_group_->move();
+  ROS_INFO_THROTTLE(3, "Moved!");
 }
 
 void ComponentSorting::goalCB(const std::string& action)
 {
-    RCOMPONENT_INFO_STREAM("I have received an action to: " << action);
+  RCOMPONENT_INFO_STREAM("I have received an action to: " << action);
+  action_ = action;
+  if (action_ == "pickup_from")
+    pickup_from_goal_ = pickup_from_as_->acceptNewGoal();
 }
 
 void ComponentSorting::preemptCB()

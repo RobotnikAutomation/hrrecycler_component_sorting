@@ -46,6 +46,8 @@ protected:
   ros::WallDuration move_group_timeout_;
   moveit::planning_interface::MoveGroupInterfacePtr move_group_;
 
+  std::string action_;
+  actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>::GoalConstPtr pickup_from_goal_;
   std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>> pickup_from_as_;
   std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::PlaceOnAction>> place_on_as_;
 
