@@ -6,5 +6,6 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
 
   ComponentSorting cs(n);
-  cs.start();
+  cs.asyncStart();
+  ros::spin();
 }
