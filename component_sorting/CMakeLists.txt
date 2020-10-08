@@ -24,10 +24,16 @@ include_directories(
 # )
 # add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_executable(component_sorting_node src/component_sorting_node.cpp src/component_sorting.cpp)
+add_executable(publish_collision_object_node src/publish_collision_object.cpp)
 
 add_dependencies(component_sorting_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(publish_collision_object_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries(component_sorting_node
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(publish_collision_object_node
   ${catkin_LIBRARIES}
 )
 
