@@ -126,6 +126,8 @@ void ComponentSorting::readyState()
     ROS_INFO_THROTTLE(3, "I do not have a goal");
     return;
   }
+  component_sorting_msgs::PickupFromFeedback feedback_;
+  component_sorting_msgs::PickupFromResult result_;
 
   ROS_INFO_THROTTLE(3, "I have a new goal!");
   //  geometry_msgs::Pose target_pose;
@@ -139,16 +141,62 @@ void ComponentSorting::readyState()
   //
   //  move_group_->setPoseTarget(target_pose);
 
-  std::vector<double> joints(move_group_->getJointValueTarget().getJointModelGroup("arm")->getVariableNames().size());
-  move_group_->setJointValueTarget(joints);
+
+  // Get desired goal and set as target
+  std::string desired_goal = pickup_from_goal_->from;
+  move_group_->setNamedTarget(desired_goal);
+
+  // std::vector<double> joints(move_group_->getJointValueTarget().getJointModelGroup("arm")->getVariableNames().size());
+  
+  // for(int i=0; i < joints.size(); i++)
+  //   std::cout << joints.at(i) << ' ';
+
+  // std:: cout << endl;
+
+  //move_group_->setJointValueTarget(joints);
+
+  // Check if goal is active and Plan to target goal
+  if (!pickup_from_as_->isActive())
+        return;
   moveit::planning_interface::MoveGroupInterface::Plan plan;
 
   ROS_INFO_THROTTLE(3, "About to plan");
-  ROS_INFO_STREAM("Plan solved: " << move_group_->plan(plan));
+  //ROS_INFO_STREAM("Plan solved: " << move_group_->plan(plan));
   //== moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  bool success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+  if(success_plan){
+    feedback_.state = "Plan to desired position computed";
+    pickup_from_as_->publishFeedback(feedback_);
+  }
+
+  //Check if goal is active and move to target goal
   ROS_INFO_THROTTLE(3, "About to move");
-  move_group_->move();
-  ROS_INFO_THROTTLE(3, "Moved!");
+  if (!pickup_from_as_->isActive())
+        return;
+  //move_group_->move();
+  bool success_move = (move_group_->move() == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+  if(success_move){
+    ROS_INFO_THROTTLE(3, "Moved!");
+
+    feedback_.state = "Moved to desired position";
+    pickup_from_as_->publishFeedback(feedback_);
+
+    result_.success = true;
+    result_.message = "Moved to desired position SUCCESSFUL";
+    pickup_from_as_->setSucceeded(result_);
+  }else{
+
+    feedback_.state = "Could not move to desired position";
+    pickup_from_as_->publishFeedback(feedback_);
+
+    result_.success = false;
+    result_.message = "Moved to desired position ABORTED";
+    pickup_from_as_->setAborted(result_);
+
+  }
+
 }
 
 void ComponentSorting::goalCB(const std::string& action)
@@ -157,8 +205,12 @@ void ComponentSorting::goalCB(const std::string& action)
   action_ = action;
   if (action_ == "pickup_from")
     pickup_from_goal_ = pickup_from_as_->acceptNewGoal();
+    
 }
 
 void ComponentSorting::preemptCB()
 {
+  ROS_INFO_STREAM("ACTION: Preempted");
+  // set the action state to preempted
+  pickup_from_as_->setPreempted();
 }
