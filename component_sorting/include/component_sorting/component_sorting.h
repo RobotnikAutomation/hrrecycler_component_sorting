@@ -16,6 +16,11 @@
 #include <component_sorting_msgs/PickupFromAction.h>
 #include <component_sorting_msgs/PlaceOnAction.h>
 
+#include <warehouse_ros/database_connection.h>
+#include <moveit/warehouse/constraints_storage.h>
+
+#include <moveit_msgs/Constraints.h>
+
 class ComponentSorting : public rcomponent::RComponent
 {
 public:
@@ -50,6 +55,18 @@ protected:
   actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>::GoalConstPtr pickup_from_goal_;
   std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>> pickup_from_as_;
   std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::PlaceOnAction>> place_on_as_;
+
+  component_sorting_msgs::PickupFromFeedback feedback_;
+  component_sorting_msgs::PickupFromResult result_;
+
+  warehouse_ros::DatabaseConnection::Ptr conn_;
+  
+  
+  std::string host;
+  int port;
+  float connection_timeout;
+  int connection_retries;
+  
 
   // in case we contact MoveIt through actionlib
   // std::shared_ptr<actionlib::SimpleActionServer<moveit_msgs::PickupAction>> pickup_as_;

@@ -55,6 +55,48 @@ int ComponentSorting::rosSetup()
   place_on_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this, std::string("place_on")));
   place_on_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
 
+  // Connect to database
+  host = "localhost";
+  port = 33829;
+  connection_timeout = 5.0;
+  connection_retries = 5;
+
+    try
+  {
+    conn_ = moveit_warehouse::loadDatabase();
+    conn_->setParams(host, port, connection_timeout);
+
+    ROS_INFO("Connecting to warehouse on %s:%d", host.c_str(), port);
+    int tries = 0;
+    while (!conn_->connect())
+    {
+      ++tries;
+      ROS_WARN("Failed to connect to DB on %s:%d (try %d/%d).", host.c_str(), port, tries, connection_retries);
+      if (tries == connection_retries)
+      {
+        ROS_FATAL("Failed to connect too many times, giving up");
+        return 1;
+      }
+    }
+  }
+  catch (std::exception& ex)
+  {
+    ROS_ERROR("%s", ex.what());
+    return 1;
+  }
+
+  move_group_->setConstraintsDatabase(host,port);
+  std::vector< std::string > stored_constraints = move_group_->getKnownConstraints();
+  if (stored_constraints.empty())
+    ROS_INFO("There are no constraints stored in database");
+  else
+  {
+    ROS_INFO("Constraints currently stored in database:");
+    for (const std::string& name : stored_constraints)
+      ROS_INFO(" * %s", name.c_str());
+  }
+
+
   // in case we contact MoveIt through actionlib
   // pickup_as_.reset(new actionlib::SimpleActionServer<moveit_msgs::PickupAction>(pnh_, "pickup", autostart));
   // pickup_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this));
@@ -126,10 +168,17 @@ void ComponentSorting::readyState()
     ROS_INFO_THROTTLE(3, "I do not have a goal");
     return;
   }
-  component_sorting_msgs::PickupFromFeedback feedback_;
-  component_sorting_msgs::PickupFromResult result_;
+
 
   ROS_INFO_THROTTLE(3, "I have a new goal!");
+
+  //moveit_msgs::Constraints selected_constraint;
+  //selected_constraint.name = "downright"; 
+  std::string selected_constraint = "downright";
+
+  move_group_->setPathConstraints(selected_constraint);
+  moveit_msgs::Constraints prueba = move_group_->getPathConstraints();	
+  ROS_INFO("Planning with Constraint: %s", prueba.name.c_str());
   //  geometry_msgs::Pose target_pose;
   //  target_pose.orientation.x = 0.0;
   //  target_pose.orientation.y = 0.0;
@@ -174,12 +223,13 @@ void ComponentSorting::readyState()
   ROS_INFO_THROTTLE(3, "About to move");
   if (!pickup_from_as_->isActive())
         return;
+
   //move_group_->move();
   bool success_move = (move_group_->move() == moveit::planning_interface::MoveItErrorCode::SUCCESS);
 
   if(success_move){
     ROS_INFO_THROTTLE(3, "Moved!");
-
+    feedback_.state.clear();
     feedback_.state = "Moved to desired position";
     pickup_from_as_->publishFeedback(feedback_);
 
@@ -187,7 +237,7 @@ void ComponentSorting::readyState()
     result_.message = "Moved to desired position SUCCESSFUL";
     pickup_from_as_->setSucceeded(result_);
   }else{
-
+    feedback_.state.clear();
     feedback_.state = "Could not move to desired position";
     pickup_from_as_->publishFeedback(feedback_);
 
@@ -210,7 +260,7 @@ void ComponentSorting::goalCB(const std::string& action)
 
 void ComponentSorting::preemptCB()
 {
-  ROS_INFO_STREAM("ACTION: Preempted");
+  RCOMPONENT_INFO_STREAM("ACTION: Preempted");
   // set the action state to preempted
   pickup_from_as_->setPreempted();
 }
