@@ -1,2 +1,5 @@
 group_name: arm
 move_group_timeout: 10
+host: "localhost"
+port: 33829
+

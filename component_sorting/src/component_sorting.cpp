@@ -16,6 +16,14 @@ void ComponentSorting::rosReadParams()
   group_name_ = "arm";
   readParam(pnh_, "group_name", group_name_, group_name_, required);
 
+  required = true;
+  host = "localhost";
+  readParam(pnh_, "host", host, host, required);  
+
+  required = true;
+  port = 33829;
+  readParam(pnh_, "port", port, port, required);
+
   required = false;
   double timeout = 20;
   readParam(pnh_, "move_group_timeout", timeout, timeout, required);
@@ -56,12 +64,12 @@ int ComponentSorting::rosSetup()
   place_on_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
 
   // Connect to database
-  host = "localhost";
-  port = 33829;
-  connection_timeout = 5.0;
-  connection_retries = 5;
+  //host = "localhost";
+  //port = 33829;
+  //connection_timeout = 5.0;
+  //connection_retries = 3;
 
-    try
+ /*     try
   {
     conn_ = moveit_warehouse::loadDatabase();
     conn_->setParams(host, port, connection_timeout);
@@ -83,7 +91,7 @@ int ComponentSorting::rosSetup()
   {
     ROS_ERROR("%s", ex.what());
     return 1;
-  }
+  } */
 
   move_group_->setConstraintsDatabase(host,port);
   std::vector< std::string > stored_constraints = move_group_->getKnownConstraints();
@@ -158,11 +166,22 @@ int ComponentSorting::setup()
 
 void ComponentSorting::standbyState()
 {
-  switchToState(robotnik_msgs::State::READY_STATE);
+    // Move to home position without selected constraints
+  move_group_->setPathConstraints("");
+  move_group_->setNamedTarget("home_position");
+  success_move = (move_group_->move() == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  if(success_move){
+    ROS_INFO("Moved to home position, ready to take commands");
+    switchToState(robotnik_msgs::State::READY_STATE);
+  }else{
+    ROS_INFO("Could not move to home position, warning");
+  }
+  
 }
 
 void ComponentSorting::readyState()
-{
+{ 
+
   if (pickup_from_as_->isActive() == false)
   {
     ROS_INFO_THROTTLE(3, "I do not have a goal");
@@ -174,6 +193,8 @@ void ComponentSorting::readyState()
 
   //moveit_msgs::Constraints selected_constraint;
   //selected_constraint.name = "downright"; 
+
+  // Select constraint
   std::string selected_constraint = "downright";
 
   move_group_->setPathConstraints(selected_constraint);
@@ -190,63 +211,66 @@ void ComponentSorting::readyState()
   //
   //  move_group_->setPoseTarget(target_pose);
 
+  // Value-Defintions of the different switch cases (desired chain actions)
+   enum StringValue { ev_NotDefined,
+                      ev_right, 
+                      ev_left, 
+                      ev_center, 
+                      ev_table_right,
+                      ev_table_left,
+                      ev_table_center };
+  // Map switch case values (desired chain actions)
+   static std::map<std::string, StringValue> s_mapStringValues;
+   s_mapStringValues["kairos_right"] = ev_right;
+   s_mapStringValues["kairos_left"] = ev_left;
+   s_mapStringValues["kairos_center"] = ev_center;
+   s_mapStringValues["table_right"] = ev_table_right;
+   s_mapStringValues["table_left"] = ev_table_left;
+   s_mapStringValues["table_center"] = ev_table_center;
 
   // Get desired goal and set as target
   std::string desired_goal = pickup_from_goal_->from;
-  move_group_->setNamedTarget(desired_goal);
-
-  // std::vector<double> joints(move_group_->getJointValueTarget().getJointModelGroup("arm")->getVariableNames().size());
   
-  // for(int i=0; i < joints.size(); i++)
-  //   std::cout << joints.at(i) << ' ';
-
-  // std:: cout << endl;
-
-  //move_group_->setJointValueTarget(joints);
-
-  // Check if goal is active and Plan to target goal
-  if (!pickup_from_as_->isActive())
-        return;
-  moveit::planning_interface::MoveGroupInterface::Plan plan;
-
-  ROS_INFO_THROTTLE(3, "About to plan");
-  //ROS_INFO_STREAM("Plan solved: " << move_group_->plan(plan));
-  //== moveit::planning_interface::MoveItErrorCode::SUCCESS);
-  bool success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-
-  if(success_plan){
-    feedback_.state = "Plan to desired position computed";
-    pickup_from_as_->publishFeedback(feedback_);
-  }
-
-  //Check if goal is active and move to target goal
-  ROS_INFO_THROTTLE(3, "About to move");
-  if (!pickup_from_as_->isActive())
-        return;
-
-  //move_group_->move();
-  bool success_move = (move_group_->move() == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-
-  if(success_move){
-    ROS_INFO_THROTTLE(3, "Moved!");
-    feedback_.state.clear();
-    feedback_.state = "Moved to desired position";
-    pickup_from_as_->publishFeedback(feedback_);
-
-    result_.success = true;
-    result_.message = "Moved to desired position SUCCESSFUL";
-    pickup_from_as_->setSucceeded(result_);
-  }else{
-    feedback_.state.clear();
-    feedback_.state = "Could not move to desired position";
-    pickup_from_as_->publishFeedback(feedback_);
-
-    result_.success = false;
-    result_.message = "Moved to desired position ABORTED";
-    pickup_from_as_->setAborted(result_);
-
-  }
-
+  switch(s_mapStringValues[desired_goal]){
+    case ev_right :
+    {  
+      chain_movement("kairos_pre_right","kairos_right");
+      break;
+    }
+    case ev_left :
+    {
+      chain_movement("kairos_pre_left","kairos_left");
+      break;
+    }
+    case ev_center :
+    {
+      chain_movement("kairos_pre_center","kairos_center");
+      break;
+    }
+    case ev_table_right :
+    {
+      chain_movement("table_pre_right","table_right");
+      break;
+    }
+    case ev_table_left :
+    {
+      chain_movement("table_pre_left","table_left");
+      break;
+    }
+    case ev_table_center :
+    {
+      chain_movement("table_pre_center","table_center");
+      break;
+    }
+    default :
+    {   
+      ROS_INFO("Introduced goal position is not defined");
+      result_.success = false;
+      result_.message = "Introduced goal position is not defined";
+      pickup_from_as_->setAborted(result_);
+      break;
+    }
+  }      
 }
 
 void ComponentSorting::goalCB(const std::string& action)
@@ -263,4 +287,89 @@ void ComponentSorting::preemptCB()
   RCOMPONENT_INFO_STREAM("ACTION: Preempted");
   // set the action state to preempted
   pickup_from_as_->setPreempted();
+}
+
+void ComponentSorting::chain_movement(std::string pre_position, std::string position)
+{
+  // Set pre-position goal
+  move_group_->setNamedTarget(pre_position);
+
+  // Check if goal is active and Plan to target goal
+  if (!pickup_from_as_->isActive()) return;
+  ROS_INFO_THROTTLE(3, "About to plan");
+  success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+  //If plan is successful execute trajectory
+  if(success_plan){
+    feedback_.state.clear();
+    feedback_.state = "Plan to desired pre-position computed";
+    pickup_from_as_->publishFeedback(feedback_);
+
+    //Check if goal is active and move to target goal
+    if (!pickup_from_as_->isActive()) return;
+    ROS_INFO_THROTTLE(3, "About to move");
+    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+    //Check if execute is successful
+    if(success_execute){
+      ROS_INFO_THROTTLE(3, "Moved!");
+      feedback_.state.clear();
+      feedback_.state = "Moved to desired pre-position";
+      pickup_from_as_->publishFeedback(feedback_);
+    }else{
+      result_.success = false;
+      result_.message = "Could not move to desired pre-position";
+      pickup_from_as_->setAborted(result_);
+      return;
+    }
+          
+  }else{
+    result_.success = false;
+    result_.message = "Could not plan to desired pre-position";
+    pickup_from_as_->setAborted(result_);
+    return;
+  }
+
+  // Set position goal
+  move_group_->setNamedTarget(position);
+
+  // Check if goal is active and Plan to target goal
+  if (!pickup_from_as_->isActive()) return;
+  ROS_INFO_THROTTLE(3, "About to plan");
+  success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+  //If plan is successful execute trajectory
+  if(success_plan){
+    feedback_.state.clear();
+    feedback_.state = "Plan to desired position computed";
+    pickup_from_as_->publishFeedback(feedback_);
+
+    //Check if goal is active and move to target goal
+    if (!pickup_from_as_->isActive()) return;
+    ROS_INFO_THROTTLE(3, "About to move");
+    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+    //Check if execute is successful
+    if(success_execute){
+      ROS_INFO_THROTTLE(3, "Moved!");
+      feedback_.state.clear();
+      feedback_.state = "Moved to desired position";
+      pickup_from_as_->publishFeedback(feedback_);
+
+      result_.success = true;
+      result_.message = "Moved to desired position SUCCESSFUL";
+      pickup_from_as_->setSucceeded(result_);
+      return;
+    }else{
+      result_.success = false;
+      result_.message = "Could not move to desired position";
+      pickup_from_as_->setAborted(result_);
+      return;
+    }          
+  }else{
+    result_.success = false;
+    result_.message = "Could not plan to desired position";
+    pickup_from_as_->setAborted(result_);
+    return;
+  }
 }

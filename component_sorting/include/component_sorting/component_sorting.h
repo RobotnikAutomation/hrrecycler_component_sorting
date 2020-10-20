@@ -21,6 +21,8 @@
 
 #include <moveit_msgs/Constraints.h>
 
+#include <string>
+
 class ComponentSorting : public rcomponent::RComponent
 {
 public:
@@ -47,9 +49,14 @@ protected:
   std::shared_ptr<tf2_ros::Buffer> tf2_buffer_;
 
   // MoveIt stuff
+  void chain_movement(std::string pre_position, std::string position);
+
   std::string group_name_;
   ros::WallDuration move_group_timeout_;
   moveit::planning_interface::MoveGroupInterfacePtr move_group_;
+  moveit::planning_interface::MoveGroupInterface::Plan plan;
+
+
 
   std::string action_;
   actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>::GoalConstPtr pickup_from_goal_;
@@ -60,7 +67,10 @@ protected:
   component_sorting_msgs::PickupFromResult result_;
 
   warehouse_ros::DatabaseConnection::Ptr conn_;
-  
+
+  bool success_plan;
+  bool success_move;
+  bool success_execute;
   
   std::string host;
   int port;
