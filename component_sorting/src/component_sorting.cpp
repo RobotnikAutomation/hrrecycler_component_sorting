@@ -104,6 +104,7 @@ int ComponentSorting::rosSetup()
       ROS_INFO(" * %s", name.c_str());
   }
 
+  create_planning_scene();
 
   // in case we contact MoveIt through actionlib
   // pickup_as_.reset(new actionlib::SimpleActionServer<moveit_msgs::PickupAction>(pnh_, "pickup", autostart));
@@ -182,12 +183,11 @@ void ComponentSorting::standbyState()
 void ComponentSorting::readyState()
 { 
 
-  if (pickup_from_as_->isActive() == false)
+  if (pickup_from_as_->isActive() == false && place_on_as_->isActive() == false)
   {
     ROS_INFO_THROTTLE(3, "I do not have a goal");
     return;
   }
-
 
   ROS_INFO_THROTTLE(3, "I have a new goal!");
 
@@ -195,11 +195,16 @@ void ComponentSorting::readyState()
   //selected_constraint.name = "downright"; 
 
   // Select constraint
-  std::string selected_constraint = "downright";
+  std::string selected_constraint = "prueba";
 
   move_group_->setPathConstraints(selected_constraint);
+  //move_group_->clearPathConstraints (); //Remove
   moveit_msgs::Constraints prueba = move_group_->getPathConstraints();	
   ROS_INFO("Planning with Constraint: %s", prueba.name.c_str());
+
+  //std::string planning_frame = move_group_->getPlanningFrame();
+  //std:: cout << planning_frame << endl;
+
   //  geometry_msgs::Pose target_pose;
   //  target_pose.orientation.x = 0.0;
   //  target_pose.orientation.y = 0.0;
@@ -228,69 +233,123 @@ void ComponentSorting::readyState()
    s_mapStringValues["table_left"] = ev_table_left;
    s_mapStringValues["table_center"] = ev_table_center;
 
-  // Get desired goal and set as target
-  std::string desired_goal = pickup_from_goal_->from;
+  if(pickup_from_as_->isActive() == true){ 
+
+    // Get desired goal and set as target
+    std::string desired_goal = pickup_from_goal_->from;
+    
+    switch(s_mapStringValues[desired_goal]){
+      case ev_right :
+      {  
+        pick_chain_movement("kairos_pre_right","kairos_right","box_right");
+        break;
+      }
+      case ev_left :
+      {
+        pick_chain_movement("kairos_pre_left","kairos_left","box_left");
+        break;
+      }
+      case ev_center :
+      {
+        pick_chain_movement("kairos_pre_center","kairos_center","box_center");
+        break;
+      }
+      case ev_table_right :
+      {
+        pick_chain_movement("table_pre_right","table_right","box_right");
+        break;
+      }
+      case ev_table_left :
+      {
+        pick_chain_movement("table_pre_left","table_left","box_left");
+        break;
+      }
+      case ev_table_center :
+      {
+        pick_chain_movement("table_pre_center","table_center","box_center");
+        break;
+      }
+      default :
+      {   
+        ROS_INFO("Introduced goal position is not defined");
+        pick_result_.success = false;
+        pick_result_.message = "Introduced goal position is not defined";
+        pickup_from_as_->setAborted(pick_result_);
+        break;
+      }
+    }  
+  }   
   
-  switch(s_mapStringValues[desired_goal]){
-    case ev_right :
-    {  
-      chain_movement("kairos_pre_right","kairos_right");
-      break;
-    }
-    case ev_left :
-    {
-      chain_movement("kairos_pre_left","kairos_left");
-      break;
-    }
-    case ev_center :
-    {
-      chain_movement("kairos_pre_center","kairos_center");
-      break;
-    }
-    case ev_table_right :
-    {
-      chain_movement("table_pre_right","table_right");
-      break;
-    }
-    case ev_table_left :
-    {
-      chain_movement("table_pre_left","table_left");
-      break;
-    }
-    case ev_table_center :
-    {
-      chain_movement("table_pre_center","table_center");
-      break;
-    }
-    default :
-    {   
-      ROS_INFO("Introduced goal position is not defined");
-      result_.success = false;
-      result_.message = "Introduced goal position is not defined";
-      pickup_from_as_->setAborted(result_);
-      break;
-    }
-  }      
+  if(place_on_as_->isActive() == true){ 
+    // Get desired goal and set as target
+    std::string desired_goal = place_on_goal_->in;
+    
+    switch(s_mapStringValues[desired_goal]){
+      case ev_right :
+      { 
+        place_chain_movement("kairos_pre_right","kairos_right");
+        break;
+      }
+      case ev_left :
+      {
+        place_chain_movement("kairos_pre_left","kairos_left");
+        break;
+      }
+      case ev_center :
+      {
+        place_chain_movement("kairos_pre_center","kairos_center");
+        break;
+      }
+      case ev_table_right :
+      {
+        place_chain_movement("table_pre_right","table_right");
+        break;
+      }
+      case ev_table_left :
+      {
+        place_chain_movement("table_pre_left","table_left");
+        break;
+      }
+      case ev_table_center :
+      {
+        place_chain_movement("table_pre_center","table_center");
+        break;
+      }
+      default :
+      {   
+        ROS_INFO("Introduced goal position is not defined");
+        place_result_.success = false;
+        place_result_.message = "Introduced goal position is not defined";
+        place_on_as_->setAborted(place_result_);
+        break;
+      }
+    }  
+  }   
 }
 
 void ComponentSorting::goalCB(const std::string& action)
 {
   RCOMPONENT_INFO_STREAM("I have received an action to: " << action);
   action_ = action;
-  if (action_ == "pickup_from")
-    pickup_from_goal_ = pickup_from_as_->acceptNewGoal();
+  if (action_ == "pickup_from"){
+    pickup_from_goal_ = pickup_from_as_->acceptNewGoal();}
+  if (action_ == "place_on"){
+    place_on_goal_ = place_on_as_->acceptNewGoal();}
     
 }
 
 void ComponentSorting::preemptCB()
 {
   RCOMPONENT_INFO_STREAM("ACTION: Preempted");
+  //result_.success = false;
+  //result_.message = "Goal has been cancelled, stopping execution.";
   // set the action state to preempted
   pickup_from_as_->setPreempted();
+  place_on_as_->setPreempted();
 }
 
-void ComponentSorting::chain_movement(std::string pre_position, std::string position)
-{
+void ComponentSorting::pick_chain_movement(std::string pre_position, std::string position, std::string box_id)
+{ 
   // Set pre-position goal
   move_group_->setNamedTarget(pre_position);
 
@@ -301,9 +360,9 @@ void ComponentSorting::chain_movement(std::string pre_position, std::string posi
 
   //If plan is successful execute trajectory
   if(success_plan){
-    feedback_.state.clear();
-    feedback_.state = "Plan to desired pre-position computed";
-    pickup_from_as_->publishFeedback(feedback_);
+    pick_feedback_.state.clear();
+    pick_feedback_.state = "Plan to desired pre-position computed";
+    pickup_from_as_->publishFeedback(pick_feedback_);
 
     //Check if goal is active and move to target goal
     if (!pickup_from_as_->isActive()) return;
@@ -313,24 +372,24 @@ void ComponentSorting::chain_movement(std::string pre_position, std::string posi
     //Check if execute is successful
     if(success_execute){
       ROS_INFO_THROTTLE(3, "Moved!");
-      feedback_.state.clear();
-      feedback_.state = "Moved to desired pre-position";
-      pickup_from_as_->publishFeedback(feedback_);
+      pick_feedback_.state.clear();
+      pick_feedback_.state = "Moved to desired pre-position";
+      pickup_from_as_->publishFeedback(pick_feedback_);
     }else{
-      result_.success = false;
-      result_.message = "Could not move to desired pre-position";
-      pickup_from_as_->setAborted(result_);
+      pick_result_.success = false;
+      pick_result_.message = "Could not move to desired pre-position";
+      pickup_from_as_->setAborted(pick_result_);
       return;
     }
           
   }else{
-    result_.success = false;
-    result_.message = "Could not plan to desired pre-position";
-    pickup_from_as_->setAborted(result_);
+    pick_result_.success = false;
+    pick_result_.message = "Could not plan to desired pre-position";
+    pickup_from_as_->setAborted(pick_result_);
     return;
   }
 
-  // Set position goal
+  // Set pre-position goal
   move_group_->setNamedTarget(position);
 
   // Check if goal is active and Plan to target goal
@@ -340,9 +399,9 @@ void ComponentSorting::chain_movement(std::string pre_position, std::string posi
 
   //If plan is successful execute trajectory
   if(success_plan){
-    feedback_.state.clear();
-    feedback_.state = "Plan to desired position computed";
-    pickup_from_as_->publishFeedback(feedback_);
+    pick_feedback_.state.clear();
+    pick_feedback_.state = "Plan to desired position computed";
+    pickup_from_as_->publishFeedback(pick_feedback_);
 
     //Check if goal is active and move to target goal
     if (!pickup_from_as_->isActive()) return;
@@ -352,24 +411,315 @@ void ComponentSorting::chain_movement(std::string pre_position, std::string posi
     //Check if execute is successful
     if(success_execute){
       ROS_INFO_THROTTLE(3, "Moved!");
-      feedback_.state.clear();
-      feedback_.state = "Moved to desired position";
-      pickup_from_as_->publishFeedback(feedback_);
+      pick_feedback_.state.clear();
+      pick_feedback_.state = "Moved to desired position";
+      pickup_from_as_->publishFeedback(pick_feedback_);
+    }else{
+      pick_result_.success = false;
+      pick_result_.message = "Could not move to desired position";
+      pickup_from_as_->setAborted(pick_result_);
+      return;
+    }
+          
+  }else{
+    pick_result_.success = false;
+    pick_result_.message = "Could not plan to desired position";
+    pickup_from_as_->setAborted(pick_result_);
+    return;
+  }
 
-      result_.success = true;
-      result_.message = "Moved to desired position SUCCESSFUL";
-      pickup_from_as_->setSucceeded(result_);
+  // Attach box to end effector
+  if(move_group_->attachObject(box_id)){
+    pick_feedback_.state.clear();
+    pick_feedback_.state = "Box attached to end effector";
+    pickup_from_as_->publishFeedback(pick_feedback_);
+  }else{
+    pick_result_.success = false;
+    pick_result_.message = "Could not attach box";
+    pickup_from_as_->setAborted(pick_result_);
+    return;
+  };
+
+  // Set position goal
+  move_group_->setNamedTarget(pre_position);
+
+  // Check if goal is active and Plan to target goal
+  if (!pickup_from_as_->isActive()) return;
+  ROS_INFO_THROTTLE(3, "About to plan");
+  success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+  //If plan is successful execute trajectory
+  if(success_plan){
+    pick_feedback_.state.clear();
+    pick_feedback_.state = "Plan back to pre-position computed";
+    pickup_from_as_->publishFeedback(pick_feedback_);
+
+    //Check if goal is active and move to target goal
+    if (!pickup_from_as_->isActive()) return;
+    ROS_INFO_THROTTLE(3, "About to move");
+    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+    //Check if execute is successful
+    if(success_execute){
+      ROS_INFO_THROTTLE(3, "Moved!");
+      pick_feedback_.state.clear();
+      pick_feedback_.state = "Moved back to pre-position";
+      pickup_from_as_->publishFeedback(pick_feedback_);
+
+      pick_result_.success = true;
+      pick_result_.message = "Pick-up from desired position SUCCESSFUL";
+      pickup_from_as_->setSucceeded(pick_result_);
       return;
     }else{
-      result_.success = false;
-      result_.message = "Could not move to desired position";
-      pickup_from_as_->setAborted(result_);
+      pick_result_.success = false;
+      pick_result_.message = "Could not move back to pre-position";
+      pickup_from_as_->setAborted(pick_result_);
       return;
     }          
   }else{
-    result_.success = false;
-    result_.message = "Could not plan to desired position";
-    pickup_from_as_->setAborted(result_);
+    pick_result_.success = false;
+    pick_result_.message = "Could not plan back to pre-position";
+    pickup_from_as_->setAborted(pick_result_);
     return;
   }
+
+}
+
+void ComponentSorting::place_chain_movement(std::string pre_position, std::string position)
+{ 
+  // Set pre-position goal
+  move_group_->setNamedTarget(pre_position);
+
+  // Check if goal is active and Plan to target goal
+  if (!place_on_as_->isActive()) return;
+  ROS_INFO_THROTTLE(3, "About to plan");
+  success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+  //If plan is successful execute trajectory
+  if(success_plan){
+    place_feedback_.state.clear();
+    place_feedback_.state = "Plan to desired pre-position computed";
+    place_on_as_->publishFeedback(place_feedback_);
+
+    //Check if goal is active and move to target goal
+    if (!place_on_as_->isActive()) return;
+    ROS_INFO_THROTTLE(3, "About to move");
+    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+    //Check if execute is successful
+    if(success_execute){
+      ROS_INFO_THROTTLE(3, "Moved!");
+      place_feedback_.state.clear();
+      place_feedback_.state = "Moved to desired pre-position";
+      place_on_as_->publishFeedback(place_feedback_);
+    }else{
+      place_result_.success = false;
+      place_result_.message = "Could not move to desired pre-position";
+      place_on_as_->setAborted(place_result_);
+      return;
+    }
+          
+  }else{
+    place_result_.success = false;
+    place_result_.message = "Could not plan to desired pre-position";
+    place_on_as_->setAborted(place_result_);
+    return;
+  }
+
+  // Set pre-position goal
+  move_group_->setNamedTarget(position);
+
+  // Check if goal is active and Plan to target goal
+  if (!place_on_as_->isActive()) return;
+  ROS_INFO_THROTTLE(3, "About to plan");
+  success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+  //If plan is successful execute trajectory
+  if(success_plan){
+    place_feedback_.state.clear();
+    place_feedback_.state = "Plan to desired position computed";
+    place_on_as_->publishFeedback(place_feedback_);
+
+    //Check if goal is active and move to target goal
+    if (!place_on_as_->isActive()) return;
+    ROS_INFO_THROTTLE(3, "About to move");
+    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+    //Check if execute is successful
+    if(success_execute){
+      ROS_INFO_THROTTLE(3, "Moved!");
+      place_feedback_.state.clear();
+      place_feedback_.state = "Moved to desired position";
+      place_on_as_->publishFeedback(place_feedback_);
+    }else{
+      place_result_.success = false;
+      place_result_.message = "Could not move to desired position";
+      place_on_as_->setAborted(place_result_);
+      return;
+    }
+          
+  }else{
+    place_result_.success = false;
+    place_result_.message = "Could not plan to desired position";
+    place_on_as_->setAborted(place_result_);
+    return;
+  }
+
+  // Detach box to end effector
+  if(move_group_->detachObject()){
+    place_feedback_.state.clear();
+    place_feedback_.state = "Box detached from end effector";
+    place_on_as_->publishFeedback(place_feedback_);
+  }else{
+    place_result_.success = false;
+    place_result_.message = "Could not detach box";
+    place_on_as_->setAborted(place_result_);
+    return;
+  };
+
+  // Set position goal
+  move_group_->setNamedTarget(pre_position);
+
+  // Check if goal is active and Plan to target goal
+  if (!place_on_as_->isActive()) return;
+  ROS_INFO_THROTTLE(3, "About to plan");
+  success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+  //If plan is successful execute trajectory
+  if(success_plan){
+    place_feedback_.state.clear();
+    place_feedback_.state = "Plan back to pre-position computed";
+    place_on_as_->publishFeedback(place_feedback_);
+
+    //Check if goal is active and move to target goal
+    if (!place_on_as_->isActive()) return;
+    ROS_INFO_THROTTLE(3, "About to move");
+    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+    //Check if execute is successful
+    if(success_execute){
+      ROS_INFO_THROTTLE(3, "Moved!");
+      place_feedback_.state.clear();
+      place_feedback_.state = "Moved back to pre-position";
+      place_on_as_->publishFeedback(place_feedback_);
+
+      place_result_.success = true;
+      place_result_.message = "Pick-up from desired position SUCCESSFUL";
+      place_on_as_->setSucceeded(place_result_);
+      return;
+    }else{
+      place_result_.success = false;
+      place_result_.message = "Could not move back to pre-position";
+      place_on_as_->setAborted(place_result_);
+      return;
+    }          
+  }else{
+    place_result_.success = false;
+    place_result_.message = "Could not plan back to pre-position";
+    place_on_as_->setAborted(place_result_);
+    return;
+  }
+  /* move_group_->attachObject(co_4.id);
+  chain_movement("kairos_pre_right","kairos_pre_right"); */
+}
+
+
+void ComponentSorting::create_planning_scene(){
+    // The id of the object is used to identify it.
+  co_1.id = "holder_right";
+  co_2.id = "holder_center";
+  co_3.id = "holder_left";
+  co_4.id = "box_right";
+  co_5.id = "box_center";
+  co_6.id = "box_left";
+  co_1.header.frame_id = "robot_base_footprint";
+  co_2.header.frame_id = "robot_base_footprint";
+  co_3.header.frame_id = "robot_base_footprint";
+  co_4.header.frame_id = "robot_right_holder_link";
+  co_5.header.frame_id = "robot_center_holder_link";
+  co_6.header.frame_id = "robot_left_holder_link";
+
+  //Path where the .dae or .stl object is located
+  std::string holder_mesh_path = "package://component_sorting_description/meshes/box/box_holder.stl";
+
+  //shapes::Mesh* holder_m = shapes::createMeshFromResource("package://component_sorting_description/meshes/box/box_handle.stl", vectorScale); 
+  shapes::Mesh* holder_m = shapes::createMeshFromResource(holder_mesh_path); 
+  ROS_INFO("Your holder_mesh was loaded");
+  
+  shape_msgs::Mesh holder_mesh;
+  shapes::ShapeMsg holder_mesh_msg;  
+  shapes::constructMsgFromShape(holder_m, holder_mesh_msg);
+  holder_mesh = boost::get<shape_msgs::Mesh>(holder_mesh_msg);
+
+  //Path where the .dae or .stl object is located
+  std::string box_mesh_path = "package://component_sorting_description/meshes/box/ensamblaje_caja_asa.stl";
+
+  //shapes::Mesh* holder_m = shapes::createMeshFromResource("package://component_sorting_description/meshes/box/box_handle.stl", vectorScale); 
+  shapes::Mesh* box_m = shapes::createMeshFromResource(box_mesh_path); 
+  ROS_INFO("Your box_mesh was loaded");
+  
+  shape_msgs::Mesh box_mesh;
+  shapes::ShapeMsg box_mesh_msg;  
+  shapes::constructMsgFromShape(box_m, box_mesh_msg);
+  box_mesh = boost::get<shape_msgs::Mesh>(box_mesh_msg);
+  
+  //Define a pose for your holder_mesh (specified relative to frame_id)
+  geometry_msgs::Pose holder_right_pose;
+  holder_right_pose.position.x = 0.68;
+  holder_right_pose.position.y = -0.228;
+  holder_right_pose.position.z = 0.88; //0.9
+  
+  geometry_msgs::Pose holder_center_pose;
+  holder_center_pose.position.x = 0.68;
+  holder_center_pose.position.y = 0.0;
+  holder_center_pose.position.z = 0.88; //0.9
+
+  geometry_msgs::Pose holder_left_pose;
+  holder_left_pose.position.x = 0.68;
+  holder_left_pose.position.y = 0.228;
+  holder_left_pose.position.z = 0.88; //0.9
+
+  geometry_msgs::Pose box_pose;
+  box_pose.position.x = 0;
+  box_pose.position.y = 0;
+  box_pose.position.z = 0.01;
+
+
+  // Add the holder_mesh to the Collision object message 
+  co_1.meshes.push_back(holder_mesh);
+  co_1.mesh_poses.push_back(holder_right_pose);
+  co_1.operation = co_1.ADD;
+
+  co_2.meshes.push_back(holder_mesh);
+  co_2.mesh_poses.push_back(holder_center_pose);
+  co_2.operation = co_2.ADD;
+
+  co_3.meshes.push_back(holder_mesh);
+  co_3.mesh_poses.push_back(holder_left_pose);
+  co_3.operation = co_3.ADD;
+
+  co_4.meshes.push_back(box_mesh);
+  co_4.mesh_poses.push_back(box_pose);
+  co_4.operation = co_4.ADD;  
+
+  co_5.meshes.push_back(box_mesh);
+  co_5.mesh_poses.push_back(box_pose);
+  co_5.operation = co_5.ADD;
+
+  co_6.meshes.push_back(box_mesh);
+  co_6.mesh_poses.push_back(box_pose);
+  co_6.operation = co_6.ADD;  
+  
+  //Publish object in monitored planning scene
+  
+  // Create vector of collision objects to add 
+  std::vector<moveit_msgs::CollisionObject> objects;
+  objects.push_back(co_1);
+  objects.push_back(co_2);
+  objects.push_back(co_3);
+  objects.push_back(co_4);
+  objects.push_back(co_5);
+  objects.push_back(co_6); 
+  // Add the collision object into the world
+  planning_scene_interface.addCollisionObjects(objects);
 }

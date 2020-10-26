@@ -10,6 +10,13 @@
 
 #include <moveit/move_group_interface/move_group_interface.h>
 
+#include <moveit/planning_scene_interface/planning_scene_interface.h>
+
+#include "geometric_shapes/shapes.h"
+#include "geometric_shapes/mesh_operations.h"
+#include "geometric_shapes/shape_operations.h"
+#include <geometric_shapes/shape_operations.h>
+
 #include <moveit_msgs/PickupAction.h>
 #include <moveit_msgs/PlaceAction.h>
 
@@ -49,22 +56,32 @@ protected:
   std::shared_ptr<tf2_ros::Buffer> tf2_buffer_;
 
   // MoveIt stuff
-  void chain_movement(std::string pre_position, std::string position);
+  void pick_chain_movement(std::string pre_position, std::string position, std::string box_id);
+  void place_chain_movement(std::string pre_position, std::string position);
+  void create_planning_scene();
 
   std::string group_name_;
   ros::WallDuration move_group_timeout_;
   moveit::planning_interface::MoveGroupInterfacePtr move_group_;
   moveit::planning_interface::MoveGroupInterface::Plan plan;
-
-
+  moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
+  moveit_msgs::CollisionObject co_1;
+  moveit_msgs::CollisionObject co_2;
+  moveit_msgs::CollisionObject co_3;
+  moveit_msgs::CollisionObject co_4;
+  moveit_msgs::CollisionObject co_5;
+  moveit_msgs::CollisionObject co_6;
 
   std::string action_;
   actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>::GoalConstPtr pickup_from_goal_;
+  actionlib::SimpleActionServer<component_sorting_msgs::PlaceOnAction>::GoalConstPtr place_on_goal_;
   std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>> pickup_from_as_;
   std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::PlaceOnAction>> place_on_as_;
 
-  component_sorting_msgs::PickupFromFeedback feedback_;
-  component_sorting_msgs::PickupFromResult result_;
+  component_sorting_msgs::PlaceOnFeedback place_feedback_;
+  component_sorting_msgs::PlaceOnResult place_result_;
+  component_sorting_msgs::PickupFromFeedback pick_feedback_;
+  component_sorting_msgs::PickupFromResult pick_result_;
 
   warehouse_ros::DatabaseConnection::Ptr conn_;
 
