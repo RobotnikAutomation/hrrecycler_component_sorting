@@ -1,4 +1,4 @@
-#include <component_sorting/component_sorting.h>
+#include <component_sorting/component_sorting_cartesian.h>
 
 ComponentSorting::ComponentSorting(ros::NodeHandle h) : RComponent(h)
 {
@@ -106,6 +106,61 @@ int ComponentSorting::rosSetup()
 
   create_planning_scene();
 
+  // kairos cartesian poses
+  pre_kairos_center_position.x = -0.198;
+  pre_kairos_center_position.y = 0.000;
+  pre_kairos_center_position.z = 1.329;
+  pre_kairos_center_orientation.x = -0.008;
+  pre_kairos_center_orientation.y = 1.000;
+  pre_kairos_center_orientation.z = 0.000;
+  pre_kairos_center_orientation.w = 0.000;
+  pre_kairos_center_pose.position = pre_kairos_center_position;
+  pre_kairos_center_pose.orientation = pre_kairos_center_orientation;
+
+  pre_kairos_right_pose = pre_kairos_center_pose;
+  pre_kairos_right_pose.position.y -=0.228;
+
+  pre_kairos_left_pose = pre_kairos_center_pose;
+  pre_kairos_left_pose.position.y +=0.228;
+
+  kairos_center_pose = pre_kairos_center_pose;
+  kairos_center_pose.position.z -= 0.24;
+
+  kairos_right_pose = kairos_center_pose;
+  kairos_right_pose.position.y -= 0.228;  
+ 
+  kairos_left_pose = kairos_center_pose;
+  kairos_left_pose.position.y += 0.228;   
+
+  //kairos table poses
+  pre_table_center_position.x = 0.680;
+  pre_table_center_position.y = 0.000;
+  pre_table_center_position.z = 1.370;
+  pre_table_center_orientation.x = 1.000;
+  pre_table_center_orientation.y = 0.007;
+  pre_table_center_orientation.z = 0.000;
+  pre_table_center_orientation.w = 0.000;
+  pre_table_center_pose.position = pre_table_center_position;
+  pre_table_center_pose.orientation = pre_table_center_orientation;
+
+  pre_table_right_pose = pre_table_center_pose;
+  pre_table_right_pose.position.y -=0.228;
+
+  pre_table_left_pose = pre_table_center_pose;
+  pre_table_left_pose.position.y +=0.228;
+
+  table_center_pose = pre_table_center_pose;
+  table_center_pose.position.z -= 0.07;
+
+  table_right_pose = table_center_pose;
+  table_right_pose.position.y -= 0.228;  
+ 
+  table_left_pose = table_center_pose;
+  table_left_pose.position.y += 0.228; 
+
+
+
+
   // in case we contact MoveIt through actionlib
   // pickup_as_.reset(new actionlib::SimpleActionServer<moveit_msgs::PickupAction>(pnh_, "pickup", autostart));
   // pickup_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this));
@@ -168,7 +223,7 @@ int ComponentSorting::setup()
 void ComponentSorting::standbyState()
 {
     // Move to home position without selected constraints
-  move_group_->setPathConstraints("");
+  move_group_->clearPathConstraints();
   move_group_->setNamedTarget("home_position");
   success_move = (move_group_->move() == moveit::planning_interface::MoveItErrorCode::SUCCESS);
   if(success_move){
@@ -241,32 +296,32 @@ void ComponentSorting::readyState()
     switch(s_mapStringValues[desired_goal]){
       case ev_right :
       {  
-        pick_chain_movement("kairos_pre_right","kairos_right","box_right");
+        pick_chain_movement(pre_kairos_right_pose,kairos_right_pose,"box_right");
         break;
       }
       case ev_left :
       {
-        pick_chain_movement("kairos_pre_left","kairos_left","box_left");
+        pick_chain_movement(pre_kairos_left_pose,kairos_left_pose,"box_left");
         break;
       }
       case ev_center :
       {
-        pick_chain_movement("kairos_pre_center","kairos_center","box_center");
+        pick_chain_movement(pre_kairos_center_pose,kairos_center_pose,"box_center");
         break;
       }
       case ev_table_right :
       {
-        pick_chain_movement("table_pre_right","table_right","box_right");
+        pick_chain_movement(pre_table_right_pose,table_right_pose,"box_right");
         break;
       }
       case ev_table_left :
       {
-        pick_chain_movement("table_pre_left","table_left","box_left");
+        pick_chain_movement(pre_table_left_pose,table_left_pose,"box_left");
         break;
       }
       case ev_table_center :
       {
-        pick_chain_movement("table_pre_center","table_center","box_center");
+        pick_chain_movement(pre_table_center_pose,table_center_pose,"box_center");
         break;
       }
       default :
@@ -287,32 +342,32 @@ void ComponentSorting::readyState()
     switch(s_mapStringValues[desired_goal]){
       case ev_right :
       { 
-        place_chain_movement("kairos_pre_right","kairos_right");
+        place_chain_movement(pre_kairos_right_pose,kairos_right_pose);
         break;
       }
       case ev_left :
       {
-        place_chain_movement("kairos_pre_left","kairos_left");
+        place_chain_movement(pre_kairos_left_pose,kairos_left_pose);
         break;
       }
       case ev_center :
       {
-        place_chain_movement("kairos_pre_center","kairos_center");
+        place_chain_movement(pre_kairos_center_pose,kairos_center_pose);
         break;
       }
       case ev_table_right :
       {
-        place_chain_movement("table_pre_right","table_right");
+        place_chain_movement(pre_table_right_pose,table_right_pose);
         break;
       }
       case ev_table_left :
       {
-        place_chain_movement("table_pre_left","table_left");
+        place_chain_movement(pre_table_left_pose,table_left_pose);
         break;
       }
       case ev_table_center :
       {
-        place_chain_movement("table_pre_center","table_center");
+        place_chain_movement(pre_table_center_pose,table_center_pose);
         break;
       }
       default :
@@ -348,10 +403,10 @@ void ComponentSorting::preemptCB()
   place_on_as_->setPreempted();
 }
 
-void ComponentSorting::pick_chain_movement(std::string pre_position, std::string position, std::string box_id)
+void ComponentSorting::pick_chain_movement(geometry_msgs::Pose pre_position, geometry_msgs::Pose position, std::string box_id)
 { 
   // Set pre-position goal
-  move_group_->setNamedTarget(pre_position);
+  move_group_->setPoseTarget(pre_position);
 
   // Check if goal is active and Plan to target goal
   if (!pickup_from_as_->isActive()) return;
@@ -396,7 +451,7 @@ void ComponentSorting::pick_chain_movement(std::string pre_position, std::string
 
   waypoint_cartesian_pose = current_cartesian_pose;
 
-  waypoint_cartesian_pose.position.z -= 0.24; //down
+  waypoint_cartesian_pose.position.z -= pre_position.position.z - position.position.z; //down
   waypoints.push_back(waypoint_cartesian_pose);  
 
   move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
@@ -405,7 +460,7 @@ void ComponentSorting::pick_chain_movement(std::string pre_position, std::string
   move_group_->execute(cartesian_plan);
 
 
-  move_group_->setNamedTarget(position);
+  move_group_->setPoseTarget(position);
 
   // Check if goal is active and Plan to target goal
   if (!pickup_from_as_->isActive()) return;
@@ -463,7 +518,7 @@ void ComponentSorting::pick_chain_movement(std::string pre_position, std::string
 
   waypoint_cartesian_pose = current_cartesian_pose;
 
-  waypoint_cartesian_pose.position.z += 0.24; // up
+  waypoint_cartesian_pose.position.z += pre_position.position.z - position.position.z; // up
   waypoints.push_back(waypoint_cartesian_pose);  
 
   move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
@@ -472,7 +527,7 @@ void ComponentSorting::pick_chain_movement(std::string pre_position, std::string
   move_group_->execute(cartesian_plan);
 
   // Set position goal
-  move_group_->setNamedTarget(pre_position);
+  move_group_->setPoseTarget(pre_position);
 
   // Check if goal is active and Plan to target goal
   if (!pickup_from_as_->isActive()) return;
@@ -516,10 +571,10 @@ void ComponentSorting::pick_chain_movement(std::string pre_position, std::string
 
 }
 
-void ComponentSorting::place_chain_movement(std::string pre_position, std::string position)
+void ComponentSorting::place_chain_movement(geometry_msgs::Pose pre_position, geometry_msgs::Pose position)
 { 
   // Set pre-position goal
-  move_group_->setNamedTarget(pre_position);
+  move_group_->setPoseTarget(pre_position);
 
   // Check if goal is active and Plan to target goal
   if (!place_on_as_->isActive()) return;
@@ -557,8 +612,22 @@ void ComponentSorting::place_chain_movement(std::string pre_position, std::strin
     return;
   }
 
+  // Set position goal
+  current_cartesian_pose = move_group_->getCurrentPose().pose;
+  waypoints.clear();
+  //waypoints.push_back(current_cartesian_pose);
+
+  waypoint_cartesian_pose = current_cartesian_pose;
+
+  waypoint_cartesian_pose.position.z -= pre_position.position.z - position.position.z; //down
+  waypoints.push_back(waypoint_cartesian_pose);  
+
+  move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
+  cartesian_plan.trajectory_ = trajectory;
+  move_group_->execute(cartesian_plan);
+
   // Set pre-position goal
-  move_group_->setNamedTarget(position);
+  move_group_->setPoseTarget(position);
 
   // Check if goal is active and Plan to target goal
   if (!place_on_as_->isActive()) return;
@@ -609,7 +678,22 @@ void ComponentSorting::place_chain_movement(std::string pre_position, std::strin
   };
 
   // Set position goal
-  move_group_->setNamedTarget(pre_position);
+
+  current_cartesian_pose = move_group_->getCurrentPose().pose;
+  waypoints.clear();
+  //waypoints.push_back(current_cartesian_pose);
+
+  waypoint_cartesian_pose = current_cartesian_pose;
+
+  waypoint_cartesian_pose.position.z += pre_position.position.z - position.position.z; // up
+  waypoints.push_back(waypoint_cartesian_pose);  
+
+  move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
+  
+  cartesian_plan.trajectory_ = trajectory;
+  move_group_->execute(cartesian_plan);
+  // Set position goal
+  move_group_->setPoseTarget(pre_position);
 
   // Check if goal is active and Plan to target goal
   if (!place_on_as_->isActive()) return;

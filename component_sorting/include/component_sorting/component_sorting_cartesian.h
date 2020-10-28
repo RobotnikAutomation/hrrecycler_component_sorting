@@ -58,8 +58,8 @@ protected:
   std::shared_ptr<tf2_ros::Buffer> tf2_buffer_;
 
   // MoveIt stuff
-  void pick_chain_movement(std::string pre_position, std::string position, std::string box_id);
-  void place_chain_movement(std::string pre_position, std::string position);
+  void pick_chain_movement(geometry_msgs::Pose pre_position, geometry_msgs::Pose position, std::string box_id);
+  void place_chain_movement(geometry_msgs::Pose pre_position, geometry_msgs::Pose position);
   void create_planning_scene();
 
   std::string group_name_;
@@ -93,7 +93,7 @@ protected:
   moveit_msgs::RobotTrajectory trajectory;
   moveit::planning_interface::MoveGroupInterface::Plan cartesian_plan;
   const double jump_threshold = 0.0;
-  const double eef_step = 0.01;
+  const double eef_step = 0.001;
 
   bool success_plan;
   bool success_move;
@@ -103,7 +103,38 @@ protected:
   int port;
   float connection_timeout;
   int connection_retries;
+
+  //Poses kairos
+  geometry_msgs::Pose pre_kairos_center_pose;
+  geometry_msgs::Point pre_kairos_center_position;
+  geometry_msgs::Quaternion pre_kairos_center_orientation;
+
+  geometry_msgs::Pose pre_kairos_right_pose;
+
+  geometry_msgs::Pose pre_kairos_left_pose;
+
+  geometry_msgs::Pose kairos_right_pose;
+
+  geometry_msgs::Pose kairos_center_pose;
+
+  geometry_msgs::Pose kairos_left_pose;
+
   
+  //Poses table
+  geometry_msgs::Pose pre_table_center_pose;
+  geometry_msgs::Point pre_table_center_position;
+  geometry_msgs::Quaternion pre_table_center_orientation;
+
+  geometry_msgs::Pose pre_table_right_pose;
+
+  geometry_msgs::Pose pre_table_left_pose;
+
+  geometry_msgs::Pose table_right_pose;
+
+  geometry_msgs::Pose table_center_pose;
+
+  geometry_msgs::Pose table_left_pose;
+
 
   // in case we contact MoveIt through actionlib
   // std::shared_ptr<actionlib::SimpleActionServer<moveit_msgs::PickupAction>> pickup_as_;
