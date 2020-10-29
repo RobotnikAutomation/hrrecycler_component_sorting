@@ -48,5 +48,6 @@
       <arg name="arm_controllers" value="$(arg arm_controllers)"/>
       <arg name="sim_gripper_control" value="$(arg launch_gripper_control)"/>
       <arg name="gripper_controllers" value="$(arg gripper_controllers)"/>
-    </include>
+  </include>
+
 </launch>

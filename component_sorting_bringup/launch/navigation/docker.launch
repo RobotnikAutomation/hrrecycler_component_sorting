@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Robot -->
+  <arg name="robot_id" default="$(optenv ROBOT_ID robot)"/>
+  <arg name="prefix" default="$(arg robot_id)_"/>
+
+  <arg name="overwrite_frames" default="false" />
+  <arg name="odom_frame" default="$(arg prefix)odom"/>
+  <arg name="base_frame" default="$(arg prefix)base_footprint"/>
+  <arg name="odom_frame_param_name" default="fixed_frame" />
+  <arg name="base_frame_param_name" default="robot_base_frame" />
+
+  <!-- Dockers -->
+  <node name="docker" pkg="robotnik_docker" type="omni_docker_node" respawn="false" output="screen">
+    <rosparam command="load" file="$(find component_sorting_bringup)/config/navigation/docker.yaml" subst_value="true"/>
+  </node>
+
+</launch>
