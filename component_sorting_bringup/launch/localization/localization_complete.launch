@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="robot_id" default="$(optenv ROBOT_ID robot)"/>
+	<arg name="prefix" default="$(arg robot_id)_"/>
+
+	<node name="m2o" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 $(arg prefix)map $(arg prefix)odom 100" />
+
+	<node name="map_server" pkg="map_server" type="map_server" args="$(find component_sorting_bringup)/maps/map_empty.yaml">
+      <param name="frame_id" value="$(arg prefix)map"/>
+    </node>
+</launch>
+

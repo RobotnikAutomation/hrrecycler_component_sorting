@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="robot_id" default="$(optenv ROBOT_ID robot)"/>
+	<arg name="prefix" default="$(arg robot_id)_"/>
+	<arg name="cmd_vel_topic" default="move_base/cmd_vel"/>
+	<arg name="odom_topic" default="robotnik_base_control/odom"/>
+	<arg name="velocity_limiter" default="false"/>
+
+	<!-- Run velocity limiter -->
+    <node if="$(arg velocity_limiter)" pkg="robotnik_velocity_limiter" type="velocity_limiter_node" name="twist_limiter" output="screen">
+      <remap from="cmd_vel_in" to="$(arg cmd_vel_topic)_unsafe" />
+      <remap from="cmd_vel_out" to="$(arg cmd_vel_topic)" />
+      <rosparam command="load" file="$(find component_sorting_bringup)/config/twist_limiter_polaris.yaml" />
+    </node>
+
+	<!-- Run move_base -->
+	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true">
+		<rosparam file="$(find component_sorting_bringup)/config/navigation/move_base/move_base_params.yaml" command="load" subst_value="true" />
+		<rosparam file="$(find component_sorting_bringup)/config/navigation/move_base/costmap_common_params.yaml" command="load" ns="global_costmap" subst_value="true" />
+		<rosparam file="$(find component_sorting_bringup)/config/navigation/move_base/costmap_common_params.yaml" command="load" ns="local_costmap" subst_value="true"/>
+		<rosparam file="$(find component_sorting_bringup)/config/navigation/move_base/local_costmap_params.yaml" command="load" subst_value="true"/>
+	    <rosparam file="$(find component_sorting_bringup)/config/navigation/move_base/global_costmap_params_map.yaml" command="load" subst_value="true"/>
+		
+		<rosparam file="$(find component_sorting_bringup)/config/navigation/move_base/global_planner_params.yaml" command="load" subst_value="true"/>
+		
+		<rosparam file="$(find component_sorting_bringup)/config/navigation/move_base/teb_local_planner_omni_params.yaml" command="load" subst_value="true"/>
+		<remap if="$(arg velocity_limiter)" from="cmd_vel" to="$(arg cmd_vel_topic)_unsafe"/>
+		<remap unless="$(arg velocity_limiter)" from="cmd_vel" to="$(arg cmd_vel_topic)" />
+		<remap from="odom" to="$(arg odom_topic)" />
+	</node>
+
+</launch>

@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+  
+  <include file="$(find component_sorting_simple_sim)/launch/simulation.launch"/>
+  <include file="$(find component_sorting_bringup)/launch/navigation/navigation_complete.launch"/>
+  <include file="$(find component_sorting_bringup)/launch/localization/localization_complete.launch"/>
+
+</launch>
