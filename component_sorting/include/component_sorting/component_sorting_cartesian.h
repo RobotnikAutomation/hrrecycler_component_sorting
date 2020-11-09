@@ -32,6 +32,8 @@
 
 #include <string>
 
+#include <ur_msgs/SetIO.h>
+
 class ComponentSorting : public rcomponent::RComponent
 {
 public:
@@ -58,9 +60,11 @@ protected:
   std::shared_ptr<tf2_ros::Buffer> tf2_buffer_;
 
   // MoveIt stuff
-  void pick_chain_movement(geometry_msgs::Pose pre_position, geometry_msgs::Pose position, std::string box_id);
+  void pick_chain_movement(geometry_msgs::Pose pre_position, geometry_msgs::Pose position, std::string box_id, std::string handle_id);
   void place_chain_movement(geometry_msgs::Pose pre_position, geometry_msgs::Pose position);
   void create_planning_scene();
+  void gripper_on();
+  void gripper_off();
 
   std::string group_name_;
   ros::WallDuration move_group_timeout_;
@@ -73,6 +77,10 @@ protected:
   moveit_msgs::CollisionObject co_4;
   moveit_msgs::CollisionObject co_5;
   moveit_msgs::CollisionObject co_6;
+  moveit_msgs::CollisionObject co_7;
+  moveit_msgs::CollisionObject co_8;
+  moveit_msgs::CollisionObject co_9;
+  moveit_msgs::CollisionObject co_10;
 
   std::string action_;
   actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>::GoalConstPtr pickup_from_goal_;
@@ -93,8 +101,10 @@ protected:
   moveit_msgs::RobotTrajectory trajectory;
   moveit::planning_interface::MoveGroupInterface::Plan cartesian_plan;
   const double jump_threshold = 0.0;
-  const double eef_step = 0.001;
+  const double eef_step = 0.01;
 
+  double success_cartesian_plan;
+  double allowed_fraction_success = 0.95;
   bool success_plan;
   bool success_move;
   bool success_execute;
@@ -134,6 +144,10 @@ protected:
   geometry_msgs::Pose table_center_pose;
 
   geometry_msgs::Pose table_left_pose;
+
+  ur_msgs::SetIO srv;
+  ros::ServiceClient client;
+
 
 
   // in case we contact MoveIt through actionlib
