@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   moveit_ros_planning_interface
   rcomponent
   roscpp
+  ur_msgs
 )
 
 catkin_package(
@@ -27,9 +28,12 @@ add_executable(component_sorting_node src/component_sorting_node.cpp src/compone
 add_executable(publish_collision_object_node src/publish_collision_object.cpp)
 add_executable(component_sorting_cartesian_node src/component_sorting_cartesian_node.cpp src/component_sorting_cartesian.cpp)
 
+
+
 add_dependencies(component_sorting_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(publish_collision_object_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(component_sorting_cartesian_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 
 target_link_libraries(component_sorting_node
   ${catkin_LIBRARIES}
@@ -42,6 +46,8 @@ target_link_libraries(publish_collision_object_node
 target_link_libraries(component_sorting_cartesian_node
   ${catkin_LIBRARIES}
 )
+
+
 
 install(TARGETS ${PROJECT_NAME}_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

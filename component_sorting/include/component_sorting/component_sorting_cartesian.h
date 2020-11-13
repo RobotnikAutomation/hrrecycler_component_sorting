@@ -60,8 +60,8 @@ protected:
   std::shared_ptr<tf2_ros::Buffer> tf2_buffer_;
 
   // MoveIt stuff
-  void pick_chain_movement(geometry_msgs::Pose pre_position, geometry_msgs::Pose position, std::string box_id, std::string handle_id);
-  void place_chain_movement(geometry_msgs::Pose pre_position, geometry_msgs::Pose position);
+  void pick_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position, std::string box_id, std::string handle_id);
+  void place_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position);
   void create_planning_scene();
   void gripper_on();
   void gripper_off();
@@ -71,6 +71,8 @@ protected:
   moveit::planning_interface::MoveGroupInterfacePtr move_group_;
   moveit::planning_interface::MoveGroupInterface::Plan plan;
   moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
+  std::vector< std::string > objects;
+  
   moveit_msgs::CollisionObject co_1;
   moveit_msgs::CollisionObject co_2;
   moveit_msgs::CollisionObject co_3;
@@ -81,6 +83,7 @@ protected:
   moveit_msgs::CollisionObject co_8;
   moveit_msgs::CollisionObject co_9;
   moveit_msgs::CollisionObject co_10;
+  moveit_msgs::CollisionObject object_move;
 
   std::string action_;
   actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>::GoalConstPtr pickup_from_goal_;
@@ -115,39 +118,54 @@ protected:
   int connection_retries;
 
   //Poses kairos
-  geometry_msgs::Pose pre_kairos_center_pose;
+  geometry_msgs::PoseStamped pre_kairos_center_pose;
   geometry_msgs::Point pre_kairos_center_position;
   geometry_msgs::Quaternion pre_kairos_center_orientation;
+  std_msgs::Header kairos_frame;
 
-  geometry_msgs::Pose pre_kairos_right_pose;
 
-  geometry_msgs::Pose pre_kairos_left_pose;
+  geometry_msgs::PoseStamped pre_kairos_right_pose;
 
-  geometry_msgs::Pose kairos_right_pose;
+  geometry_msgs::PoseStamped pre_kairos_left_pose;
 
-  geometry_msgs::Pose kairos_center_pose;
+  geometry_msgs::PoseStamped kairos_right_pose;
 
-  geometry_msgs::Pose kairos_left_pose;
+  geometry_msgs::PoseStamped kairos_center_pose;
+
+  geometry_msgs::PoseStamped kairos_left_pose;
 
   
   //Poses table
-  geometry_msgs::Pose pre_table_center_pose;
+  geometry_msgs::PoseStamped pre_table_center_pose;
   geometry_msgs::Point pre_table_center_position;
   geometry_msgs::Quaternion pre_table_center_orientation;
+  std_msgs::Header table_qr_frame;
 
-  geometry_msgs::Pose pre_table_right_pose;
+  geometry_msgs::PoseStamped pre_table_right_pose;
 
-  geometry_msgs::Pose pre_table_left_pose;
+  geometry_msgs::PoseStamped pre_table_left_pose;
 
-  geometry_msgs::Pose table_right_pose;
+  geometry_msgs::PoseStamped table_right_pose;
 
-  geometry_msgs::Pose table_center_pose;
+  geometry_msgs::PoseStamped table_center_pose;
 
-  geometry_msgs::Pose table_left_pose;
+  geometry_msgs::PoseStamped table_left_pose;
 
   ur_msgs::SetIO srv;
   ros::ServiceClient client;
 
+  //double dock_dist_table = 0.115;
+  double table_length = 0.63;
+  double table_width = 0.63;
+  double table_height = 0.75;
+  double holder_width = 0.228;
+  double holder_length = 0.30; 
+  double qr_height = 0.40;
+  double box_width = 0.20;
+  double box_length = 0.28;
+
+  object_recognition_msgs::ObjectType  allowed_movement;
+  std::vector< std::string > types = {"allowed_movement"};
 
 
   // in case we contact MoveIt through actionlib

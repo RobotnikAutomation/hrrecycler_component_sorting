@@ -92,9 +92,12 @@ int ComponentSorting::rosSetup()
       ROS_INFO(" * %s", name.c_str());
   }
 
+  allowed_movement.key = "allowed_movement";
+  allowed_movement.db = "type: 'allowed_movement'";
   create_planning_scene();
 
   // kairos cartesian poses
+ // kairos_frame.frame_id = "robot_base_footprint";
   pre_kairos_center_position.x = -0.20;
   pre_kairos_center_position.y = 0.000;
   pre_kairos_center_position.z = 1.2; //1.3
@@ -102,49 +105,52 @@ int ComponentSorting::rosSetup()
   pre_kairos_center_orientation.y = 1.000;
   pre_kairos_center_orientation.z = 0.000;
   pre_kairos_center_orientation.w = 0.000;
-  pre_kairos_center_pose.position = pre_kairos_center_position;
-  pre_kairos_center_pose.orientation = pre_kairos_center_orientation;
+  pre_kairos_center_pose.header.frame_id = "robot_base_footprint";
+  pre_kairos_center_pose.pose.position = pre_kairos_center_position;
+  pre_kairos_center_pose.pose.orientation = pre_kairos_center_orientation;
 
   pre_kairos_right_pose = pre_kairos_center_pose;
-  pre_kairos_right_pose.position.y -=0.228;
+  pre_kairos_right_pose.pose.position.y -=holder_width;
 
   pre_kairos_left_pose = pre_kairos_center_pose;
-  pre_kairos_left_pose.position.y +=0.228;
+  pre_kairos_left_pose.pose.position.y +=holder_width;
 
   kairos_center_pose = pre_kairos_center_pose;
-  kairos_center_pose.position.z -= 0.32;
+  kairos_center_pose.pose.position.z -= 0.32;
 
   kairos_right_pose = kairos_center_pose;
-  kairos_right_pose.position.y -= 0.228;  
+  kairos_right_pose.pose.position.y -= holder_width;  
  
   kairos_left_pose = kairos_center_pose;
-  kairos_left_pose.position.y += 0.228;   
+  kairos_left_pose.pose.position.y += holder_width;   
 
   //kairos table poses
-  pre_table_center_position.x = 0.63; //0.680
-  pre_table_center_position.y = 0.00;//0.010;
-  pre_table_center_position.z = 1.25; //1.370
+  //table_qr_frame.frame_id = "table_qr_frame";
+  pre_table_center_position.x = holder_length/2; //0.63
+  pre_table_center_position.y = 0.00;//0.00;
+  pre_table_center_position.z = 0.82; //0.85
   pre_table_center_orientation.x = 1.000;
   pre_table_center_orientation.y = 0.000;
   pre_table_center_orientation.z = 0.000;
   pre_table_center_orientation.w = 0.000;
-  pre_table_center_pose.position = pre_table_center_position;
-  pre_table_center_pose.orientation = pre_table_center_orientation;
+  pre_table_center_pose.header.frame_id = "table_qr_frame";
+  pre_table_center_pose.pose.position = pre_table_center_position;
+  pre_table_center_pose.pose.orientation = pre_table_center_orientation;
 
   pre_table_right_pose = pre_table_center_pose;
-  pre_table_right_pose.position.y -=0.228;
+  pre_table_right_pose.pose.position.y -=holder_width;
 
   pre_table_left_pose = pre_table_center_pose;
-  pre_table_left_pose.position.y +=0.228;
+  pre_table_left_pose.pose.position.y +=holder_width;
 
   table_center_pose = pre_table_center_pose;
-  table_center_pose.position.z -= 0.09; //0,10
+  table_center_pose.pose.position.z -= 0.09; //0,10
 
   table_right_pose = table_center_pose;
-  table_right_pose.position.y -= 0.228;  
+  table_right_pose.pose.position.y -= holder_width;  
  
   table_left_pose = table_center_pose;
-  table_left_pose.position.y += 0.228; 
+  table_left_pose.pose.position.y += holder_width; 
 
   client = nh_.serviceClient<ur_msgs::SetIO>("arm/ur_hardware_interface/set_io");
 
@@ -392,7 +398,7 @@ void ComponentSorting::preemptCB()
   place_on_as_->setPreempted();
 }
 
-void ComponentSorting::pick_chain_movement(geometry_msgs::Pose pre_position, geometry_msgs::Pose position, std::string box_id, std::string handle_id)
+void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position, std::string box_id, std::string handle_id)
 { 
   // Set pre-position goal
   move_group_->setPoseTarget(pre_position);
@@ -439,12 +445,26 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::Pose pre_position, geo
 
   // Set position goal
   current_cartesian_pose = move_group_->getCurrentPose().pose;
+
+  objects = planning_scene_interface.getKnownObjectNamesInROI	(current_cartesian_pose.position.x - box_length/2, current_cartesian_pose.position.y - box_width/2 ,0, current_cartesian_pose.position.x 
+  + box_length/2, current_cartesian_pose.position.y + box_width/2 , 3, false );
+  std:: cout << objects[0] << objects[1] << endl;
+
+  if(objects.size() < 2){
+    pick_result_.success = false;
+    pick_result_.message = "There is no object to grab";
+    pickup_from_as_->setAborted(pick_result_);
+    return;
+  }
+
+
   waypoints.clear();
+
   //waypoints.push_back(current_cartesian_pose);
 
   waypoint_cartesian_pose = current_cartesian_pose;
 
-  waypoint_cartesian_pose.position.z -= pre_position.position.z - position.position.z; //down
+  waypoint_cartesian_pose.position.z -= pre_position.pose.position.z - position.pose.position.z; //down
   waypoints.push_back(waypoint_cartesian_pose);  
 
   ROS_INFO_THROTTLE(3, "About to plan to desired position");
@@ -484,8 +504,9 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::Pose pre_position, geo
     return;
   }
 
+
   // Attach box to end effector
-  if(move_group_->attachObject(box_id)){
+  if(move_group_->attachObject(objects[0])){
     pick_feedback_.state.clear();
     pick_feedback_.state = "Box attached to end effector";
     pickup_from_as_->publishFeedback(pick_feedback_);
@@ -498,7 +519,7 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::Pose pre_position, geo
 
 
   // Attach handle to end effector
-  if(move_group_->attachObject(handle_id)){
+  if(move_group_->attachObject(objects[1])){
     pick_feedback_.state.clear();
     pick_feedback_.state = "Handle attached to end effector";
     pickup_from_as_->publishFeedback(pick_feedback_);
@@ -522,7 +543,7 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::Pose pre_position, geo
 
   waypoint_cartesian_pose = current_cartesian_pose;
 
-  waypoint_cartesian_pose.position.z += pre_position.position.z - position.position.z; // up
+  waypoint_cartesian_pose.position.z += pre_position.pose.position.z - position.pose.position.z; // up
   waypoints.push_back(waypoint_cartesian_pose);  
 
 /*   if(pre_position.position.x <= 0){
@@ -575,7 +596,7 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::Pose pre_position, geo
 
 }
 
-void ComponentSorting::place_chain_movement(geometry_msgs::Pose pre_position, geometry_msgs::Pose position)
+void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position)
 { 
   // Set pre-position goal
   move_group_->setPoseTarget(pre_position);
@@ -629,7 +650,7 @@ void ComponentSorting::place_chain_movement(geometry_msgs::Pose pre_position, ge
 
   waypoint_cartesian_pose = current_cartesian_pose;
 
-  waypoint_cartesian_pose.position.z -= pre_position.position.z - position.position.z; //down
+  waypoint_cartesian_pose.position.z -= pre_position.pose.position.z - position.pose.position.z; //down
   waypoints.push_back(waypoint_cartesian_pose);  
 
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
@@ -693,7 +714,7 @@ void ComponentSorting::place_chain_movement(geometry_msgs::Pose pre_position, ge
 
   waypoint_cartesian_pose = current_cartesian_pose;
 
-  waypoint_cartesian_pose.position.z += pre_position.position.z - position.position.z; // up
+  waypoint_cartesian_pose.position.z += pre_position.pose.position.z - position.pose.position.z; // up
   waypoints.push_back(waypoint_cartesian_pose);  
 
 /*   if(pre_position.position.x <= 0){
@@ -809,22 +830,28 @@ void ComponentSorting::create_planning_scene(){
   co_2.id = "holder_center";
   co_3.id = "holder_left";
   co_4.id = "box_right";
+  co_4.type = allowed_movement;
   co_5.id = "box_center";
+  co_5.type = allowed_movement;
   co_6.id = "box_left";
+  co_6.type = allowed_movement;
   co_7.id = "box_handle_right";
+  co_7.type = allowed_movement;
   co_8.id = "box_handle_center";
+  co_8.type = allowed_movement;
   co_9.id = "box_handle_left";
+  co_9.type = allowed_movement;
   co_10.id = "table";
-  co_1.header.frame_id = "robot_base_footprint";
-  co_2.header.frame_id = "robot_base_footprint";
-  co_3.header.frame_id = "robot_base_footprint";
+  co_1.header.frame_id = "table_qr_frame";
+  co_2.header.frame_id = "table_qr_frame";
+  co_3.header.frame_id = "table_qr_frame";
   co_4.header.frame_id = "robot_right_holder_link";
   co_5.header.frame_id = "robot_center_holder_link";
   co_6.header.frame_id = "robot_left_holder_link";
   co_7.header.frame_id = "robot_right_holder_link";
   co_8.header.frame_id = "robot_center_holder_link";
   co_9.header.frame_id = "robot_left_holder_link";
-  co_10.header.frame_id = "robot_base_footprint";
+  co_10.header.frame_id = "table_qr_frame";
 
   //Path where the .dae or .stl object is located
   std::string holder_mesh_path = "package://component_sorting_description/meshes/box/box_holder.stl";
@@ -867,28 +894,25 @@ void ComponentSorting::create_planning_scene(){
   shape_msgs::SolidPrimitive table_mesh;
   table_mesh.type = table_mesh.BOX;
   table_mesh.dimensions.resize(3);
-  table_mesh.dimensions[0] = 0.63;
-  table_mesh.dimensions[1] = 0.63;
-  table_mesh.dimensions[2] = 0.72;
+  table_mesh.dimensions[0] = table_length;
+  table_mesh.dimensions[1] = table_width;
+  table_mesh.dimensions[2] = table_height;
   
   //Define a pose for your holder_mesh (specified relative to frame_id)
-  geometry_msgs::Pose holder_right_pose;
-  holder_right_pose.position.x = 0.64; //0.68
-  holder_right_pose.position.y = -0.228;
-  holder_right_pose.position.z = 0.72; //0.775
-  holder_right_pose.orientation.w = 1.0;
-  
+
   geometry_msgs::Pose holder_center_pose;
-  holder_center_pose.position.x = 0.64;
+  holder_center_pose.position.x = holder_length/2;
   holder_center_pose.position.y = 0.0;
-  holder_center_pose.position.z = 0.72; //0.775
+  holder_center_pose.position.z = table_mesh.dimensions[2] - qr_height; //0.775
   holder_center_pose.orientation.w = 1.0; 
 
+  geometry_msgs::Pose holder_right_pose;
+  holder_right_pose = holder_center_pose;
+  holder_right_pose.position.y -= holder_width;
+
   geometry_msgs::Pose holder_left_pose;
-  holder_left_pose.position.x = 0.64;
-  holder_left_pose.position.y = 0.228;
-  holder_left_pose.position.z = 0.72; //0.775
-  holder_left_pose.orientation.w = 1.0;
+  holder_left_pose = holder_center_pose;
+  holder_left_pose.position.y += holder_width;
 
   geometry_msgs::Pose box_pose;
   box_pose.position.x = 0;
@@ -899,13 +923,13 @@ void ComponentSorting::create_planning_scene(){
   geometry_msgs::Pose handle_pose;
   handle_pose.position.x = 0;
   handle_pose.position.y = 0;
-  handle_pose.position.z = 0.06; //0.01
+  handle_pose.position.z = 0.08; //0.01
   handle_pose.orientation.w = 1.0;
 
   geometry_msgs::Pose table_pose;
-  table_pose.position.x = 0.80; //0.84
+  table_pose.position.x =  table_mesh.dimensions[0]/2; //0.84
   table_pose.position.y = 0;
-  table_pose.position.z = 0.36; //0.3875
+  table_pose.position.z = table_mesh.dimensions[2]/2 - qr_height; //0.375
   table_pose.orientation.w = 1.0;
 
   // Add the holder_mesh to the Collision object message 

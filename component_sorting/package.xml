@@ -16,7 +16,7 @@
   <depend>moveit_ros_planning_interface</depend>
   <depend>rcomponent</depend>
   <depend>roscpp</depend>
-
+  <depend>ur_msgs</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
