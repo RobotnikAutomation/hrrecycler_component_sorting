@@ -1,0 +1,14 @@
+<launch>
+    <!-- Convert xacro and put on parameter server -->
+    <param name="table_description" command="$(find xacro)/xacro.py $(find component_sorting_description)/urdf/table.urdf.xacro" />
+
+    <!-- Spawn a robot into Gazebo -->
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param table_description -urdf -model table -x 2 -y 2 -z 0.4" />
+
+    <node name="table_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+	<remap from="robot_description" to="table_description"/>
+   </node>
+
+   <!--  <node name="prueba_spawn_urdf" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+    args="-file $(find component_sorting_description)/urdf/box/box.sdf -sdf -model prueba -x -2 -y -2"/> -->
+</launch>

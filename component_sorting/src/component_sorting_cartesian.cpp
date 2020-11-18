@@ -78,8 +78,12 @@ int ComponentSorting::rosSetup()
   {
     ROS_WARN("Failed to connect to DB on %s:%d ", host.c_str(), port);
     ros::Duration(2).sleep();
+    conn_->setParams(host, port);
   }
   
+
+  //move_group_->setPoseReferenceFrame("robot_map");
+
 
   move_group_->setConstraintsDatabase(host,port);
   std::vector< std::string > stored_constraints = move_group_->getKnownConstraints();
@@ -98,61 +102,36 @@ int ComponentSorting::rosSetup()
 
   // kairos cartesian poses
  // kairos_frame.frame_id = "robot_base_footprint";
-  pre_kairos_center_position.x = -0.20;
-  pre_kairos_center_position.y = 0.000;
-  pre_kairos_center_position.z = 1.2; //1.3
-  pre_kairos_center_orientation.x = 0.000;
-  pre_kairos_center_orientation.y = 1.000;
-  pre_kairos_center_orientation.z = 0.000;
-  pre_kairos_center_orientation.w = 0.000;
-  pre_kairos_center_pose.header.frame_id = "robot_base_footprint";
-  pre_kairos_center_pose.pose.position = pre_kairos_center_position;
-  pre_kairos_center_pose.pose.orientation = pre_kairos_center_orientation;
-
-  pre_kairos_right_pose = pre_kairos_center_pose;
-  pre_kairos_right_pose.pose.position.y -=holder_width;
-
-  pre_kairos_left_pose = pre_kairos_center_pose;
-  pre_kairos_left_pose.pose.position.y +=holder_width;
-
-  kairos_center_pose = pre_kairos_center_pose;
-  kairos_center_pose.pose.position.z -= 0.32;
-
-  kairos_right_pose = kairos_center_pose;
-  kairos_right_pose.pose.position.y -= holder_width;  
- 
-  kairos_left_pose = kairos_center_pose;
-  kairos_left_pose.pose.position.y += holder_width;   
+  pre_kairos_center_pose.header.frame_id = "robot_center_approach";
+  pre_kairos_center_pose.pose.orientation.w = 1;
+  pre_kairos_right_pose.header.frame_id = "robot_right_approach";
+  pre_kairos_right_pose.pose.orientation.w = 1;
+  pre_kairos_left_pose.header.frame_id = "robot_left_approach";
+  pre_kairos_left_pose.pose.orientation.w = 1;
+  kairos_center_pose.header.frame_id = "robot_center_grab";
+  kairos_center_pose.pose.orientation.w = 1;
+  kairos_right_pose.header.frame_id = "robot_right_grab";
+  kairos_right_pose.pose.orientation.w = 1;
+  kairos_left_pose.header.frame_id = "robot_left_grab";
+  kairos_left_pose.pose.orientation.w = 1;
 
   //kairos table poses
   //table_qr_frame.frame_id = "table_qr_frame";
-  pre_table_center_position.x = holder_length/2; //0.63
-  pre_table_center_position.y = 0.00;//0.00;
-  pre_table_center_position.z = 0.82; //0.85
-  pre_table_center_orientation.x = 1.000;
-  pre_table_center_orientation.y = 0.000;
-  pre_table_center_orientation.z = 0.000;
-  pre_table_center_orientation.w = 0.000;
-  pre_table_center_pose.header.frame_id = "table_qr_frame";
-  pre_table_center_pose.pose.position = pre_table_center_position;
-  pre_table_center_pose.pose.orientation = pre_table_center_orientation;
-
-  pre_table_right_pose = pre_table_center_pose;
-  pre_table_right_pose.pose.position.y -=holder_width;
-
-  pre_table_left_pose = pre_table_center_pose;
-  pre_table_left_pose.pose.position.y +=holder_width;
-
-  table_center_pose = pre_table_center_pose;
-  table_center_pose.pose.position.z -= 0.09; //0,10
-
-  table_right_pose = table_center_pose;
-  table_right_pose.pose.position.y -= holder_width;  
- 
-  table_left_pose = table_center_pose;
-  table_left_pose.pose.position.y += holder_width; 
+  pre_table_center_pose.header.frame_id = "table_center_approach";
+  pre_table_center_pose.pose.orientation.w = 1;
+  pre_table_right_pose.header.frame_id = "table_right_approach";
+  pre_table_right_pose.pose.orientation.w = 1;
+  pre_table_left_pose.header.frame_id = "table_left_approach";
+  pre_table_left_pose.pose.orientation.w = 1;
+  table_center_pose.header.frame_id = "table_center_grab";
+  table_center_pose.pose.orientation.w = 1;
+  table_right_pose.header.frame_id = "table_right_grab";
+  table_right_pose.pose.orientation.w = 1;
+  table_left_pose.header.frame_id = "table_left_grab";
+  table_left_pose.pose.orientation.w = 1;
 
   client = nh_.serviceClient<ur_msgs::SetIO>("arm/ur_hardware_interface/set_io");
+
 
 
   // in case we contact MoveIt through actionlib
@@ -448,7 +427,7 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_positi
 
   objects = planning_scene_interface.getKnownObjectNamesInROI	(current_cartesian_pose.position.x - box_length/2, current_cartesian_pose.position.y - box_width/2 ,0, current_cartesian_pose.position.x 
   + box_length/2, current_cartesian_pose.position.y + box_width/2 , 3, false );
-  std:: cout << objects[0] << objects[1] << endl;
+  //std:: cout << objects[0] << objects[1] << endl;
 
   if(objects.size() < 2){
     pick_result_.success = false;
@@ -462,12 +441,15 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_positi
 
   //waypoints.push_back(current_cartesian_pose);
 
-  waypoint_cartesian_pose = current_cartesian_pose;
-
-  waypoint_cartesian_pose.position.z -= pre_position.pose.position.z - position.pose.position.z; //down
+  //waypoint_cartesian_pose = current_cartesian_pose;
+  waypoint_cartesian_pose = position.pose;
+  //waypoint_cartesian_pose.position.z -= pre_position.pose.position.z - position.pose.position.z; //down
+  //std:: cout << pre_position.pose.position.z << position.pose.position.z << waypoint_cartesian_pose.position.z << endl;
   waypoints.push_back(waypoint_cartesian_pose);  
 
   ROS_INFO_THROTTLE(3, "About to plan to desired position");
+
+  move_group_->setPoseReferenceFrame(position.header.frame_id);
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   //double fraction = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
@@ -537,25 +519,23 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_positi
   ROS_INFO_THROTTLE(3, "About to plan");
 
   // Set position goal
-  current_cartesian_pose = move_group_->getCurrentPose().pose;
+  //current_cartesian_pose = move_group_->getCurrentPose().pose;
   waypoints.clear();
+
+
   //waypoints.push_back(current_cartesian_pose);
 
-  waypoint_cartesian_pose = current_cartesian_pose;
-
-  waypoint_cartesian_pose.position.z += pre_position.pose.position.z - position.pose.position.z; // up
+  //waypoint_cartesian_pose = current_cartesian_pose;
+  waypoint_cartesian_pose = pre_position.pose;
+  //waypoint_cartesian_pose.position.z -= pre_position.pose.position.z - position.pose.position.z; //down
+  //std:: cout << pre_position.pose.position.z << position.pose.position.z << waypoint_cartesian_pose.position.z << endl;
   waypoints.push_back(waypoint_cartesian_pose);  
 
-/*   if(pre_position.position.x <= 0){
-    waypoint_cartesian_pose.position.x +=0.25; // up
-    waypoints.push_back(waypoint_cartesian_pose); 
-  }else{
-    waypoint_cartesian_pose.position.x -=0.25; // up
-    waypoints.push_back(waypoint_cartesian_pose); 
-  } */
+  ROS_INFO_THROTTLE(3, "About to plan to desired position");
 
+  move_group_->setPoseReferenceFrame(pre_position.header.frame_id);
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
-  
+  //double fraction = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
 
   //If plan is successful execute trajectory
@@ -644,16 +624,22 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
   ROS_INFO_THROTTLE(3, "About to plan");
 
   // Set position goal
-  current_cartesian_pose = move_group_->getCurrentPose().pose;
+  //current_cartesian_pose = move_group_->getCurrentPose().pose;
   waypoints.clear();
+
   //waypoints.push_back(current_cartesian_pose);
 
-  waypoint_cartesian_pose = current_cartesian_pose;
-
-  waypoint_cartesian_pose.position.z -= pre_position.pose.position.z - position.pose.position.z; //down
+  //waypoint_cartesian_pose = current_cartesian_pose;
+  waypoint_cartesian_pose = position.pose;
+  //waypoint_cartesian_pose.position.z -= pre_position.pose.position.z - position.pose.position.z; //down
+  //std:: cout << pre_position.pose.position.z << position.pose.position.z << waypoint_cartesian_pose.position.z << endl;
   waypoints.push_back(waypoint_cartesian_pose);  
 
+  ROS_INFO_THROTTLE(3, "About to plan to desired position");
+
+  move_group_->setPoseReferenceFrame(position.header.frame_id);
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
+  //double fraction = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
 
   //If plan is successful execute trajectory
@@ -708,27 +694,23 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
 
   // Set position goal
 
-  current_cartesian_pose = move_group_->getCurrentPose().pose;
+  //current_cartesian_pose = move_group_->getCurrentPose().pose;
   waypoints.clear();
+
   //waypoints.push_back(current_cartesian_pose);
 
-  waypoint_cartesian_pose = current_cartesian_pose;
-
-  waypoint_cartesian_pose.position.z += pre_position.pose.position.z - position.pose.position.z; // up
+  //waypoint_cartesian_pose = current_cartesian_pose;
+  waypoint_cartesian_pose = pre_position.pose;
+  //waypoint_cartesian_pose.position.z -= pre_position.pose.position.z - position.pose.position.z; //down
+  //std:: cout << pre_position.pose.position.z << position.pose.position.z << waypoint_cartesian_pose.position.z << endl;
   waypoints.push_back(waypoint_cartesian_pose);  
 
-/*   if(pre_position.position.x <= 0){
-    waypoint_cartesian_pose.position.x +=0.25; // up
-    waypoints.push_back(waypoint_cartesian_pose); 
-  }else{
-    waypoint_cartesian_pose.position.x -=0.25; // up
-    waypoints.push_back(waypoint_cartesian_pose); 
-  } */
+  ROS_INFO_THROTTLE(3, "About to plan to desired position");
 
+  move_group_->setPoseReferenceFrame(pre_position.header.frame_id);
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
-  
+  //double fraction = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
-
 
   //If plan is successful execute trajectory
   if(success_cartesian_plan >= allowed_fraction_success){
@@ -842,16 +824,16 @@ void ComponentSorting::create_planning_scene(){
   co_9.id = "box_handle_left";
   co_9.type = allowed_movement;
   co_10.id = "table";
-  co_1.header.frame_id = "table_qr_frame";
-  co_2.header.frame_id = "table_qr_frame";
-  co_3.header.frame_id = "table_qr_frame";
+  co_1.header.frame_id = "table_qr";
+  co_2.header.frame_id = "table_qr";
+  co_3.header.frame_id = "table_qr";
   co_4.header.frame_id = "robot_right_holder_link";
   co_5.header.frame_id = "robot_center_holder_link";
   co_6.header.frame_id = "robot_left_holder_link";
   co_7.header.frame_id = "robot_right_holder_link";
   co_8.header.frame_id = "robot_center_holder_link";
   co_9.header.frame_id = "robot_left_holder_link";
-  co_10.header.frame_id = "table_qr_frame";
+  co_10.header.frame_id = "table_qr";
 
   //Path where the .dae or .stl object is located
   std::string holder_mesh_path = "package://component_sorting_description/meshes/box/box_holder.stl";
@@ -988,5 +970,5 @@ void ComponentSorting::create_planning_scene(){
   objects.push_back(co_9);
   objects.push_back(co_10);
   // Add the collision object into the world
-  planning_scene_interface.addCollisionObjects(objects);
+  planning_scene_interface.applyCollisionObjects(objects);
 }
