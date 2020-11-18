@@ -427,15 +427,13 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_positi
 
   objects = planning_scene_interface.getKnownObjectNamesInROI	(current_cartesian_pose.position.x - box_length/2, current_cartesian_pose.position.y - box_width/2 ,0, current_cartesian_pose.position.x 
   + box_length/2, current_cartesian_pose.position.y + box_width/2 , 3, false );
-  //std:: cout << objects[0] << objects[1] << endl;
 
   if(objects.size() < 2){
     pick_result_.success = false;
-    pick_result_.message = "There is no object to grab";
+    pick_result_.message = "There is no box to grab";
     pickup_from_as_->setAborted(pick_result_);
     return;
   }
-
 
   waypoints.clear();
 
@@ -486,8 +484,15 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_positi
     return;
   }
 
+  for(int i=0; i < objects.size(); i++){
+   if(objects[i].compare(0,6,"handle")==0){
+     // Attach handle to end effector
+      move_group_->attachObject(objects[i]);
+      break;
+   } 
+  }
 
-  // Attach box to end effector
+/*   // Attach box to end effector
   if(move_group_->attachObject(objects[0])){
     pick_feedback_.state.clear();
     pick_feedback_.state = "Box attached to end effector";
@@ -510,10 +515,33 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_positi
     pick_result_.message = "Could not attach handle";
     pickup_from_as_->setAborted(pick_result_);
     return;
-  };
+  }; */
 
   gripper_on();
   ros::Duration(3).sleep();
+
+  current_cartesian_pose = move_group_->getCurrentPose().pose;
+  waypoints.clear();
+
+  waypoint_cartesian_pose = current_cartesian_pose;
+  waypoint_cartesian_pose.position.z += 0.02; //down
+  //std:: cout << pre_position.pose.position.z << position.pose.position.z << waypoint_cartesian_pose.position.z << endl;
+  waypoints.push_back(waypoint_cartesian_pose);  
+
+  move_group_->setPoseReferenceFrame("robot_base_footprint");
+  success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
+  //double fraction = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
+  cartesian_plan.trajectory_ = trajectory;
+  move_group_->execute(cartesian_plan);
+
+  for(int i=0; i < objects.size(); i++){
+   if(objects[i].compare(0,3,"box")==0){
+     // Attach handle to end effector
+      move_group_->attachObject(objects[i]);
+      break;
+   } 
+  }
+
 
   if (!pickup_from_as_->isActive()) return;
   ROS_INFO_THROTTLE(3, "About to plan");
@@ -631,6 +659,7 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
 
   //waypoint_cartesian_pose = current_cartesian_pose;
   waypoint_cartesian_pose = position.pose;
+  waypoint_cartesian_pose.position.z -= 0.02;
   //waypoint_cartesian_pose.position.z -= pre_position.pose.position.z - position.pose.position.z; //down
   //std:: cout << pre_position.pose.position.z << position.pose.position.z << waypoint_cartesian_pose.position.z << endl;
   waypoints.push_back(waypoint_cartesian_pose);  
@@ -674,7 +703,7 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
     return;
   }
 
-  // Detach box to end effector
+/*   // Detach box to end effector
   if(move_group_->detachObject()){
     place_feedback_.state.clear();
     place_feedback_.state = "Box detached from end effector";
@@ -684,7 +713,35 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
     place_result_.message = "Could not detach box";
     place_on_as_->setAborted(place_result_);
     return;
-  };
+  }; */
+
+  for(int i=0; i < objects.size(); i++){
+   if(objects[i].compare(0,3,"box")==0){
+     // Attach handle to end effector
+      move_group_->detachObject(objects[i]);
+      break;
+   } 
+  }
+
+  waypoints.clear();
+
+  waypoint_cartesian_pose = position.pose;
+  //std:: cout << pre_position.pose.position.z << position.pose.position.z << waypoint_cartesian_pose.position.z << endl;
+  waypoints.push_back(waypoint_cartesian_pose);  
+
+  move_group_->setPoseReferenceFrame(position.header.frame_id);
+  success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
+  //double fraction = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
+  cartesian_plan.trajectory_ = trajectory;
+  move_group_->execute(cartesian_plan);
+
+  for(int i=0; i < objects.size(); i++){
+   if(objects[i].compare(0,6,"handle")==0){
+     // Attach handle to end effector
+      move_group_->detachObject(objects[i]);
+      break;
+   } 
+  }
   gripper_off();
   ros::Duration(3).sleep();
 
@@ -817,11 +874,11 @@ void ComponentSorting::create_planning_scene(){
   co_5.type = allowed_movement;
   co_6.id = "box_left";
   co_6.type = allowed_movement;
-  co_7.id = "box_handle_right";
+  co_7.id = "handle_right";
   co_7.type = allowed_movement;
-  co_8.id = "box_handle_center";
+  co_8.id = "handle_center";
   co_8.type = allowed_movement;
-  co_9.id = "box_handle_left";
+  co_9.id = "handle_left";
   co_9.type = allowed_movement;
   co_10.id = "table";
   co_1.header.frame_id = "table_qr";
@@ -970,5 +1027,5 @@ void ComponentSorting::create_planning_scene(){
   objects.push_back(co_9);
   objects.push_back(co_10);
   // Add the collision object into the world
-  planning_scene_interface.applyCollisionObjects(objects);
+  planning_scene_interface.addCollisionObjects(objects);
 }

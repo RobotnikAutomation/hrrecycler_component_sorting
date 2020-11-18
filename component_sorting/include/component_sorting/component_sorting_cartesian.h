@@ -31,6 +31,7 @@
 #include <moveit_visual_tools/moveit_visual_tools.h>
 
 #include <string>
+#include <iostream>
 
 #include <ur_msgs/SetIO.h>
 
