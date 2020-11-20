@@ -40,6 +40,7 @@ int ComponentSorting::rosSetup()
   }
 
   tf2_buffer_.reset(new tf2_ros::Buffer);
+
   try
   {
     move_group_.reset(
@@ -132,8 +133,19 @@ int ComponentSorting::rosSetup()
 
   client = nh_.serviceClient<ur_msgs::SetIO>("arm/ur_hardware_interface/set_io");
 
+/*   visual_tools_.reset(new moveit_visual_tools::MoveItVisualTools("world", "/rviz_moveit_motion_planning_display/robot_interaction_interactive_marker_topic/update"));
 
-
+  robot_state_ = visual_tools_->getSharedRobotState(); 
+  
+  joint_model_group= robot_state_->getJointModelGroup("arm"); */
+  visual_tools_.reset(new moveit_visual_tools::MoveItVisualTools("robot_base_footprint","/move_group/display_grasp_markers"));
+ /*  moveit_visual_tools::MoveItVisualTools visual_tools_("robot_base_footprint"); */
+  visual_tools_->deleteAllMarkers();
+  visual_tools_->trigger();
+  
+/*   visual_tools_->deleteAllMarkers();
+  visual_tools_->trigger();
+ */
   // in case we contact MoveIt through actionlib
   // pickup_as_.reset(new actionlib::SimpleActionServer<moveit_msgs::PickupAction>(pnh_, "pickup", autostart));
   // pickup_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this));
@@ -195,6 +207,13 @@ int ComponentSorting::setup()
 
 void ComponentSorting::standbyState()
 {
+  bool prueba = move_group_->startStateMonitor (10);
+  std:: cout << prueba << endl;
+  robot_state_ = move_group_->getCurrentState();
+  joint_model_group= robot_state_->getJointModelGroup("arm");
+  
+  
+
     // Move to home position without selected constraints
   move_group_->detachObject();  
   move_group_->clearPathConstraints();
@@ -379,29 +398,28 @@ void ComponentSorting::preemptCB()
 
 void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position, std::string box_id, std::string handle_id)
 { 
+  visual_tools_->deleteAllMarkers();
+  visual_tools_->trigger();
   // Set pre-position goal
   move_group_->setPoseTarget(pre_position);
-
-  // Check if goal is active and Plan to target goal
-  if (!pickup_from_as_->isActive()) return;
-  ROS_INFO_THROTTLE(3, "About to plan to pre-position");
+  // Plan to pre-position goal
   success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
  
+  visual_tools_->publishTrajectoryLine(plan.trajectory_, joint_model_group);
+  visual_tools_->trigger();
   //If plan is successful execute trajectory
   if(success_plan){
     pick_feedback_.state.clear();
     pick_feedback_.state = "Plan to desired pre-position computed";
     pickup_from_as_->publishFeedback(pick_feedback_);
 
-    //Check if goal is active and move to target goal
+    //Check if goal is active and move to pre-position goal
     if (!pickup_from_as_->isActive()) return;
-    ROS_INFO_THROTTLE(3, "About to move to pre-position");
     success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-    ros::Duration(2).sleep();
+    //ros::Duration(1).sleep();
 
     //Check if execute is successful
     if(success_execute){
-      ROS_INFO_THROTTLE(3, "Moved!");
       pick_feedback_.state.clear();
       pick_feedback_.state = "Moved to desired pre-position";
       pickup_from_as_->publishFeedback(pick_feedback_);
@@ -419,10 +437,9 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_positi
     return;
   }
 
-  // Check if goal is active and Plan to target goal
-  if (!pickup_from_as_->isActive()) return;
-
-  // Set position goal
+  // Check if goal is active 
+  //if (!pickup_from_as_->isActive()) return;
+  // Get current end effector position and check whether there is a box to grab
   current_cartesian_pose = move_group_->getCurrentPose().pose;
 
   objects = planning_scene_interface.getKnownObjectNamesInROI	(current_cartesian_pose.position.x - box_length/2, current_cartesian_pose.position.y - box_width/2 ,0, current_cartesian_pose.position.x 
@@ -435,22 +452,17 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_positi
     return;
   }
 
+  //Cartesian plan to position goal
   waypoints.clear();
-
-  //waypoints.push_back(current_cartesian_pose);
-
-  //waypoint_cartesian_pose = current_cartesian_pose;
   waypoint_cartesian_pose = position.pose;
-  //waypoint_cartesian_pose.position.z -= pre_position.pose.position.z - position.pose.position.z; //down
-  //std:: cout << pre_position.pose.position.z << position.pose.position.z << waypoint_cartesian_pose.position.z << endl;
   waypoints.push_back(waypoint_cartesian_pose);  
-
-  ROS_INFO_THROTTLE(3, "About to plan to desired position");
-
   move_group_->setPoseReferenceFrame(position.header.frame_id);
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
-  //double fraction = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
+
+/*   visual_tools_->publishTrajectoryLine(cartesian_plan.trajectory_, joint_model_group);
+  visual_tools_->trigger(); */
+
 
   //If plan is successful execute trajectory
   if(success_cartesian_plan >= allowed_fraction_success){
@@ -460,13 +472,11 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_positi
 
     //Check if goal is active and move to target goal
     if (!pickup_from_as_->isActive()) return;
-    ROS_INFO_THROTTLE(3, "About to move");
     success_execute = (move_group_->execute(cartesian_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-    ros::Duration(2).sleep();
+    ros::Duration(1).sleep();
 
     //Check if execute is successful
     if(success_execute){
-      ROS_INFO_THROTTLE(3, "Moved!");
       pick_feedback_.state.clear();
       pick_feedback_.state = "Moved to desired position";
       pickup_from_as_->publishFeedback(pick_feedback_);
@@ -475,8 +485,7 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_positi
       pick_result_.message = "Could not move to desired position";
       pickup_from_as_->setAborted(pick_result_);
       return;
-    }
-          
+    }       
   }else{
     pick_result_.success = false;
     pick_result_.message = "Could not plan to desired position";
@@ -484,87 +493,65 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_positi
     return;
   }
 
+  //Pick object identified as handle
   for(int i=0; i < objects.size(); i++){
    if(objects[i].compare(0,6,"handle")==0){
-     // Attach handle to end effector
-      move_group_->attachObject(objects[i]);
+      if(move_group_->attachObject(objects[i])){
+        pick_feedback_.state.clear();
+        pick_feedback_.state = "Handle attached to end effector";
+        pickup_from_as_->publishFeedback(pick_feedback_);
+      }else{
+        pick_result_.success = false;
+        pick_result_.message = "Could not attach handle";
+        pickup_from_as_->setAborted(pick_result_);
+        return;
+      }
       break;
    } 
   }
 
-/*   // Attach box to end effector
-  if(move_group_->attachObject(objects[0])){
-    pick_feedback_.state.clear();
-    pick_feedback_.state = "Box attached to end effector";
-    pickup_from_as_->publishFeedback(pick_feedback_);
-  }else{
-    pick_result_.success = false;
-    pick_result_.message = "Could not attach box";
-    pickup_from_as_->setAborted(pick_result_);
-    return;
-  };
-
-
-  // Attach handle to end effector
-  if(move_group_->attachObject(objects[1])){
-    pick_feedback_.state.clear();
-    pick_feedback_.state = "Handle attached to end effector";
-    pickup_from_as_->publishFeedback(pick_feedback_);
-  }else{
-    pick_result_.success = false;
-    pick_result_.message = "Could not attach handle";
-    pickup_from_as_->setAborted(pick_result_);
-    return;
-  }; */
-
+  //Activate gripper
   gripper_on();
-  ros::Duration(3).sleep();
+  ros::Duration(1).sleep();
 
-  current_cartesian_pose = move_group_->getCurrentPose().pose;
+  //Move upwards 2 cm and attach box
   waypoints.clear();
-
-  waypoint_cartesian_pose = current_cartesian_pose;
-  waypoint_cartesian_pose.position.z += 0.02; //down
-  //std:: cout << pre_position.pose.position.z << position.pose.position.z << waypoint_cartesian_pose.position.z << endl;
+  waypoint_cartesian_pose = position.pose;
+  waypoint_cartesian_pose.position.z -= 0.02; 
   waypoints.push_back(waypoint_cartesian_pose);  
 
-  move_group_->setPoseReferenceFrame("robot_base_footprint");
+  move_group_->setPoseReferenceFrame(position.header.frame_id);
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
-  //double fraction = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
   move_group_->execute(cartesian_plan);
 
   for(int i=0; i < objects.size(); i++){
    if(objects[i].compare(0,3,"box")==0){
-     // Attach handle to end effector
-      move_group_->attachObject(objects[i]);
+      if(move_group_->attachObject(objects[i])){
+        pick_feedback_.state.clear();
+        pick_feedback_.state = "Box attached to end effector";
+        pickup_from_as_->publishFeedback(pick_feedback_);
+      }else{
+        pick_result_.success = false;
+        pick_result_.message = "Could not attach box";
+        pickup_from_as_->setAborted(pick_result_);
+        return;
+      }
       break;
    } 
   }
 
-
-  if (!pickup_from_as_->isActive()) return;
-  ROS_INFO_THROTTLE(3, "About to plan");
-
-  // Set position goal
-  //current_cartesian_pose = move_group_->getCurrentPose().pose;
+  // Plan back to pre-position goal
   waypoints.clear();
-
-
-  //waypoints.push_back(current_cartesian_pose);
-
-  //waypoint_cartesian_pose = current_cartesian_pose;
   waypoint_cartesian_pose = pre_position.pose;
-  //waypoint_cartesian_pose.position.z -= pre_position.pose.position.z - position.pose.position.z; //down
-  //std:: cout << pre_position.pose.position.z << position.pose.position.z << waypoint_cartesian_pose.position.z << endl;
   waypoints.push_back(waypoint_cartesian_pose);  
-
-  ROS_INFO_THROTTLE(3, "About to plan to desired position");
-
   move_group_->setPoseReferenceFrame(pre_position.header.frame_id);
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
-  //double fraction = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
+
+    
+  visual_tools_->publishTrajectoryLine(cartesian_plan.trajectory_, joint_model_group);
+  visual_tools_->trigger();
 
   //If plan is successful execute trajectory
   if(success_cartesian_plan >= allowed_fraction_success){
@@ -574,13 +561,11 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_positi
 
     //Check if goal is active and move to target goal
     if (!pickup_from_as_->isActive()) return;
-    ROS_INFO_THROTTLE(3, "About to move");
     success_execute = (move_group_->execute(cartesian_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
     //ros::Duration(3).sleep();
 
     //Check if execute is successful
     if(success_execute){
-      ROS_INFO_THROTTLE(3, "Moved!");
       pick_feedback_.state.clear();
       pick_feedback_.state = "Moved back to pre-position";
       pickup_from_as_->publishFeedback(pick_feedback_);
@@ -606,15 +591,14 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_positi
 
 void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position)
 { 
+  visual_tools_->deleteAllMarkers();
+  visual_tools_->trigger();
   // Set pre-position goal
   move_group_->setPoseTarget(pre_position);
-
-  // Check if goal is active and Plan to target goal
-  if (!place_on_as_->isActive()) return;
-  ROS_INFO_THROTTLE(3, "About to plan");
+  //Plan to pre-position goal
   success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-
-
+  visual_tools_->publishTrajectoryLine(plan.trajectory_, joint_model_group);
+  visual_tools_->trigger();  
   //If plan is successful execute trajectory
   if(success_plan){
     place_feedback_.state.clear();
@@ -623,9 +607,8 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
 
     //Check if goal is active and move to target goal
     if (!place_on_as_->isActive()) return;
-    ROS_INFO_THROTTLE(3, "About to move");
     success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-    ros::Duration(2).sleep();
+    ros::Duration(1).sleep();
 
     //Check if execute is successful
     if(success_execute){
@@ -647,30 +630,17 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
     return;
   }
 
-  // Check if goal is active and Plan to target goal
-  if (!place_on_as_->isActive()) return;
-  ROS_INFO_THROTTLE(3, "About to plan");
-
-  // Set position goal
-  //current_cartesian_pose = move_group_->getCurrentPose().pose;
+  //Plan to position goal + 0.02 m 
   waypoints.clear();
-
-  //waypoints.push_back(current_cartesian_pose);
-
-  //waypoint_cartesian_pose = current_cartesian_pose;
   waypoint_cartesian_pose = position.pose;
   waypoint_cartesian_pose.position.z -= 0.02;
-  //waypoint_cartesian_pose.position.z -= pre_position.pose.position.z - position.pose.position.z; //down
-  //std:: cout << pre_position.pose.position.z << position.pose.position.z << waypoint_cartesian_pose.position.z << endl;
   waypoints.push_back(waypoint_cartesian_pose);  
-
-  ROS_INFO_THROTTLE(3, "About to plan to desired position");
-
   move_group_->setPoseReferenceFrame(position.header.frame_id);
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
-  //double fraction = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
 
+  visual_tools_->publishTrajectoryLine(cartesian_plan.trajectory_, joint_model_group);
+  visual_tools_->trigger();
   //If plan is successful execute trajectory
   if(success_cartesian_plan >= allowed_fraction_success){
     place_feedback_.state.clear();
@@ -679,13 +649,11 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
 
     //Check if goal is active and move to target goal
     if (!place_on_as_->isActive()) return;
-    ROS_INFO_THROTTLE(3, "About to move");
     success_execute = (move_group_->execute(cartesian_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
     ros::Duration(2).sleep();
 
     //Check if execute is successful
     if(success_execute){
-      ROS_INFO_THROTTLE(3, "Moved!");
       place_feedback_.state.clear();
       place_feedback_.state = "Moved to desired position";
       place_on_as_->publishFeedback(place_feedback_);
@@ -703,70 +671,46 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
     return;
   }
 
-/*   // Detach box to end effector
-  if(move_group_->detachObject()){
-    place_feedback_.state.clear();
-    place_feedback_.state = "Box detached from end effector";
-    place_on_as_->publishFeedback(place_feedback_);
-  }else{
-    place_result_.success = false;
-    place_result_.message = "Could not detach box";
-    place_on_as_->setAborted(place_result_);
-    return;
-  }; */
-
+  //Detach box from end effector
   for(int i=0; i < objects.size(); i++){
    if(objects[i].compare(0,3,"box")==0){
-     // Attach handle to end effector
+     // Detach box from effector
       move_group_->detachObject(objects[i]);
       break;
    } 
   }
 
+  //Move to position goal and detach handle from end effector
   waypoints.clear();
-
   waypoint_cartesian_pose = position.pose;
-  //std:: cout << pre_position.pose.position.z << position.pose.position.z << waypoint_cartesian_pose.position.z << endl;
   waypoints.push_back(waypoint_cartesian_pose);  
-
   move_group_->setPoseReferenceFrame(position.header.frame_id);
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
-  //double fraction = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
   move_group_->execute(cartesian_plan);
 
   for(int i=0; i < objects.size(); i++){
    if(objects[i].compare(0,6,"handle")==0){
-     // Attach handle to end effector
+     // Detach handle from end effector
       move_group_->detachObject(objects[i]);
       break;
    } 
   }
+
+  //Deactivate gripper
   gripper_off();
-  ros::Duration(3).sleep();
+  ros::Duration(2).sleep();
 
   // Check if goal is active and Plan to target goal
   if (!place_on_as_->isActive()) return;
   ROS_INFO_THROTTLE(3, "About to plan");
 
-  // Set position goal
-
-  //current_cartesian_pose = move_group_->getCurrentPose().pose;
+  //Plan to pre-position goal
   waypoints.clear();
-
-  //waypoints.push_back(current_cartesian_pose);
-
-  //waypoint_cartesian_pose = current_cartesian_pose;
   waypoint_cartesian_pose = pre_position.pose;
-  //waypoint_cartesian_pose.position.z -= pre_position.pose.position.z - position.pose.position.z; //down
-  //std:: cout << pre_position.pose.position.z << position.pose.position.z << waypoint_cartesian_pose.position.z << endl;
   waypoints.push_back(waypoint_cartesian_pose);  
-
-  ROS_INFO_THROTTLE(3, "About to plan to desired position");
-
   move_group_->setPoseReferenceFrame(pre_position.header.frame_id);
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
-  //double fraction = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
 
   //If plan is successful execute trajectory
@@ -777,7 +721,6 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
 
     //Check if goal is active and move to target goal
     if (!place_on_as_->isActive()) return;
-    ROS_INFO_THROTTLE(3, "About to move");
     success_execute = (move_group_->execute(cartesian_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
     //ros::Duration(3).sleep();
 
@@ -804,8 +747,7 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
     place_on_as_->setAborted(place_result_);
     return;
   }
-  /* move_group_->attachObject(co_4.id);
-  chain_movement("kairos_pre_right","kairos_pre_right"); */
+
 }
 
 void ComponentSorting::gripper_on(){
