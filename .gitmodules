@@ -31,3 +31,6 @@
 [submodule "robotnik_navigation"]
 	path = robotnik_navigation
 	url = https://github.com/RobotnikAutomation/robotnik_navigation
+[submodule "robotnik_gazebo_models"]
+	path = robotnik_gazebo_models
+	url = https://github.com/RobotnikAutomation/robotnik_gazebo_models
