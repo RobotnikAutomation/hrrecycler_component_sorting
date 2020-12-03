@@ -207,8 +207,8 @@ int ComponentSorting::setup()
 
 void ComponentSorting::standbyState()
 {
-  bool prueba = move_group_->startStateMonitor (10);
-  std:: cout << prueba << endl;
+/*   bool prueba = move_group_->startStateMonitor (10);
+  std:: cout << prueba << endl; */
   robot_state_ = move_group_->getCurrentState();
   joint_model_group= robot_state_->getJointModelGroup("arm");
   
@@ -225,6 +225,7 @@ void ComponentSorting::standbyState()
   }else{
     ROS_INFO("Could not move to home position, warning");
   }
+
   
 }
 
@@ -442,7 +443,7 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_positi
   // Get current end effector position and check whether there is a box to grab
   current_cartesian_pose = move_group_->getCurrentPose().pose;
 
-  objects = planning_scene_interface.getKnownObjectNamesInROI	(current_cartesian_pose.position.x - box_length/2, current_cartesian_pose.position.y - box_width/2 ,0, current_cartesian_pose.position.x 
+  objects = planning_scene_interface.getKnownObjectNamesInROI(current_cartesian_pose.position.x - box_length/2, current_cartesian_pose.position.y - box_width/2 ,0, current_cartesian_pose.position.x 
   + box_length/2, current_cartesian_pose.position.y + box_width/2 , 3, false );
 
   if(objects.size() < 2){

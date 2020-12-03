@@ -1,14 +1,36 @@
 <launch>
+
+  <arg name="prefix" default="table_"/>
+  <arg name="table_length" default="0.63" />
+  <arg name="table_width" default="0.63" />
+  <arg name="table_height" default="0.75" />
+  <arg name="holder_width" default="0.228" />
+  <arg name="holder_length" default="0.30" />
+  <arg name="qr_height" default="0.375" />
+
+  <arg name="table_x_pose" default="2" />
+  <arg name="table_y_pose" default="2" />
+
     <!-- Convert xacro and put on parameter server -->
-    <param name="table_description" command="$(find xacro)/xacro.py $(find component_sorting_description)/urdf/table.urdf.xacro" />
+    <arg name="table_urdf_file" default="$(find xacro)/xacro '$(find component_sorting_description)/urdf/table.urdf.xacro' 
+    table_length:=$(arg table_length) table_width:=$(arg table_width) table_height:=$(arg table_height) holder_width:=$(arg holder_width) 
+    holder_length:=$(arg holder_length) qr_height:=$(arg qr_height) --inorder" />
+
+    <param name="table_description" command="$(arg table_urdf_file)" />
 
     <!-- Spawn a robot into Gazebo -->
-    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param table_description -urdf -model table -x 2 -y 2 -z 0.4" />
+    <node name="spawn_table" pkg="gazebo_ros" type="spawn_model" args="-param table_description -urdf -model gazebo_table -x $(arg table_x_pose) -y $(arg table_y_pose) -z $(arg qr_height)" />
+
 
     <node name="table_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
-	<remap from="robot_description" to="table_description"/>
-   </node>
+	  <remap from="robot_description" to="table_description"/>
+    </node>
 
-   <!--  <node name="prueba_spawn_urdf" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-    args="-file $(find component_sorting_description)/urdf/box/box.sdf -sdf -model prueba -x -2 -y -2"/> -->
+  <!--  <node name="prueba_spawn_urdf" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+    args="-file $(find component_sorting_description)/ar_tags/marker1_border_12cm/marker1_border_12cm.sdf -sdf -model table_qr_tag -x 2 -y 2 -z 0.4 "/>  -->
+<!-- 
+    <node name="prueba_spawn_urdf" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+    args="-file $(find component_sorting_description)/ar_tags/marker1_border_12cm/marker1_border_12cm.sdf -sdf -model table_qr_tag -reference_frame table_qr "/>  -->
+
+
 </launch>

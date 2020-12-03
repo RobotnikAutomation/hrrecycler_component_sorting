@@ -17,6 +17,9 @@
   <depend>rcomponent</depend>
   <depend>roscpp</depend>
   <depend>ur_msgs</depend>
+  <depend>moveit_visual_tools</depend>
+  <depend>rviz_visual_tools</depend>
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

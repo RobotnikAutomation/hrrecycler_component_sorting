@@ -10,6 +10,8 @@ find_package(catkin REQUIRED COMPONENTS
   rcomponent
   roscpp
   ur_msgs
+  moveit_visual_tools
+  rviz_visual_tools
 )
 
 catkin_package(

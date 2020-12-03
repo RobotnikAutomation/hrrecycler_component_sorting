@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<robot name="marker3_border_12cm" xmlns:xacro="http://wiki.ros.org/xacro">
+
+  <xacro:macro name="ar_tag" params="prefix parent *origin">
+
+
+    <joint name="${prefix}ar_tag_base_joint" type="fixed">
+      <xacro:insert_block name="origin" />
+      <parent link="${parent}"/>
+      <child link="${prefix}ar_tag_base_link"/>
+    </joint>
+
+    <link name="${prefix}ar_tag_base_link">
+      <inertial>
+        <mass value="0"/>
+        <origin rpy="0  0  0" xyz="0  0  0"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <collision >
+        <origin rpy="0  0  0" xyz="0  0  0"/>
+        <geometry>
+          <box size="0.001 0.14 0.14"/>
+        </geometry>
+      </collision>
+      <visual >
+        <origin rpy="0  0  0" xyz="0  0  0"/>
+        <geometry>
+          <box size="0.001 0.14 0.14"/>
+        </geometry>
+      </visual>
+    </link>
+
+
+    <gazebo reference="${prefix}ar_tag_base_link">
+       
+      <material>ARtrack/marker3_border_12cm</material>
+       
+    </gazebo>
+
+  </xacro:macro>
+</robot>

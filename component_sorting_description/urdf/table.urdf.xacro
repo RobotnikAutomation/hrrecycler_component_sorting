@@ -3,15 +3,29 @@
 
   <xacro:include filename="$(find component_sorting_description)/urdf/inertia.urdf.xacro" />
   <xacro:include filename="$(find component_sorting_description)/urdf/box/holder_table.urdf.xacro" />
+<!--   <xacro:include filename="$(find vigir_ar_alvar_description)/urdf/artag.urdf.xacro" /> -->
+  <xacro:include filename="$(find component_sorting_description)/ar_tags/marker1_border_12cm.urdf.xacro" />
 
   <xacro:arg name="prefix" default="table_"/>
   <xacro:property name="prefix" value="$(arg prefix)" />
+  
+  <xacro:arg name="table_length" default="0.63"/>
+  <xacro:property name="table_length" value="$(arg table_length)" />
 
-  <xacro:property name="table_length" value="0.63" />
-  <xacro:property name="table_width" value="0.63" />
-  <xacro:property name="table_height" value="0.75" />
-  <xacro:property name="holder_width" value="0.228" />
-  <xacro:property name="qr_height" value="0.40" />
+  <xacro:arg name="table_width" default="0.63"/>
+  <xacro:property name="table_width" value="$(arg table_width)" />
+
+  <xacro:arg name="table_height" default="0.75"/>
+  <xacro:property name="table_height" value="$(arg table_height)" />
+
+  <xacro:arg name="holder_width" default="0.228"/>
+  <xacro:property name="holder_width" value="$(arg holder_width)" />
+
+  <xacro:arg name="holder_length" default="0.30"/>
+  <xacro:property name="holder_length" value="$(arg holder_length)" />
+
+  <xacro:arg name="qr_height" default="0.375"/>
+  <xacro:property name="qr_height" value="$(arg qr_height)" />
   
 
   <gazebo>
@@ -32,54 +46,70 @@
 
 
   <link name="${prefix}qr">
+  </link>
+
+  <joint name="${prefix}base_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="${table_length/2}  0 ${-qr_height}"/>
+    <parent link="${prefix}qr"/>
+    <child link="${prefix}base_link"/>
+  </joint>
+
+  <link name="${prefix}base_link">
     <inertial>
       <mass value="40" />
-      <origin xyz="${table_length/2} 0 ${table_height/2-qr_height}" />
-      <solid_cuboid_inertia m="20" h="${table_height}" d="0.63" w="0.63"/>
+      <origin xyz="0 0 ${table_height/2}" />
+      <solid_cuboid_inertia m="40" h="${table_height}" d="${table_length}" w="${table_width}"/>
     </inertial>
     <visual>
-      <origin xyz="${table_length/2} 0 ${table_height/2-qr_height}"/>
+      <origin xyz="0 0 ${table_height/2}"/>
       <geometry>
         <box size="${table_length} ${table_width} ${table_height}" />
       </geometry>
     </visual>
     <collision>
-      <origin xyz="${table_length/2} 0 ${table_height/2-qr_height}"/>
+      <origin xyz="0 0 ${table_height/2}"/>
       <geometry>
         <box size="${table_length} ${table_width} ${table_height}" />
       </geometry>
       </collision>
   </link>
 
+        <!-- TABLE TAG -->
+  <xacro:ar_tag prefix="table" parent="${prefix}qr">
+      <origin xyz="-0.001 0 0" rpy="3.14159 3.14159 0"/>
+  </xacro:ar_tag>
 
-  <xacro:property name="center_holder_offset_x" value="0.15"/>
+  <xacro:property name="center_holder_offset_x" value="${(holder_length-table_length)/2}"/>
   <xacro:property name="center_holder_offset_y" value="0.0"/>
-  <xacro:property name="center_holder_offset_z" value="0.35"/> 
+  <xacro:property name="center_holder_offset_z" value="${table_height}"/> 
 
-  <xacro:property name="left_holder_offset_x" value="0.15"/> <!-- -0.195 -->
-  <xacro:property name="left_holder_offset_y" value="0.228"/> <!-- 0.225 -->
-  <xacro:property name="left_holder_offset_z" value="0.35"/>
+  <xacro:property name="left_holder_offset_x" value="${(holder_length-table_length)/2}"/> <!-- -0.195 -->
+  <xacro:property name="left_holder_offset_y" value="${holder_width}"/> <!-- 0.225 -->
+  <xacro:property name="left_holder_offset_z" value="${table_height}"/>
 
-  <xacro:property name="right_holder_offset_x" value="0.15"/>
-  <xacro:property name="right_holder_offset_y" value="-0.228"/>
-  <xacro:property name="right_holder_offset_z" value="0.35"/>
+  <xacro:property name="right_holder_offset_x" value="${(holder_length-table_length)/2}"/>
+  <xacro:property name="right_holder_offset_y" value="${-holder_width}"/>
+  <xacro:property name="right_holder_offset_z" value="${table_height}"/>
+
 
     <!-- HOLDERS -->
-  <xacro:holder_table prefix="${prefix}center_" parent="${prefix}qr">
+  <xacro:holder_table prefix="${prefix}center_" parent="${prefix}base_link" tag_id="3" >
       <origin xyz="${center_holder_offset_x} ${center_holder_offset_y} ${center_holder_offset_z}" rpy="0 0 0"/>
   </xacro:holder_table>
 
-  <xacro:holder_table prefix="${prefix}left_" parent="${prefix}qr">
+  <xacro:holder_table prefix="${prefix}left_" parent="${prefix}base_link" tag_id="4" >
       <origin xyz="${left_holder_offset_x} ${left_holder_offset_y} ${left_holder_offset_z}" rpy="0 0 0"/>
   </xacro:holder_table>
 
-  <xacro:holder_table prefix="${prefix}right_" parent="${prefix}qr">
+  <xacro:holder_table prefix="${prefix}right_" parent="${prefix}base_link" tag_id="2" >
       <origin xyz="${right_holder_offset_x} ${right_holder_offset_y} ${right_holder_offset_z}" rpy="0 0 0"/>
   </xacro:holder_table>
 
   <gazebo reference="${prefix}">
     <material>Gazebo/Grey</material>
   </gazebo>
- 
+
+
+
 
 </robot>

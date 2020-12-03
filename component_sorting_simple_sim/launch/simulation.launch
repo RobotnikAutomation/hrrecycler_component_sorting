@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <launch>
 
+  <env name="GAZEBO_RESOURCE_PATH" value="$(find component_sorting_description)"/>
 
   <!-- arg to config the launch file-->
   <arg name="robot_id" default="$(optenv ROBOT_ID robot)"/>

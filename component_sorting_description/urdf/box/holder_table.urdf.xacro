@@ -1,12 +1,18 @@
 <?xml version="1.0" ?>
 <robot name="holder" xmlns:xacro="http://wiki.ros.org/xacro">
 
+
+
   <xacro:include filename="$(find component_sorting_description)/urdf/inertia.urdf.xacro" />
+
+
 
   <!--xacro:arg name="prefix" default="box_"/>
   <xacro:property name="prefix" value="$(arg prefix)" /-->
 
-  <xacro:macro name="holder_table" params="prefix parent *origin">
+  <xacro:macro name="holder_table" params="prefix parent tag_id *origin">
+
+    <xacro:include filename="$(find component_sorting_description)/ar_tags/marker${tag_id}_border_12cm.urdf.xacro" /> 
 
     <joint name="${prefix}holder_base_joint" type="fixed">
       <xacro:insert_block name="origin" />
@@ -59,6 +65,10 @@
 
     <link name="${prefix}grab"/>
 
+    <!-- TABLE TAG -->
+  <xacro:ar_tag prefix="${prefix}" parent="${prefix}holder_link">
+      <origin xyz="0.001 0 0" rpy="0 ${3.14159/2} 0"/>
+  </xacro:ar_tag>
 
 
     <gazebo reference="${prefix}holder_link">

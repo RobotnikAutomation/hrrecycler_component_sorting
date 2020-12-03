@@ -167,7 +167,7 @@ protected:
   double table_height = 0.75;
   double holder_width = 0.228;
   double holder_length = 0.30; 
-  double qr_height = 0.40;
+  double qr_height = 0.375;
   double box_width = 0.20;
   double box_length = 0.28;
 

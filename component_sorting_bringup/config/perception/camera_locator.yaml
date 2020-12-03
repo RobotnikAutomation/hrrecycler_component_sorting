@@ -1,0 +1,43 @@
+# frame to which input is transformed
+robot_base_frame: robot_base_link
+# frame in which output is published
+fixed_frame: robot_odom
+# output frame. if locator is able to provide id, this will be 
+object_frame: robot_noisy_marker
+# from which topic read the image stream
+input_topic_name: front_rgbd_camera/rgb/image
+# from which topic read the camera calibration
+camera_info_topic_name: front_rgbd_camera/rgb/camera_info
+# marker size, in m
+marker_size: 0.12
+
+# to specify special characteristics for some markers
+# still no read by alvar_camera_locator 
+markers:
+  - id_type: single
+    id: 1
+    exact_name: robot_noisy_table_qr
+    size: 0.12
+  
+  - object: 3
+    name: rb2_noisy_marker_docking_station_b
+    size: 0.12
+  
+  - object: 5
+    name: rb2_noisy_marker_docking_station_c
+    size: 0.12
+  
+  - object: 2
+    name: rb2_noisy_marker_docking_station_approach_a
+    size: 0.12
+  
+  - object: 4
+    name: rb2_noisy_marker_docking_station_approach_b
+    size: 0.12
+  
+  - object: 9
+    name: rb2_noisy_marker_startup_pose_d
+    size: 0.12
+
+
+
