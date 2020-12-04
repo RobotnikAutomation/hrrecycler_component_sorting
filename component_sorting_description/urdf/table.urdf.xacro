@@ -4,7 +4,7 @@
   <xacro:include filename="$(find component_sorting_description)/urdf/inertia.urdf.xacro" />
   <xacro:include filename="$(find component_sorting_description)/urdf/box/holder_table.urdf.xacro" />
 <!--   <xacro:include filename="$(find vigir_ar_alvar_description)/urdf/artag.urdf.xacro" /> -->
-  <xacro:include filename="$(find component_sorting_description)/ar_tags/marker1_border_12cm.urdf.xacro" />
+  <xacro:include filename="$(find component_sorting_description)/ar_tags/ar_tag_border.urdf.xacro" />
 
   <xacro:arg name="prefix" default="table_"/>
   <xacro:property name="prefix" value="$(arg prefix)" />
@@ -75,7 +75,7 @@
   </link>
 
         <!-- TABLE TAG -->
-  <xacro:ar_tag prefix="table" parent="${prefix}qr">
+  <xacro:ar_tag prefix="${prefix}" parent="${prefix}qr" tag_id="marker1_border_12cm">
       <origin xyz="-0.001 0 0" rpy="3.14159 3.14159 0"/>
   </xacro:ar_tag>
 
@@ -93,15 +93,15 @@
 
 
     <!-- HOLDERS -->
-  <xacro:holder_table prefix="${prefix}center_" parent="${prefix}base_link" tag_id="3" >
+  <xacro:holder_table prefix="${prefix}center_" parent="${prefix}base_link" tag_id="marker3_border_12cm" >
       <origin xyz="${center_holder_offset_x} ${center_holder_offset_y} ${center_holder_offset_z}" rpy="0 0 0"/>
   </xacro:holder_table>
 
-  <xacro:holder_table prefix="${prefix}left_" parent="${prefix}base_link" tag_id="4" >
+  <xacro:holder_table prefix="${prefix}left_" parent="${prefix}base_link" tag_id="marker4_border_12cm" >
       <origin xyz="${left_holder_offset_x} ${left_holder_offset_y} ${left_holder_offset_z}" rpy="0 0 0"/>
   </xacro:holder_table>
 
-  <xacro:holder_table prefix="${prefix}right_" parent="${prefix}base_link" tag_id="2" >
+  <xacro:holder_table prefix="${prefix}right_" parent="${prefix}base_link" tag_id="marker2_border_12cm" >
       <origin xyz="${right_holder_offset_x} ${right_holder_offset_y} ${right_holder_offset_z}" rpy="0 0 0"/>
   </xacro:holder_table>
 

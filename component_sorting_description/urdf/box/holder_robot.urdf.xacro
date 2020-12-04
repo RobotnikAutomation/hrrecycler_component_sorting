@@ -2,11 +2,14 @@
 <robot name="holder" xmlns:xacro="http://wiki.ros.org/xacro">
 
   <xacro:include filename="$(find component_sorting_description)/urdf/inertia.urdf.xacro" />
+  <xacro:include filename="$(find component_sorting_description)/ar_tags/ar_tag_border.urdf.xacro" />
 
   <!--xacro:arg name="prefix" default="box_"/>
   <xacro:property name="prefix" value="$(arg prefix)" /-->
 
-  <xacro:macro name="holder_robot" params="prefix parent *origin">
+  <xacro:macro name="holder_robot" params="prefix parent tag_id *origin">
+
+    
 
     <joint name="${prefix}holder_base_joint" type="fixed">
       <xacro:insert_block name="origin" />
@@ -35,16 +38,16 @@
           <mesh filename="package://component_sorting_description/meshes/box/box_holder.stl"/>
         </geometry>
       </visual>
-      <collision>
+<!--       <collision>
         <origin rpy="0 0 0" xyz="0 0 0"/>
         <geometry>
           <mesh filename="package://component_sorting_description/meshes/box/box_holder.stl"/>
         </geometry>
-      </collision>  
+      </collision>  --> 
     </link>
     
     <joint name="${prefix}approach_joint" type="fixed">
-      <origin rpy="3.1416 0 -3.1416" xyz="0 0 0.691"/>
+      <origin rpy="3.1416 0 0" xyz="0 0 0.691"/>
       <parent link="${prefix}holder_link"/>
       <child link="${prefix}approach"/>
     </joint>
@@ -52,14 +55,17 @@
     <link name="${prefix}approach"/>
 
     <joint name="${prefix}grab_joint" type="fixed">
-      <origin rpy="3.1416 0 -3.1416" xyz="0 0 0.371"/>
+      <origin rpy="3.1416 0 0" xyz="0 0 0.371"/>
       <parent link="${prefix}holder_link"/>
       <child link="${prefix}grab"/>
     </joint>
 
     <link name="${prefix}grab"/>
 
-
+    <!-- TABLE TAG -->
+    <xacro:ar_tag prefix="${prefix}" parent="${prefix}holder_link" tag_id="${tag_id}">
+      <origin xyz="0.001 0 0" rpy="0 ${3.14159/2} 0"/>
+    </xacro:ar_tag>
 
     <gazebo reference="${prefix}holder_link">
       <visual>  
