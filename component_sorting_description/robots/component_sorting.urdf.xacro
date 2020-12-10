@@ -52,6 +52,30 @@
     <!-- ROBOT -->
     <xacro:rbkairos_ur5_oem_vgc10 prefix="$(arg prefix)" publish_bf="true" hq="true" load_kinematics_file="$(arg load_kinematics_file)"/>
 
+<!--     <joint name="${prefix}base_boxes" type="fixed">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <parent link="${prefix}base_chapa"/>
+      <child link="${prefix}base_boxes_link"/>
+    </joint>
+
+    <link name="${prefix}base_boxes_link">
+      <collision>
+        <origin xyz="0 0 0.0015"/>
+        <geometry>
+          <box size="0.71 0.57 0.003" />
+        </geometry>
+      </collision>
+    </link>
+
+    <gazebo reference="${prefix}base_boxes_link">
+      <material>Gazebo/White</material>
+      <mu1>1000000.0</mu1>
+      <mu2>1000000.0</mu2>
+      <kp>10000000.0</kp>
+      <kd>1.0</kd>
+      <minDepth>0.001</minDepth>
+    </gazebo> -->
+
     <!-- HOLDERS -->
     <xacro:holder_robot prefix="${prefix}center_" parent="${prefix}base_link" tag_id="marker3_border_12cm">
         <origin xyz="${center_holder_offset_x} ${center_holder_offset_y} ${center_holder_offset_z}" rpy="0 0 3.14159"/>

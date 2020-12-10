@@ -16,12 +16,12 @@
         <origin rpy="0  0  0" xyz="0  0  0"/>
         <inertia ixx="0.00000001" ixy="0.0"  ixz="0.0"  iyy="0.00000001"  iyz="0.0"  izz="0.00000001"/>
       </inertial>
-      <collision >
+<!--       <collision >
         <origin rpy="0  0  0" xyz="0  0  0"/>
         <geometry>
           <box size="0.001 0.14 0.14"/>
         </geometry>
-      </collision>
+      </collision> -->
       <visual >
         <origin rpy="0  0  0" xyz="0  0  0"/>
         <geometry>

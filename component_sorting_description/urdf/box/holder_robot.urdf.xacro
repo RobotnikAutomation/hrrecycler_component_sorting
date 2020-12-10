@@ -38,16 +38,16 @@
           <mesh filename="package://component_sorting_description/meshes/box/box_holder.stl"/>
         </geometry>
       </visual>
-<!--       <collision>
+      <collision>
         <origin rpy="0 0 0" xyz="0 0 0"/>
         <geometry>
           <mesh filename="package://component_sorting_description/meshes/box/box_holder.stl"/>
         </geometry>
-      </collision>  --> 
+      </collision> 
     </link>
     
     <joint name="${prefix}approach_joint" type="fixed">
-      <origin rpy="3.1416 0 0" xyz="0 0 0.691"/>
+      <origin rpy="3.1416 0 0" xyz="-0.075 0 0.741"/>
       <parent link="${prefix}holder_link"/>
       <child link="${prefix}approach"/>
     </joint>
@@ -55,7 +55,7 @@
     <link name="${prefix}approach"/>
 
     <joint name="${prefix}grab_joint" type="fixed">
-      <origin rpy="3.1416 0 0" xyz="0 0 0.371"/>
+      <origin rpy="3.1416 0 0" xyz="0.0 0 0.371"/>
       <parent link="${prefix}holder_link"/>
       <child link="${prefix}grab"/>
     </joint>

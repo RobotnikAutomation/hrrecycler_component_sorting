@@ -44,6 +44,7 @@
     </plugin>
   </gazebo>
 
+  <static>true</static> 
 
   <link name="${prefix}qr">
   </link>
@@ -56,9 +57,9 @@
 
   <link name="${prefix}base_link">
     <inertial>
-      <mass value="40" />
-      <origin xyz="0 0 ${table_height/2}" />
-      <solid_cuboid_inertia m="40" h="${table_height}" d="${table_length}" w="${table_width}"/>
+      <mass value="90" />
+      <origin xyz="0 0 ${table_height/2}" rpy="0 0 0" />
+      <solid_cuboid_inertia m="70" h="${table_height}" d="${table_length}" w="${table_width}"/>
     </inertial>
     <visual>
       <origin xyz="0 0 ${table_height/2}"/>
@@ -71,7 +72,7 @@
       <geometry>
         <box size="${table_length} ${table_width} ${table_height}" />
       </geometry>
-      </collision>
+    </collision>
   </link>
 
         <!-- TABLE TAG -->
@@ -105,8 +106,12 @@
       <origin xyz="${right_holder_offset_x} ${right_holder_offset_y} ${right_holder_offset_z}" rpy="0 0 0"/>
   </xacro:holder_table>
 
-  <gazebo reference="${prefix}">
-    <material>Gazebo/Grey</material>
+  <gazebo reference="${prefix}base_link">
+    <material>Gazebo/White</material>
+    <mu1>50.0</mu1>
+    <mu2>50.0</mu2>
+    <kp>10000000.0</kp>
+    <kd>1.0</kd>
   </gazebo>
 
 
