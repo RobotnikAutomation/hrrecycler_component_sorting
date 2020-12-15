@@ -3,7 +3,7 @@ robot_base_frame: robot_base_link
 # frame in which output is published
 fixed_frame: robot_odom
 # output frame. if locator is able to provide id, this will be 
-object_frame: robot_noisy_marker
+object_frame: arm_noisy_marker
 # from which topic read the image stream
 input_topic_name: wrist_rgbd/color/image
 # from which topic read the camera calibration
@@ -16,39 +16,48 @@ marker_size: 0.12
 markers:
 
   - id_type: single
-    id: 2
-    exact_name: right_holder_qr
-    size: 0.12
+    id: 7
+    exact_name: box_grab_qr
+    size: 0.06
 
+  - id_type: single
+    id: 8
+    exact_name: center_holder_qr
+    size: 0.06
+
+  - id_type: single
+    id: 9
+    exact_name: left_holder_qr
+    size: 0.06
+  
+  - id_type: single
+    id: 1
+    exact_name: table_right_holder_qr
+    size: 0.12
+  
+  - id_type: single
+    id: 2
+    exact_name: table_center_holder_qr
+    size: 0.12
+  
   - id_type: single
     id: 3
-    exact_name: center_holder_qr
+    exact_name: table_left_holder_qr
+    size: 0.12
+  
+  - id_type: single
+    id: 4
+    exact_name: robot_right_holder_qr
+    size: 0.12
+  
+  - id_type: single
+    id: 5
+    exact_name: robot_center_holder_qr
     size: 0.12
 
   - id_type: single
-    id: 4
-    exact_name: left_holder_qr
+    id: 6
+    exact_name: robot_left_holder_qr
     size: 0.12
-  
-  - object: 3
-    name: rb2_noisy_marker_docking_station_b
-    size: 0.12
-  
-  - object: 5
-    name: rb2_noisy_marker_docking_station_c
-    size: 0.12
-  
-  - object: 2
-    name: rb2_noisy_marker_docking_station_approach_a
-    size: 0.12
-  
-  - object: 4
-    name: rb2_noisy_marker_docking_station_approach_b
-    size: 0.12
-  
-  - object: 9
-    name: rb2_noisy_marker_startup_pose_d
-    size: 0.12
-
 
 

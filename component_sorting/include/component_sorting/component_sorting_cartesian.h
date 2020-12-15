@@ -34,6 +34,7 @@
 #include <iostream>
 
 #include <ur_msgs/SetIO.h>
+#include <gazebo_ros_link_attacher/Attach.h>
 
 class ComponentSorting : public rcomponent::RComponent
 {
@@ -61,7 +62,7 @@ protected:
   std::shared_ptr<tf2_ros::Buffer> tf2_buffer_;
 
   // MoveIt stuff
-  void pick_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position, std::string box_id, std::string handle_id);
+  void pick_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position);
   void place_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position);
   void create_planning_scene();
   void gripper_on();
@@ -158,8 +159,13 @@ protected:
 
   geometry_msgs::PoseStamped table_left_pose;
 
+  geometry_msgs::PoseStamped box_grab_pose;
+
   ur_msgs::SetIO srv;
+  gazebo_ros_link_attacher::Attach gazebo_link_attacher_msg;
   ros::ServiceClient client;
+  ros::ServiceClient gazebo_link_attacher_client;
+  ros::ServiceClient gazebo_link_detacher_client;
 
   //double dock_dist_table = 0.115;
   double table_length = 0.63;
@@ -173,6 +179,9 @@ protected:
 
   object_recognition_msgs::ObjectType  allowed_movement;
   std::vector< std::string > types = {"allowed_movement"};
+
+  std::string identified_box;
+  std::string identified_handle;
 
 
   // in case we contact MoveIt through actionlib

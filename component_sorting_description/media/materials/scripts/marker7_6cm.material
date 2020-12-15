@@ -1,0 +1,14 @@
+material ARtrack/marker7_6cm
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture marker7_6cm.png
+			}
+		}
+	}
+}
+

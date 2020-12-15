@@ -77,30 +77,18 @@
     </gazebo> -->
 
     <!-- HOLDERS -->
-    <xacro:holder_robot prefix="${prefix}center_" parent="${prefix}base_link" tag_id="marker3_border_12cm">
+     <xacro:holder_robot prefix="${prefix}center_" parent="${prefix}base_link" tag_id="marker5_12cm">
         <origin xyz="${center_holder_offset_x} ${center_holder_offset_y} ${center_holder_offset_z}" rpy="0 0 3.14159"/>
     </xacro:holder_robot>
 
-    <xacro:holder_robot prefix="${prefix}left_" parent="${prefix}base_link" tag_id="marker4_border_12cm">
+    <xacro:holder_robot prefix="${prefix}left_" parent="${prefix}base_link" tag_id="marker6_12cm">
         <origin xyz="${left_holder_offset_x} ${left_holder_offset_y} ${left_holder_offset_z}" rpy="0 0 3.14159"/>
     </xacro:holder_robot>
 
-    <xacro:holder_robot prefix="${prefix}right_" parent="${prefix}base_link" tag_id="marker2_border_12cm" >
+    <xacro:holder_robot prefix="${prefix}right_" parent="${prefix}base_link" tag_id="marker4_12cm" >
         <origin xyz="${right_holder_offset_x} ${right_holder_offset_y} ${right_holder_offset_z}" rpy="0 0 3.14159"/>
-    </xacro:holder_robot>
+    </xacro:holder_robot> 
 
-    <!-- HOLDERS TABLE-->
-<!--     <xacro:test prefix="${prefix}center_table_" parent="${prefix}base_footprint">
-        <origin xyz="${center_table_holder_offset_x} ${center_table_holder_offset_y} ${center_table_holder_offset_z}" rpy="0 0 3.14"/>
-    </xacro:test>
-
-    <xacro:test prefix="${prefix}left_table_" parent="${prefix}base_footprint">
-        <origin xyz="${left_table_holder_offset_x} ${left_table_holder_offset_y} ${left_table_holder_offset_z}" rpy="0 0 3.14"/>
-    </xacro:test>
-
-    <xacro:test prefix="${prefix}right_table_" parent="${prefix}base_footprint">
-        <origin xyz="${right_table_holder_offset_x} ${right_table_holder_offset_y} ${right_table_holder_offset_z}" rpy="0 0 3.14"/>
-    </xacro:test> -->
 
 
     <!-- BOX -->

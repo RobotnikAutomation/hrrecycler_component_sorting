@@ -15,29 +15,11 @@ marker_size: 0.12
 # still no read by alvar_camera_locator 
 markers:
   - id_type: single
-    id: 1
+    id: 10
     exact_name: robot_noisy_table_qr
     size: 0.12
   
-  - object: 3
-    name: rb2_noisy_marker_docking_station_b
-    size: 0.12
-  
-  - object: 5
-    name: rb2_noisy_marker_docking_station_c
-    size: 0.12
-  
-  - object: 2
-    name: rb2_noisy_marker_docking_station_approach_a
-    size: 0.12
-  
-  - object: 4
-    name: rb2_noisy_marker_docking_station_approach_b
-    size: 0.12
-  
-  - object: 9
-    name: rb2_noisy_marker_startup_pose_d
-    size: 0.12
+
 
 
 

@@ -4,7 +4,7 @@
   <xacro:include filename="$(find component_sorting_description)/urdf/inertia.urdf.xacro" />
   <xacro:include filename="$(find component_sorting_description)/urdf/box/holder_table.urdf.xacro" />
 <!--   <xacro:include filename="$(find vigir_ar_alvar_description)/urdf/artag.urdf.xacro" /> -->
-  <xacro:include filename="$(find component_sorting_description)/ar_tags/ar_tag_border.urdf.xacro" />
+  <xacro:include filename="$(find component_sorting_description)/ar_tags/ar_tag_12cm_border.urdf.xacro" />
 
   <xacro:arg name="prefix" default="table_"/>
   <xacro:property name="prefix" value="$(arg prefix)" />
@@ -50,7 +50,7 @@
   </link>
 
   <joint name="${prefix}base_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="${table_length/2}  0 ${-qr_height}"/>
+    <origin rpy="0 0 0" xyz="${table_length/2}  0 ${-qr_height+(table_height/2)}"/>
     <parent link="${prefix}qr"/>
     <child link="${prefix}base_link"/>
   </joint>
@@ -58,17 +58,17 @@
   <link name="${prefix}base_link">
     <inertial>
       <mass value="90" />
-      <origin xyz="0 0 ${table_height/2}" rpy="0 0 0" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
       <solid_cuboid_inertia m="70" h="${table_height}" d="${table_length}" w="${table_width}"/>
     </inertial>
     <visual>
-      <origin xyz="0 0 ${table_height/2}"/>
+      <origin xyz="0 0 0"/>
       <geometry>
         <box size="${table_length} ${table_width} ${table_height}" />
       </geometry>
     </visual>
     <collision>
-      <origin xyz="0 0 ${table_height/2}"/>
+      <origin xyz="0 0 0"/>
       <geometry>
         <box size="${table_length} ${table_width} ${table_height}" />
       </geometry>
@@ -76,33 +76,33 @@
   </link>
 
         <!-- TABLE TAG -->
-  <xacro:ar_tag prefix="${prefix}" parent="${prefix}qr" tag_id="marker1_border_12cm">
-      <origin xyz="-0.001 0 0" rpy="3.14159 3.14159 0"/>
+  <xacro:ar_tag prefix="${prefix}" parent="${prefix}qr" tag_id="marker10_12cm">
+      <origin xyz="0 0 0" rpy="0 ${-3.14159/2} 0"/>
   </xacro:ar_tag>
 
   <xacro:property name="center_holder_offset_x" value="${(holder_length-table_length)/2}"/>
   <xacro:property name="center_holder_offset_y" value="0.0"/>
-  <xacro:property name="center_holder_offset_z" value="${table_height}"/> 
+  <xacro:property name="center_holder_offset_z" value="${table_height/2}"/> 
 
   <xacro:property name="left_holder_offset_x" value="${(holder_length-table_length)/2}"/> <!-- -0.195 -->
   <xacro:property name="left_holder_offset_y" value="${holder_width}"/> <!-- 0.225 -->
-  <xacro:property name="left_holder_offset_z" value="${table_height}"/>
+  <xacro:property name="left_holder_offset_z" value="${table_height/2}"/>
 
   <xacro:property name="right_holder_offset_x" value="${(holder_length-table_length)/2}"/>
   <xacro:property name="right_holder_offset_y" value="${-holder_width}"/>
-  <xacro:property name="right_holder_offset_z" value="${table_height}"/>
+  <xacro:property name="right_holder_offset_z" value="${table_height/2}"/>
 
 
     <!-- HOLDERS -->
-  <xacro:holder_table prefix="${prefix}center_" parent="${prefix}base_link" tag_id="marker3_border_12cm" >
+  <xacro:holder_table prefix="${prefix}center_" parent="${prefix}base_link" tag_id="marker2_12cm" >
       <origin xyz="${center_holder_offset_x} ${center_holder_offset_y} ${center_holder_offset_z}" rpy="0 0 0"/>
   </xacro:holder_table>
 
-  <xacro:holder_table prefix="${prefix}left_" parent="${prefix}base_link" tag_id="marker4_border_12cm" >
+  <xacro:holder_table prefix="${prefix}left_" parent="${prefix}base_link" tag_id="marker3_12cm" >
       <origin xyz="${left_holder_offset_x} ${left_holder_offset_y} ${left_holder_offset_z}" rpy="0 0 0"/>
   </xacro:holder_table>
 
-  <xacro:holder_table prefix="${prefix}right_" parent="${prefix}base_link" tag_id="marker2_border_12cm" >
+  <xacro:holder_table prefix="${prefix}right_" parent="${prefix}base_link" tag_id="marker1_12cm" >
       <origin xyz="${right_holder_offset_x} ${right_holder_offset_y} ${right_holder_offset_z}" rpy="0 0 0"/>
   </xacro:holder_table>
 

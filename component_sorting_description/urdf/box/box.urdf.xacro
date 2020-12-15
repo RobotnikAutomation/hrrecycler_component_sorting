@@ -2,8 +2,8 @@
 <robot name="box" xmlns:xacro="http://wiki.ros.org/xacro">
 
   <xacro:include filename="$(find component_sorting_description)/urdf/inertia.urdf.xacro" />
-  <xacro:include filename="$(find component_sorting_description)/ar_tags/ar_tag_border.urdf.xacro" />
-  
+  <xacro:include filename="$(find component_sorting_description)/ar_tags/ar_tag_6cm_border.urdf.xacro" />
+
   <xacro:arg name="prefix" default="box_"/>
   <xacro:property name="prefix" value="$(arg prefix)" />
 
@@ -38,12 +38,23 @@
       <geometry>
         <mesh filename="package://component_sorting_description/meshes/box/box_base.stl"/>
       </geometry>
+<!--         <surface>
+            <friction>
+                <ode>
+                    <mu>200</mu>
+                    <mu2>200</mu2>
+                    <fdir1>0 0 1</fdir1>
+                    <slip1>0</slip1>
+                    <slip2>0</slip2>
+                </ode>
+            </friction>
+        </surface> -->
     </collision>
   </link>
 
   <joint name="${prefix}handle_joint" type="prismatic">
     <axis xyz="0 0 1"/>
-    <limit effort="1000.0" lower="-0.03" upper="0.03" velocity="0.5"/>
+    <limit effort="1000.0" lower="-0.025" upper="0.025" velocity="0.5"/>
     <origin rpy="0 0 0" xyz="0 0 0.1"/>
     <parent link="${prefix}body_box_link"/>
     <child link="${prefix}handle_link"/>
@@ -78,8 +89,8 @@
   <link name="${prefix}grasping_link"/>
 
   <!-- AR TAG -->
-  <xacro:ar_tag prefix="${prefix}" parent="${prefix}grasping_link" tag_id="${tag_id}">
-    <origin xyz="-0.001 0  0" rpy="0 ${3.14159/2} 0"/>
+  <xacro:ar_tag prefix="${prefix}" parent="${prefix}handle_link" tag_id="${tag_id}">
+    <origin xyz="0 0 0.1575" rpy="0 0 0"/>
   </xacro:ar_tag>
 
 <!--  <xacro:artag name="artag_01" parent="${prefix}grasping_link">
@@ -96,11 +107,12 @@
         <emissive>0.0 0.0 0.0 0.0</emissive>  
       </material>  
     </visual>  
-    <mu1>50.0</mu1>
-    <mu2>50.0</mu2>
+    <mu1>200.0</mu1>
+    <mu2>200.0</mu2>
     <kp>10000000.0</kp>
     <kd>1.0</kd>
-<!--     <minDepth>0.002</minDepth> -->
+     <minDepth>0.001</minDepth>  
+    <maxContacts>10</maxContacts>
  </gazebo>
 
   <gazebo reference="${prefix}handle_link">

@@ -29,7 +29,7 @@
 
   <!-- Launch gazebo -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-      <arg name="world_name" value="$(arg world_name)"/>
+      <arg name="world_name" value="$(find gazebo_ros_link_attacher)/worlds/test_attacher.world"/>
       <arg name="debug" value="$(arg debug)" />
       <arg name="paused" value="$(arg paused)" />
       <arg name="headless" value="$(arg headless)"/>
