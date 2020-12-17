@@ -35,8 +35,12 @@
 
 #include <ur_msgs/SetIO.h>
 #include <gazebo_ros_link_attacher/Attach.h>
-#include <tf/transform_listener.h>
+/* #include <tf/transform_listener.h>
 #include <tf/transform_broadcaster.h>
+ */
+#include <tf2_ros/transform_listener.h>
+#include <geometry_msgs/TransformStamped.h>
+#include <tf2_ros/transform_broadcaster.h>
 
 class ComponentSorting : public rcomponent::RComponent
 {
@@ -66,6 +70,7 @@ protected:
   // MoveIt stuff
   void pick_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position);
   void place_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position);
+  void scan(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position);
   void create_planning_scene();
   void gripper_on();
   void gripper_off();
@@ -197,13 +202,18 @@ protected:
   virtual void preemptCB();
 
   void tfLatchTimerCallback();
-  std::vector <tf::StampedTransform> latched_tf;
   ros::Timer tf_latch_timer;
-   tf::TransformBroadcaster tf_broadcaster;
+/*   std::vector <tf::StampedTransform> latched_tf;
+  tf::TransformBroadcaster tf_broadcaster; */
+  std::vector <geometry_msgs::TransformStamped> latched_tf;
+  tf2_ros::TransformBroadcaster tf_broadcaster;
 
   void tfListenerTimerCallback(std::string frame_name);
-   tf::TransformListener tf_listener;
-  tf::StampedTransform transform;
+/*    tf::TransformListener tf_listener;
+  tf::StampedTransform transform; */
+  tf2_ros::Buffer tfBuffer;
+  tf2_ros::TransformListener* tf_listener;
+  geometry_msgs::TransformStamped transform_stamped;
 };
 
 #endif  // _COMPONENT_SORTING__COMPONENT_SORTING_H_

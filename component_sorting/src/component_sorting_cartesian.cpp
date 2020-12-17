@@ -110,7 +110,7 @@ int ComponentSorting::rosSetup()
   kairos_center_pose.header.frame_id = "robot_center_holder_qr";
   kairos_center_pose.pose.orientation.x = +0.7071;
   kairos_center_pose.pose.orientation.y = +0.7071;
-  kairos_right_pose.header.frame_id = "robot_right_holder_qr_transformada";
+  kairos_right_pose.header.frame_id = "robot_right_holder_qr";
   kairos_right_pose.pose.orientation.x = +0.7071;
   kairos_right_pose.pose.orientation.y = +0.7071;
   kairos_left_pose.header.frame_id = "robot_left_holder_qr";
@@ -164,6 +164,7 @@ int ComponentSorting::rosSetup()
   // pickup_ac_.reset(new actionlib::SimpleActionClient<moveit_msgs::PickupAction>(nh_, "pickup", spin_action_thread));
   // place_ac_.reset(new actionlib::SimpleActionClient<moveit_msgs::PlaceAction>(nh_, "place", spin_action_thread));
   tf_latch_timer = pnh_.createTimer(ros::Duration(0.1), std::bind(&ComponentSorting::tfLatchTimerCallback, this));
+  tf_listener = new   tf2_ros::TransformListener(tfBuffer);
   return RComponent::rosSetup();
 }
 
@@ -227,6 +228,18 @@ void ComponentSorting::standbyState()
   success_move = (move_group_->move() == moveit::planning_interface::MoveItErrorCode::SUCCESS);
   if(success_move){
     ROS_INFO("Moved to home position, ready to take commands");
+
+      // Select constraint
+    std::string selected_constraint = "elbow_up";
+    move_group_->setPathConstraints(selected_constraint);
+
+    scan(pre_kairos_right_pose,kairos_right_pose);
+    scan(pre_kairos_left_pose,kairos_left_pose);
+    scan(pre_kairos_center_pose,kairos_center_pose);
+    scan(pre_table_right_pose,table_right_pose);
+    scan(pre_table_left_pose,table_left_pose);
+    scan(pre_table_center_pose,table_center_pose);
+
     switchToState(robotnik_msgs::State::READY_STATE);
   }else{
     ROS_INFO("Could not move to home position, warning");
@@ -404,17 +417,38 @@ void ComponentSorting::preemptCB()
 }
 
 void ComponentSorting::tfListenerTimerCallback(std::string frame_name){
-  tf_listener.lookupTransform("robot_odom",frame_name,ros::Time(0),transform);
-  latched_tf.push_back(transform);
+/*   tf_listener.lookupTransform("robot_base_link",frame_name,ros::Time(0),transform); */
+
+  transform_stamped = tfBuffer.lookupTransform("robot_base_link",frame_name,ros::Time(0));
+  latched_tf.push_back(transform_stamped);
 }
 
 void ComponentSorting::tfLatchTimerCallback(){
   for(auto tf : latched_tf){
-    std::string name = tf.child_frame_id_ + "_transformada";
-    tf.child_frame_id_ = name;
-    tf.stamp_ = ros::Time::now();
+    std::string name = tf.child_frame_id + "_transformada";
+/*     tf.child_frame_id_ = name;
+    tf.stamp_ = ros::Time::now(); */
+    tf.child_frame_id = name;
+    tf.header.stamp = ros::Time::now();
     tf_broadcaster.sendTransform(tf);
   }
+}
+
+void ComponentSorting::scan(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position)
+{ 
+  // Set scan position goal
+  move_group_->setPoseTarget(pre_position);
+  // Plan to pre-position goal
+  success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+ 
+/*   visual_tools_->publishTrajectoryLine(plan.trajectory_, joint_model_group);
+  visual_tools_->trigger(); */
+  //If plan is successful execute trajectory
+  if(success_plan){
+    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  }
+
+  tfListenerTimerCallback(position.header.frame_id);
 }
 
 void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position)
@@ -458,7 +492,6 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_positi
     return;
   }
 
-   tfListenerTimerCallback("robot_right_holder_qr");
 
   // Check if goal is active 
   //if (!pickup_from_as_->isActive()) return;
@@ -683,14 +716,14 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
     //Cartesian plan to position goal
   waypoints.clear();
   waypoint_cartesian_pose = position.pose;
-  waypoint_cartesian_pose.position.z += 0.22+0.242; //0.22
+  waypoint_cartesian_pose.position.z += 0.22+0.25; //0.242
   waypoints.push_back(waypoint_cartesian_pose);
 
   waypoint_cartesian_pose = position.pose;
-  waypoint_cartesian_pose.position.z += 0.185+0.242;
+  waypoint_cartesian_pose.position.z += 0.185+0.25;
   waypoints.push_back(waypoint_cartesian_pose); 
 
-  move_group_->setPoseReferenceFrame(position.header.frame_id);
+  move_group_->setPoseReferenceFrame(position.header.frame_id + "_transformada");
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
 
@@ -735,9 +768,9 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
   //Move to position goal and detach handle from end effector
   waypoints.clear();
   waypoint_cartesian_pose = position.pose;
-  waypoint_cartesian_pose.position.z += 0.135+0.242;
+  waypoint_cartesian_pose.position.z += 0.135+0.25;
   waypoints.push_back(waypoint_cartesian_pose);
-  move_group_->setPoseReferenceFrame(position.header.frame_id);
+  move_group_->setPoseReferenceFrame(position.header.frame_id + "_transformada");
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
   move_group_->execute(cartesian_plan);
@@ -767,7 +800,7 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
   waypoints.clear();
   waypoint_cartesian_pose = pre_position.pose;
   waypoints.push_back(waypoint_cartesian_pose);  
-  move_group_->setPoseReferenceFrame(pre_position.header.frame_id);
+  move_group_->setPoseReferenceFrame(pre_position.header.frame_id );
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
 
