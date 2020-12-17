@@ -35,6 +35,8 @@
 
 #include <ur_msgs/SetIO.h>
 #include <gazebo_ros_link_attacher/Attach.h>
+#include <tf/transform_listener.h>
+#include <tf/transform_broadcaster.h>
 
 class ComponentSorting : public rcomponent::RComponent
 {
@@ -193,6 +195,15 @@ protected:
 
   virtual void goalCB(const std::string& action);
   virtual void preemptCB();
+
+  void tfLatchTimerCallback();
+  std::vector <tf::StampedTransform> latched_tf;
+  ros::Timer tf_latch_timer;
+   tf::TransformBroadcaster tf_broadcaster;
+
+  void tfListenerTimerCallback(std::string frame_name);
+   tf::TransformListener tf_listener;
+  tf::StampedTransform transform;
 };
 
 #endif  // _COMPONENT_SORTING__COMPONENT_SORTING_H_
