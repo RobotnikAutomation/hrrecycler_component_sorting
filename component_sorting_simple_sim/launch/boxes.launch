@@ -12,11 +12,11 @@
     <arg name="yaw" default="3.14159"/>
 
     <arg name="center_prefix" default="box_center_"/>
-    <arg name="center_tag_id" default="marker3_border_12cm"/>    
+    <arg name="center_tag_id" default="marker7_6cm"/>    
     <arg name="right_prefix" default="box_right_"/>
-    <arg name="right_tag_id" default="marker2_border_12cm"/> 
+    <arg name="right_tag_id" default="marker7_6cm"/> 
     <arg name="left_prefix" default="box_left_"/>
-    <arg name="left_tag_id" default="marker4_border_12cm"/>     
+    <arg name="left_tag_id" default="marker7_6cm"/>     
 
     <!-- Convert xacro and put on parameter server -->
     <arg name="center_box_urdf_file" default="$(find xacro)/xacro '$(find component_sorting_description)/urdf/box/box.urdf.xacro' 
@@ -37,8 +37,8 @@
 
 
     <!-- Spawn a robot into Gazebo -->
-    <node name="spawn_right_box" pkg="gazebo_ros" type="spawn_model" args="-param right_box_description -urdf -model box_right -reference_frame robot_base_footprint -x $(arg right_x) -y $(arg right_y) -z $(arg right_z) -Y $(arg yaw)" />
-
+<!--     <node name="spawn_right_box" pkg="gazebo_ros" type="spawn_model" args="-param right_box_description -urdf -model box_right -reference_frame robot_base_footprint -x $(arg right_x) -y $(arg right_y) -z $(arg right_z) -Y $(arg yaw)" />
+ -->
 
 
     <!-- Convert xacro and put on parameter server -->

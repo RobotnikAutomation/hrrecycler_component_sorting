@@ -175,14 +175,14 @@ protected:
   ros::ServiceClient gazebo_link_detacher_client;
 
   //double dock_dist_table = 0.115;
-  double table_length = 0.63;
-  double table_width = 0.63;
-  double table_height = 0.75;
-  double holder_width = 0.228;
-  double holder_length = 0.30; 
-  double qr_height = 0.375;
-  double box_width = 0.20;
-  double box_length = 0.28;
+  double table_length;
+  double table_width;
+  double table_height; 
+  double holder_width;
+  double holder_length; 
+  double qr_height;
+  double box_width;
+  double box_length;
 
   object_recognition_msgs::ObjectType  allowed_movement;
   std::vector< std::string > types = {"allowed_movement"};
@@ -214,6 +214,7 @@ protected:
   tf2_ros::Buffer tfBuffer;
   tf2_ros::TransformListener* tf_listener;
   geometry_msgs::TransformStamped transform_stamped;
+  geometry_msgs::TransformStamped table_qr_transform_stamped;
 };
 
 #endif  // _COMPONENT_SORTING__COMPONENT_SORTING_H_

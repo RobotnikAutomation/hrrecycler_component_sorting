@@ -10,6 +10,7 @@
   <xacro:arg name="tag_id" default="1"/>
   <xacro:property name="tag_id" value="$(arg tag_id)" />
 
+ <allow_auto_disable>false</allow_auto_disable>
   
 
   <link name="${prefix}base_link">
@@ -38,17 +39,26 @@
       <geometry>
         <mesh filename="package://component_sorting_description/meshes/box/box_base.stl"/>
       </geometry>
-<!--         <surface>
-            <friction>
-                <ode>
-                    <mu>200</mu>
-                    <mu2>200</mu2>
-                    <fdir1>0 0 1</fdir1>
-                    <slip1>0</slip1>
-                    <slip2>0</slip2>
-                </ode>
-            </friction>
-        </surface> -->
+<surface>
+      <friction>
+        <ode>
+          <mu>1</mu>
+          <mu2>1</mu2>
+          <slip1>0</slip1>
+          <slip2>0</slip2>
+        </ode>
+      </friction>
+      <contact>
+        <ode>
+          <soft_cfm>0</soft_cfm>
+          <soft_erp>0.2</soft_erp>
+          <kp>1e+13</kp>
+          <kd>1</kd>
+          <max_vel>0.01</max_vel>
+          <min_depth>0</min_depth>
+        </ode>
+      </contact>
+    </surface>
     </collision>
   </link>
 
@@ -107,11 +117,12 @@
         <emissive>0.0 0.0 0.0 0.0</emissive>  
       </material>  
     </visual>  
-    <mu1>200.0</mu1>
-    <mu2>200.0</mu2>
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
     <kp>10000000.0</kp>
     <kd>1.0</kd>
-     <minDepth>0.001</minDepth>  
+   <minDepth>0.001</minDepth>  
+   <maxVel>0</maxVel>  
     <maxContacts>10</maxContacts>
  </gazebo>
 

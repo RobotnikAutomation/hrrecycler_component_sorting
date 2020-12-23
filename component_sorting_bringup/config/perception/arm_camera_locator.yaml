@@ -20,15 +20,6 @@ markers:
     exact_name: box_grab_qr
     size: 0.06
 
-  - id_type: single
-    id: 8
-    exact_name: center_holder_qr
-    size: 0.06
-
-  - id_type: single
-    id: 9
-    exact_name: left_holder_qr
-    size: 0.06
   
   - id_type: single
     id: 1

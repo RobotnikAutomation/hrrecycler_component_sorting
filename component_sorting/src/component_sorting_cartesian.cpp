@@ -28,6 +28,38 @@ void ComponentSorting::rosReadParams()
   double timeout = 20;
   readParam(pnh_, "move_group_timeout", timeout, timeout, required);
   move_group_timeout_ = ros::WallDuration(timeout);
+
+  required = true;
+  table_length = 0.63;
+  readParam(pnh_, "table_length", table_length, table_length, required); 
+
+  required = true;
+  table_width = 0.63;
+  readParam(pnh_, "table_width", table_width, table_width, required);
+
+  required = true;
+  table_height = 0.75;
+  readParam(pnh_, "table_height", table_height, table_height, required);
+
+  required = true;
+  holder_width = 0.228;
+  readParam(pnh_, "holder_width", holder_width, holder_width, required);
+
+  required = true;
+  holder_length = 0.30;
+  readParam(pnh_, "holder_length", holder_length, holder_length, required);
+
+  required = true;
+  qr_height = 0.375;
+  readParam(pnh_, "qr_height", qr_height, qr_height, required);
+
+  required = true;
+  box_width = 0.20;
+  readParam(pnh_, "box_width", box_width, box_width, required);
+
+  required = true;
+  box_length = 0.28;
+  readParam(pnh_, "box_length", box_length, box_length, required);
 }
 
 int ComponentSorting::rosSetup()
@@ -234,11 +266,17 @@ void ComponentSorting::standbyState()
     move_group_->setPathConstraints(selected_constraint);
 
     scan(pre_kairos_right_pose,kairos_right_pose);
+    ros::Duration(2).sleep();
     scan(pre_kairos_left_pose,kairos_left_pose);
+    ros::Duration(2).sleep();
     scan(pre_kairos_center_pose,kairos_center_pose);
+    ros::Duration(2).sleep();
     scan(pre_table_right_pose,table_right_pose);
+    ros::Duration(2).sleep();
     scan(pre_table_left_pose,table_left_pose);
+    ros::Duration(2).sleep();
     scan(pre_table_center_pose,table_center_pose);
+    ros::Duration(2).sleep();
 
     switchToState(robotnik_msgs::State::READY_STATE);
   }else{
@@ -446,9 +484,11 @@ void ComponentSorting::scan(geometry_msgs::PoseStamped pre_position, geometry_ms
   //If plan is successful execute trajectory
   if(success_plan){
     success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+    if(success_execute){
+       tfListenerTimerCallback(position.header.frame_id);
+    }
   }
 
-  tfListenerTimerCallback(position.header.frame_id);
 }
 
 void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position)
@@ -716,11 +756,11 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
     //Cartesian plan to position goal
   waypoints.clear();
   waypoint_cartesian_pose = position.pose;
-  waypoint_cartesian_pose.position.z += 0.22+0.25; //0.242
+  waypoint_cartesian_pose.position.z += 0.22+0.250; //0.242
   waypoints.push_back(waypoint_cartesian_pose);
 
   waypoint_cartesian_pose = position.pose;
-  waypoint_cartesian_pose.position.z += 0.185+0.25;
+  waypoint_cartesian_pose.position.z += 0.185+0.250;
   waypoints.push_back(waypoint_cartesian_pose); 
 
   move_group_->setPoseReferenceFrame(position.header.frame_id + "_transformada");
@@ -768,7 +808,7 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
   //Move to position goal and detach handle from end effector
   waypoints.clear();
   waypoint_cartesian_pose = position.pose;
-  waypoint_cartesian_pose.position.z += 0.135+0.25;
+  waypoint_cartesian_pose.position.z += 0.136+0.250;
   waypoints.push_back(waypoint_cartesian_pose);
   move_group_->setPoseReferenceFrame(position.header.frame_id + "_transformada");
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
@@ -1008,6 +1048,7 @@ void ComponentSorting::create_planning_scene(){
   table_pose.orientation.w = 1.0; */
 
   geometry_msgs::Pose table_pose;
+  table_pose.position.z = table_height/2;
   table_pose.orientation.w = 1.0;
 
   // Add the holder_mesh to the Collision object message 

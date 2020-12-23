@@ -12,7 +12,7 @@
 
     <link name="${prefix}ar_tag_base_link">
       <inertial>
-        <mass value="0.01"/>
+        <mass value="0.00001"/>
         <origin rpy="0  0  0" xyz="0  0  0"/>
         <inertia ixx="0.00000001" ixy="0.0"  ixz="0.0"  iyy="0.00000001"  iyz="0.0"  izz="0.00000001"/>
       </inertial>
@@ -38,7 +38,7 @@
 
     <link name="${prefix}ar_tag_link">
       <inertial>
-        <mass value="0.01"/>
+        <mass value="0.00001"/>
         <origin rpy="0  0  0" xyz="0  0  0"/>
         <inertia ixx="0.00000001" ixy="0.0"  ixz="0.0"  iyy="0.00000001"  iyz="0.0"  izz="0.00000001"/>
       </inertial>

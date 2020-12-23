@@ -2,4 +2,12 @@ group_name: arm
 move_group_timeout: 10
 host: "localhost"
 port: 33829
+table_length: 0.63
+table_width: 0.63
+table_height: 0.75
+holder_width: 0.228
+holder_length: 0.30 
+qr_height: 0.375
+box_width: 0.20
+box_length: 0.28
 
