@@ -1,17 +1,30 @@
 ## run
 
-To launch robot state:
+To launch simulation + perception + navigation + navigation:
 
-` roslaunch component_sorting_description component_sorting_state_robot.launch `
+`roslaunch component_sorting_bringup component_sorting_bringup.launch`
 
-To launch simulation:
+To launch MoveIt Database:
 
-` roslaunch component_sorting_simple_sim simulation.launch `
+`roslaunch component_sorting_moveit_config default_warehouse_db.launch`
 
-To launch MoveIt (simulation must be running):
+To launch MoveIt (simulation + database must be running):
 
-` roslaunch component_sorting_moveit_config  component_sorting_moveit_config.launch`
+`roslaunch component_sorting_moveit_config component_sorting_moveit_config.launch`
 
-## todo
+To launch MoveIt RVIZ: 
 
-why is moveit taking so long to start? check
+`roslaunch component_sorting_moveit_config moveit_rviz.launch`
+
+To launch component sorting MoveIt application (MoveIt RVIZ must be running):
+
+`roslaunch component_sorting component_sorting_cartesian.launch`
+
+To launch boxes into simulation: 
+ - In table : `roslaunch component_sorting_simple_sim boxes_table.launch`
+ - In kairos: `roslaunch component_sorting_simple_sim boxes.launch`
+
+Component sorting actions:
+
+`rosrun actionlib axclient.py /component_sorting_cartesian/pickup_from`
+`rosrun actionlib axclient.py /component_sorting_cartesian/place_on`
