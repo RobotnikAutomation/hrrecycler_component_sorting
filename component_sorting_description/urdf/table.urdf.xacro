@@ -14,19 +14,19 @@
   <xacro:property name="component_sorting" value="${load_yaml(yaml_file)}"/>
 
   <xacro:arg name="table_length" default="0.63"/>
-  <xacro:property name="table_length" value="${component_sorting['table_length']}" />
+  <xacro:property name="table_length" value="${component_sorting['table']['length']}" />
 
   <xacro:arg name="table_width" default="0.63"/>
-  <xacro:property name="table_width" value="${component_sorting['table_width']}" />
+  <xacro:property name="table_width" value="${component_sorting['table']['width']}" />
 
   <xacro:arg name="table_height" default="0.75"/>
-  <xacro:property name="table_height" value="${component_sorting['table_height']}" />
+  <xacro:property name="table_height" value="${component_sorting['table']['height']}" />
 
   <xacro:arg name="holder_width" default="0.228"/>
-  <xacro:property name="holder_width" value="${component_sorting['holder_width']}" />
+  <xacro:property name="holder_width" value="${component_sorting['holder']['width']}" />
 
   <xacro:arg name="holder_length" default="0.30"/>
-  <xacro:property name="holder_length" value="${component_sorting['holder_length']}" />
+  <xacro:property name="holder_length" value="${component_sorting['holder']['length']}" />
 
   <xacro:arg name="qr_height" default="0.375"/>
   <xacro:property name="qr_height" value="${component_sorting['qr_height']}" />
@@ -116,6 +116,7 @@
     <mu2>50.0</mu2>
     <kp>10000000.0</kp>
     <kd>1.0</kd>
+    <static>true</static>
   </gazebo>
 
 

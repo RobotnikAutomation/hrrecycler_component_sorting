@@ -19,6 +19,7 @@
   <depend>ur_msgs</depend>
   <depend>moveit_visual_tools</depend>
   <depend>rviz_visual_tools</depend>
+  <depend> gazebo_ros_link_attacher</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
