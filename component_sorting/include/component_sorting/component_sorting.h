@@ -9,38 +9,29 @@
 #include <actionlib/server/simple_action_server.h>
 
 #include <moveit/move_group_interface/move_group_interface.h>
-
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
-
-#include "geometric_shapes/shapes.h"
-#include "geometric_shapes/mesh_operations.h"
-#include "geometric_shapes/shape_operations.h"
-#include <geometric_shapes/shape_operations.h>
+#include <warehouse_ros/database_connection.h>
+#include <moveit/warehouse/constraints_storage.h>
+#include <moveit_msgs/Constraints.h>
+#include <moveit_visual_tools/moveit_visual_tools.h>
 
 #include <moveit_msgs/PickupAction.h>
 #include <moveit_msgs/PlaceAction.h>
-
 #include <component_sorting_msgs/PickupFromAction.h>
 #include <component_sorting_msgs/PlaceOnAction.h>
-
-#include <warehouse_ros/database_connection.h>
-#include <moveit/warehouse/constraints_storage.h>
-
-#include <moveit_msgs/Constraints.h>
-
-#include <moveit_visual_tools/moveit_visual_tools.h>
 
 #include <string>
 #include <iostream>
 
 #include <ur_msgs/SetIO.h>
+
 #include <gazebo_ros_link_attacher/Attach.h>
-/* #include <tf/transform_listener.h>
-#include <tf/transform_broadcaster.h>
- */
+
 #include <tf2_ros/transform_listener.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <tf2_ros/transform_broadcaster.h>
+
+#include <component_sorting/object.h>
 
 class ComponentSorting : public rcomponent::RComponent
 {
@@ -82,19 +73,8 @@ protected:
   moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
   std::vector< std::string > objects;
   
-  moveit_msgs::CollisionObject co_1;
-  moveit_msgs::CollisionObject co_2;
-  moveit_msgs::CollisionObject co_3;
-  moveit_msgs::CollisionObject co_4;
-  moveit_msgs::CollisionObject co_5;
-  moveit_msgs::CollisionObject co_6;
-  moveit_msgs::CollisionObject co_7;
-  moveit_msgs::CollisionObject co_8;
-  moveit_msgs::CollisionObject co_9;
-  moveit_msgs::CollisionObject co_10;
-  moveit_msgs::CollisionObject object_move;
-
-
+  std::vector<Object> objects_;
+  std::vector<moveit_msgs::CollisionObject> moveit_objects;
 
   std::string action_;
   actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>::GoalConstPtr pickup_from_goal_;
@@ -177,17 +157,7 @@ protected:
   ros::ServiceClient gazebo_link_detacher_client;
 
   //double dock_dist_table = 0.115;
-  struct Table{
-    double length, width, height;
-  };
 
-  struct Table table; 
-
-  struct Holder{
-    double length, width;
-  };
-
-  struct Holder holder;
 
   struct Box{
     double length, width;
@@ -195,11 +165,7 @@ protected:
 
   struct Box box;
 
-  double qr_height;
   double gripper_height;
-
-  object_recognition_msgs::ObjectType  allowed_movement;
-  std::vector< std::string > types = {"allowed_movement"};
 
   std::string identified_box;
   std::string identified_handle;

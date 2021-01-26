@@ -30,30 +30,6 @@ void ComponentSorting::rosReadParams()
   move_group_timeout_ = ros::WallDuration(timeout);
 
   required = true;
-  table.length = 0.63;
-  readParam(pnh_, "table/length", table.length, table.length, required); 
-
-  required = true;
-  table.width = 0.63;
-  readParam(pnh_ , "table/width", table.width, table.width, required);
-
-  required = true;
-  table.height = 0.75;
-  readParam(pnh_, "table/height", table.height, table.height, required);
-
-  required = true;
-  holder.width = 0.228;
-  readParam(pnh_, "holder/width", holder.width, holder.width, required);
-
-  required = true;
-  holder.length = 0.30;
-  readParam(pnh_, "holder/length", holder.length, holder.length, required);
-
-  required = true;
-  qr_height = 0.375;
-  readParam(pnh_, "qr_height", qr_height, qr_height, required);
-
-  required = true;
   box.width = 0.20;
   readParam(pnh_, "box/width", box.width, box.width, required);
 
@@ -946,176 +922,38 @@ void ComponentSorting::gripper_off(){
 void ComponentSorting::create_planning_scene()
 {
 
+  // Read and store parameter: objects from parameter server
+  std::vector<std::string> object_names;
+  bool required = true;
+  readParam(pnh_, "objects", object_names, object_names, required); 
 
-    // The id of the object is used to identify it.
-  co_1.id = "holder_right";
-  co_2.id = "holder_center";
-  co_3.id = "holder_left";
-  co_4.id = "box_right";
-  co_5.id = "box_center";
-  co_6.id = "box_left";
-  co_7.id = "handle_right";
-  co_8.id = "handle_center";
-  co_9.id = "handle_left";
-  co_10.id = "table";
-  co_1.header.frame_id = "table_right_holder_link"; //before table_qr
-  co_2.header.frame_id = "table_center_holder_link";
-  co_3.header.frame_id = "table_left_holder_link";
-  co_4.header.frame_id = "table_right_holder_link";
-  co_5.header.frame_id = "table_center_holder_link";
-  co_6.header.frame_id = "table_left_holder_link";
-  co_7.header.frame_id = "table_right_holder_link";
-  co_8.header.frame_id = "table_center_holder_link";
-  co_9.header.frame_id = "table_left_holder_link";
-  co_10.header.frame_id = "table_base_link";
+  // Create class Object objects
+  for (auto & on: object_names)
+  {
+    objects_.push_back(Object(ros::NodeHandle(pnh_ , on), on));
+  }
 
-  //Path where the .dae or .stl object is located
-  std::string holder_mesh_path = "package://component_sorting_description/meshes/box/box_holder.stl";
+  //Parse vector of Object objects into Moveit's collision objects
 
-  //shapes::Mesh* holder_m = shapes::createMeshFromResource("package://component_sorting_description/meshes/box/box_handle.stl", vectorScale); 
-  shapes::Mesh* holder_m = shapes::createMeshFromResource(holder_mesh_path); 
-  ROS_INFO("Your holder_mesh was loaded");
-  
-  shape_msgs::Mesh holder_mesh;
-  shapes::ShapeMsg holder_mesh_msg;  
-  shapes::constructMsgFromShape(holder_m, holder_mesh_msg);
-  holder_mesh = boost::get<shape_msgs::Mesh>(holder_mesh_msg);
+  for (auto & on: objects_)
+  { 
+    moveit_msgs::CollisionObject collision_object;
 
-  //Path where the .dae or .stl object is located
-  std::string box_mesh_path = "package://component_sorting_description/meshes/box/box_base.stl";
+    collision_object.id = on.get_id();
+    collision_object.header.frame_id = on.get_frame_id();
 
-  //shapes::Mesh* holder_m = shapes::createMeshFromResource("package://component_sorting_description/meshes/box/box_handle.stl", vectorScale); 
-  shapes::Mesh* box_m = shapes::createMeshFromResource(box_mesh_path); 
-  ROS_INFO("Your box_mesh was loaded");
-  
-  shape_msgs::Mesh box_mesh;
-  shapes::ShapeMsg box_mesh_msg;  
-  shapes::constructMsgFromShape(box_m, box_mesh_msg);
-  box_mesh = boost::get<shape_msgs::Mesh>(box_mesh_msg);
+    if (on.has_mesh()){
+      collision_object.meshes.push_back(on.get_mesh());
+      collision_object.mesh_poses.push_back(on.get_pose());
+    }else if (on.has_primitive()){
+      collision_object.primitives.push_back(on.get_primitive());
+      collision_object.primitive_poses.push_back(on.get_pose());
+    }
 
-  //Path where the .dae or .stl object is located
-  std::string handle_mesh_path = "package://component_sorting_description/meshes/box/handle.stl";
+    collision_object.operation = collision_object.ADD;
+    moveit_objects.push_back(collision_object);
+  }
 
-  //shapes::Mesh* holder_m = shapes::createMeshFromResource("package://component_sorting_description/meshes/box/box_handle.stl", vectorScale); 
-  shapes::Mesh* handle_m = shapes::createMeshFromResource(handle_mesh_path); 
-  ROS_INFO("Your handle_mesh was loaded");
-  
-  shape_msgs::Mesh handle_mesh;
-  shapes::ShapeMsg handle_mesh_msg;  
-  shapes::constructMsgFromShape(handle_m, handle_mesh_msg);
-  handle_mesh = boost::get<shape_msgs::Mesh>(handle_mesh_msg);
-
-  //Define table mesh as a box
-
-  shape_msgs::SolidPrimitive table_mesh;
-  table_mesh.type = table_mesh.BOX;
-  table_mesh.dimensions.resize(3);
-  table_mesh.dimensions[0] = table.length;
-  table_mesh.dimensions[1] = table.width;
-  table_mesh.dimensions[2] = table.height;
-  
-  //Define a pose for your holder_mesh (specified relative to table_qr
-
-/*   geometry_msgs::Pose holder_center_pose;
-  holder_center_pose.position.x = holder_length/2;
-  holder_center_pose.position.y = 0.0;
-  holder_center_pose.position.z = table_mesh.dimensions[2] - qr_height; //0.775
-  holder_center_pose.orientation.w = 1.0; 
-
-  geometry_msgs::Pose holder_right_pose;
-  holder_right_pose = holder_center_pose;
-  holder_right_pose.position.y -= holder_width;
-
-  geometry_msgs::Pose holder_left_pose;
-  holder_left_pose = holder_center_pose;
-  holder_left_pose.position.y += holder_width; */
-
-  geometry_msgs::Pose holder_center_pose;
-  holder_center_pose.orientation.w = 1.0; 
-
-  geometry_msgs::Pose holder_right_pose;
-  holder_right_pose.orientation.w = 1.0;
-
-  geometry_msgs::Pose holder_left_pose;
-  holder_left_pose.orientation.w = 1.0;
-
-  geometry_msgs::Pose box_pose;
-  box_pose.position.x = 0;
-  box_pose.position.y = 0;
-  box_pose.position.z = 0.015;
-  box_pose.orientation.w = 1.0;
-
-  geometry_msgs::Pose handle_pose;
-  handle_pose.position.x = 0;
-  handle_pose.position.y = 0;
-  handle_pose.position.z = 0.085; //0.01
-  handle_pose.orientation.w = 1.0;
-
-/*   geometry_msgs::Pose table_pose;
-  table_pose.position.x =  table_mesh.dimensions[0]/2; //0.84
-  table_pose.position.y = 0;
-  table_pose.position.z = table_mesh.dimensions[2]/2 - qr_height; //0.375
-  table_pose.orientation.w = 1.0; */
-
-  geometry_msgs::Pose table_pose;
-  table_pose.position.z = table.height/2;
-  table_pose.orientation.w = 1.0;
-
-  // Add the holder_mesh to the Collision object message 
-  co_1.meshes.push_back(holder_mesh);
-  co_1.mesh_poses.push_back(holder_right_pose);
-  co_1.operation = co_1.ADD;
-
-  co_2.meshes.push_back(holder_mesh);
-  co_2.mesh_poses.push_back(holder_center_pose);
-  co_2.operation = co_2.ADD;
-
-  co_3.meshes.push_back(holder_mesh);
-  co_3.mesh_poses.push_back(holder_left_pose);
-  co_3.operation = co_3.ADD;
-
-  co_4.meshes.push_back(box_mesh);
-  co_4.mesh_poses.push_back(box_pose);
-  co_4.operation = co_4.ADD;  
-
-  co_5.meshes.push_back(box_mesh);
-  co_5.mesh_poses.push_back(box_pose);
-  co_5.operation = co_5.ADD;
-
-  co_6.meshes.push_back(box_mesh);
-  co_6.mesh_poses.push_back(box_pose);
-  co_6.operation = co_6.ADD;  
-  
-  co_7.meshes.push_back(handle_mesh);
-  co_7.mesh_poses.push_back(handle_pose);
-  co_7.operation = co_7.ADD;  
-
-  co_8.meshes.push_back(handle_mesh);
-  co_8.mesh_poses.push_back(handle_pose);
-  co_8.operation = co_8.ADD;
-
-  co_9.meshes.push_back(handle_mesh);
-  co_9.mesh_poses.push_back(handle_pose);
-  co_9.operation = co_9.ADD;  
-  
-  co_10.primitives.push_back(table_mesh);
-  co_10.primitive_poses.push_back(table_pose);
-  co_10.operation = co_10.ADD; 
-
-  //Publish object in monitored planning scene
-  
-  // Create vector of collision objects to add 
-  std::vector<moveit_msgs::CollisionObject> objects;
-  objects.push_back(co_1);
-  objects.push_back(co_2);
-  objects.push_back(co_3);
-  objects.push_back(co_4);
-  objects.push_back(co_5);
-  objects.push_back(co_6); 
-  objects.push_back(co_7);
-  objects.push_back(co_8);
-  objects.push_back(co_9);
-  objects.push_back(co_10);
-  // Add the collision object into the world
-  planning_scene_interface.addCollisionObjects(objects);
+  // Add collision objects into the world
+  planning_scene_interface.addCollisionObjects(moveit_objects);
 }
