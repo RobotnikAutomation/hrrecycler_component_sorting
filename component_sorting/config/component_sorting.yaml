@@ -1,16 +1,24 @@
 group_name: arm
+
 move_group_timeout: 10
+
 host: "localhost"
 port: 33829
+
 table:
   length: 0.63
   width: 0.63
   height: 0.75
+
 holder:
   width: 0.228
   length: 0.30 
+
 qr_height: 0.375
+
 box:
   width: 0.20
   length: 0.28
+
+box_handle_displacement: 0.05
 

@@ -22,6 +22,7 @@
 
 #include <string>
 #include <iostream>
+#include <map>
 
 #include <ur_msgs/SetIO.h>
 
@@ -32,6 +33,7 @@
 #include <tf2_ros/transform_broadcaster.h>
 
 #include <component_sorting/object.h>
+#include <component_sorting/pose.h>
 
 class ComponentSorting : public rcomponent::RComponent
 {
@@ -59,7 +61,7 @@ protected:
   std::shared_ptr<tf2_ros::Buffer> tf2_buffer_;
 
   // MoveIt stuff
-  void pick_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position);
+  void pick_chain_movement(geometry_msgs::PoseStamped approach_position, geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position);
   void place_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position);
   void scan(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position);
   void create_planning_scene();
@@ -114,41 +116,13 @@ protected:
   float connection_timeout;
   int connection_retries;
 
-  //Poses kairos
-  geometry_msgs::PoseStamped pre_kairos_center_pose;
-  geometry_msgs::Point pre_kairos_center_position;
-  geometry_msgs::Quaternion pre_kairos_center_orientation;
-  std_msgs::Header kairos_frame;
 
 
-  geometry_msgs::PoseStamped pre_kairos_right_pose;
-
-  geometry_msgs::PoseStamped pre_kairos_left_pose;
-
-  geometry_msgs::PoseStamped kairos_right_pose;
-
-  geometry_msgs::PoseStamped kairos_center_pose;
-
-  geometry_msgs::PoseStamped kairos_left_pose;
-
-  
-  //Poses table
-  geometry_msgs::PoseStamped pre_table_center_pose;
-  geometry_msgs::Point pre_table_center_position;
-  geometry_msgs::Quaternion pre_table_center_orientation;
-  std_msgs::Header table_qr_frame;
-
-  geometry_msgs::PoseStamped pre_table_right_pose;
-
-  geometry_msgs::PoseStamped pre_table_left_pose;
-
-  geometry_msgs::PoseStamped table_right_pose;
-
-  geometry_msgs::PoseStamped table_center_pose;
-
-  geometry_msgs::PoseStamped table_left_pose;
-
-  geometry_msgs::PoseStamped box_grab_pose;
+  map<std::string, Pose> approach_poses_;
+  map<std::string, Pose> place_poses_;
+  map<std::string, Pose> pick_poses_;
+  map<std::string, Pose> pre_pick_poses_;
+  map<std::string, Pose> pre_place_poses_;
 
   ur_msgs::SetIO srv;
   gazebo_ros_link_attacher::Attach gazebo_link_attacher_msg;
@@ -170,7 +144,7 @@ protected:
   std::string identified_box;
   std::string identified_handle;
 
-
+  double box_handle_displacement;
   // in case we contact MoveIt through actionlib
   // std::shared_ptr<actionlib::SimpleActionServer<moveit_msgs::PickupAction>> pickup_as_;
   // std::shared_ptr<actionlib::SimpleActionServer<moveit_msgs::PlaceAction>> place_as_;
@@ -181,14 +155,14 @@ protected:
   virtual void goalCB(const std::string& action);
   virtual void preemptCB();
 
-  void tfLatchTimerCallback();
+  void tfLatchCallback();
   ros::Timer tf_latch_timer;
 /*   std::vector <tf::StampedTransform> latched_tf;
   tf::TransformBroadcaster tf_broadcaster; */
   std::vector <geometry_msgs::TransformStamped> latched_tf;
   tf2_ros::TransformBroadcaster tf_broadcaster;
 
-  void tfListenerTimerCallback(std::string frame_name);
+  void tfListener(std::string frame_name);
 /*    tf::TransformListener tf_listener;
   tf::StampedTransform transform; */
   tf2_ros::Buffer tfBuffer;

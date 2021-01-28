@@ -66,10 +66,10 @@ Object::Object(ros::NodeHandle pnh, std::string id)
 
             quaternion_orientation.setRPY( pose_orientation_[0], pose_orientation_[1], pose_orientation_[2]);
         
-            pose_msg.orientation.x = pose_orientation_[0];
-            pose_msg.orientation.y = pose_orientation_[1];
-            pose_msg.orientation.z = pose_orientation_[2];     
-            pose_msg.orientation.w = pose_orientation_[3];             
+            pose_msg.orientation.x = quaternion_orientation[0];
+            pose_msg.orientation.y = quaternion_orientation[1];
+            pose_msg.orientation.z = quaternion_orientation[2];     
+            pose_msg.orientation.w = quaternion_orientation[3];             
         }else{
             ROS_WARN("Cannot process pose orientation parameter, it should contain [r,p,y] array, check object configuration yaml");
         }
