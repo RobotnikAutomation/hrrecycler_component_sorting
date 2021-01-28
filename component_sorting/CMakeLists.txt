@@ -25,6 +25,7 @@ include_directories(
 
 add_library(component_sorting
  src/object.cpp
+ src/pose.cpp
 
 )
 
