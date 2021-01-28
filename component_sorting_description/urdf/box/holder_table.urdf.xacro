@@ -50,21 +50,21 @@
       </collision>  
     </link>
     
-    <joint name="${prefix}approach_joint" type="fixed">
+    <joint name="${prefix}holder_approach_joint" type="fixed">
       <origin rpy="3.1416 0 0" xyz="-0.137 0 0.50"/>
       <parent link="${prefix}holder_link"/>
-      <child link="${prefix}approach"/>
+      <child link="${prefix}holder_approach"/>
     </joint>
 
-    <link name="${prefix}approach"/>
+    <link name="${prefix}holder_approach"/>
 
-    <joint name="${prefix}grab_joint" type="fixed">
+<!--     <joint name="${prefix}grab_joint" type="fixed">
       <origin rpy="3.1416 0 0" xyz="0 0 0.38"/>
       <parent link="${prefix}holder_link"/>
       <child link="${prefix}grab"/>
     </joint>
 
-    <link name="${prefix}grab"/>
+    <link name="${prefix}grab"/> -->
 
     <!-- TABLE TAG -->
     <xacro:ar_tag prefix="${prefix}holder_" parent="${prefix}holder_link" tag_id="${tag_id}">

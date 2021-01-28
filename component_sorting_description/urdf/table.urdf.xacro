@@ -37,7 +37,7 @@
       <alwaysOn>true</alwaysOn>
       <updateRate>50.0</updateRate>
       <bodyName>${prefix}qr</bodyName> 
-      <frameName>${prefix}qr_tf</frameName> 
+      <frameName>${prefix}qr_gt</frameName> 
       <worldBodyName>world</worldBodyName> 
       <worldFrameName>robot_map</worldFrameName> 
       <topicName>${prefix}tf</topicName>
@@ -54,7 +54,7 @@
   </link>
 
   <joint name="${prefix}base_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="${table_length/2}  0 ${-qr_height}"/>
+    <origin rpy="0 0 0" xyz="${table_length/2}  0 ${-qr_height+table_height/2}"/>
     <parent link="${prefix}qr"/>
     <child link="${prefix}base_link"/>
   </joint>
@@ -62,17 +62,17 @@
   <link name="${prefix}base_link">
     <inertial>
       <mass value="70" />
-      <origin xyz="0 0 ${table_height/2}" rpy="0 0 0" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
       <solid_cuboid_inertia m="70" h="${table_height}" d="${table_length}" w="${table_width}"/>
     </inertial>
     <visual>
-      <origin xyz="0 0 ${table_height/2}"/>
+      <origin xyz="0 0 0"/>
       <geometry>
         <box size="${table_length} ${table_width} ${table_height}" />
       </geometry>
     </visual>
     <collision>
-      <origin xyz="0 0 ${table_height/2}"/>
+      <origin xyz="0 0 0"/>
       <geometry>
         <box size="${table_length} ${table_width} ${table_height}" />
       </geometry>
@@ -86,15 +86,15 @@
 
   <xacro:property name="center_holder_offset_x" value="${(holder_length-table_length)/2}"/>
   <xacro:property name="center_holder_offset_y" value="0.0"/>
-  <xacro:property name="center_holder_offset_z" value="${table_height}"/> 
+  <xacro:property name="center_holder_offset_z" value="${table_height/2}"/> 
 
   <xacro:property name="left_holder_offset_x" value="${(holder_length-table_length)/2}"/> <!-- -0.195 -->
   <xacro:property name="left_holder_offset_y" value="${holder_width}"/> <!-- 0.225 -->
-  <xacro:property name="left_holder_offset_z" value="${table_height}"/>
+  <xacro:property name="left_holder_offset_z" value="${table_height/2}"/>
 
   <xacro:property name="right_holder_offset_x" value="${(holder_length-table_length)/2}"/>
   <xacro:property name="right_holder_offset_y" value="${-holder_width}"/>
-  <xacro:property name="right_holder_offset_z" value="${table_height}"/>
+  <xacro:property name="right_holder_offset_z" value="${table_height/2}"/>
 
 
     <!-- HOLDERS -->
