@@ -56,6 +56,7 @@ protected:
   // States
   virtual void standbyState();
   virtual void readyState();
+  
 
   // ROS stuff
   std::shared_ptr<tf2_ros::Buffer> tf2_buffer_;
@@ -145,6 +146,9 @@ protected:
   std::string identified_handle;
 
   double box_handle_displacement;
+
+  std::string moveit_constraint;
+  moveit_msgs::Constraints current_constraint;
   // in case we contact MoveIt through actionlib
   // std::shared_ptr<actionlib::SimpleActionServer<moveit_msgs::PickupAction>> pickup_as_;
   // std::shared_ptr<actionlib::SimpleActionServer<moveit_msgs::PlaceAction>> place_as_;

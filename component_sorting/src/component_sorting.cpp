@@ -40,7 +40,10 @@ void ComponentSorting::rosReadParams()
   required = true;
   box_handle_displacement = 0.05;
   readParam(pnh_, "box_handle_displacement", box_handle_displacement, box_handle_displacement, required);
-
+  
+  required = true;
+  moveit_constraint = "";
+  readParam(pnh_, "moveit_constraint", moveit_constraint, moveit_constraint, required); 
 
 }
 
@@ -103,7 +106,7 @@ int ComponentSorting::rosSetup()
   move_group_->setConstraintsDatabase(host,port);
   std::vector< std::string > stored_constraints = move_group_->getKnownConstraints();
   if (stored_constraints.empty())
-    ROS_INFO("There are no constraints stored in database");
+    ROS_WARN("There are no constraints stored in database");
   else
   {
     ROS_INFO("Constraints currently stored in database:");
@@ -267,8 +270,22 @@ void ComponentSorting::standbyState()
     ROS_INFO("Moved to home position, ready to take commands");
 
       // Select constraint
-    std::string selected_constraint = "elbow_up";
-    move_group_->setPathConstraints(selected_constraint);
+    move_group_->setPathConstraints(moveit_constraint);
+
+    current_constraint = move_group_->getPathConstraints();
+
+  if(moveit_constraint != current_constraint.name){
+    ROS_ERROR("Desired moveit_constraint is not available in database, please modify and run generate_path_constraints.cpp");
+/*     pick_result_.success = false;
+    pick_result_.message = "Moveit constraint not available in database";
+    pickup_from_as_->setAborted(pick_result_);
+
+    place_result_.success = false;
+    place_result_.message = "Moveit constraint not available in database";
+    place_on_as_->setAborted(place_result_); */
+
+    switchToState(robotnik_msgs::State::FAILURE_STATE);
+  }
 
     scan(approach_poses_.at("robot_left").get_pose(), place_poses_.at("robot_left").get_pose());
     ros::Duration(2).sleep();
@@ -306,26 +323,28 @@ void ComponentSorting::readyState()
   //selected_constraint.name = "downright"; 
 
   // Select constraint
-  std::string selected_constraint = "elbow_up";
-
-  move_group_->setPathConstraints(selected_constraint);
+  move_group_->setPathConstraints(moveit_constraint);
   //move_group_->clearPathConstraints (); //Remove
-  moveit_msgs::Constraints prueba = move_group_->getPathConstraints();	
-  ROS_INFO("Planning with Constraint: %s", prueba.name.c_str());
+  current_constraint = move_group_->getPathConstraints();
 
-  //std::string planning_frame = move_group_->getPlanningFrame();
-  //std:: cout << planning_frame << endl;
+  if(moveit_constraint != current_constraint.name){
+    if(pickup_from_as_->isActive() == true){ 
+      pick_result_.success = false;
+      pick_result_.message = "Moveit constraint not available in database";
+      pickup_from_as_->setAborted(pick_result_);
+    }
 
-  //  geometry_msgs::Pose target_pose;
-  //  target_pose.orientation.x = 0.0;
-  //  target_pose.orientation.y = 0.0;
-  //  target_pose.orientation.z = 1.0;
-  //  target_pose.orientation.w = 0.0;
-  //  target_pose.position.x = 0.111;
-  //  target_pose.position.y = -0.230;
-  //  target_pose.position.z = 0.221;
-  //
-  //  move_group_->setPoseTarget(target_pose);
+    if(place_on_as_->isActive() == true){
+      place_result_.success = false;
+      place_result_.message = "Moveit constraint not available in database";
+      place_on_as_->setAborted(place_result_);
+    }
+  
+  }
+
+  ROS_INFO("Planning with Constraint: %s", current_constraint.name.c_str());
+
+  
 
   // Value-Defintions of the different switch cases (desired chain actions)
    enum StringValue { ev_NotDefined,
@@ -398,17 +417,17 @@ void ComponentSorting::readyState()
     switch(s_mapStringValues[desired_goal]){
       case ev_kairos_right :
       { 
-        place_chain_movement(pre_place_poses_.at("kairos_right").get_pose(), place_poses_.at("kairos_right").get_pose());
+        place_chain_movement(pre_place_poses_.at("robot_right").get_pose(), place_poses_.at("robot_right").get_pose());
         break;
       }
       case ev_kairos_left :
       {
-        place_chain_movement(pre_place_poses_.at("kairos_left").get_pose(), place_poses_.at("kairos_left").get_pose());
+        place_chain_movement(pre_place_poses_.at("robot_left").get_pose(), place_poses_.at("robot_left").get_pose());
         break;
       }
       case ev_kairos_center :
       {
-        place_chain_movement(pre_place_poses_.at("kairos_center").get_pose(), place_poses_.at("kairos_center").get_pose());
+        place_chain_movement(pre_place_poses_.at("robot_center").get_pose(), place_poses_.at("robot_center").get_pose());
         break;
       }
       case ev_table_right :

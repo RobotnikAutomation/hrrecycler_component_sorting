@@ -22,3 +22,5 @@ box:
 
 box_handle_displacement: 0.05
 
+moveit_constraint: "elbow_up"
+

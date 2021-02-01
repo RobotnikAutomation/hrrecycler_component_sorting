@@ -1,54 +1,73 @@
-holder_right:
+table_holder_right:
   frame_id: table_right_holder_link
-  pose: [[0.0,0.0,0.0],[0.0,0.0,0.0]] # xyz, rpy
+  pose: [[0.0,0.0,-0.01],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
 
-holder_left:
+table_holder_left:
   frame_id: table_left_holder_link
-  pose: [[0.0,0.0,0.0],[0.0,0.0,0.0]] # xyz, rpy
+  pose: [[0.0,0.0,-0.01],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
 
-holder_center:
+table_holder_center:
   frame_id: table_center_holder_link
-  pose: [[0.0,0.0,0.0],[0.0,0.0,0.0]] # xyz, rpy
+  pose: [[0.0,0.0,-0.01],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
+
+robot_holder_right:
+  frame_id: robot_right_holder_link
+  pose: [[0.0,0.0,-0.01],[0.0,0.0,0.0]] # xyz, rpy
+  geometry:
+    mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
+
+robot_holder_left:
+  frame_id: robot_left_holder_link
+  pose: [[0.0,0.0,-0.01],[0.0,0.0,0.0]] # xyz, rpy
+  geometry:
+    mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
+
+robot_holder_center:
+  frame_id: robot_center_holder_link
+  pose: [[0.0,0.0,-0.01],[0.0,0.0,0.0]] # xyz, rpy
+  geometry:
+    mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
+
 
 box_center:
   frame_id: table_center_holder_link
-  pose: [[0.0,0.0,0.015],[0.0,0.0,0.0]] # xyz, rpy
+  pose: [[0.0,0.0,0.01],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_base.stl"
 
 box_right:
   frame_id: table_right_holder_link
-  pose: [[0.0,0.0,0.015],[0.0,0.0,0.0]] # xyz, rpy
+  pose: [[0.0,0.0,0.01],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_base.stl"
 
 box_left:
   frame_id: table_left_holder_link
-  pose: [[0.0,0.0,0.015],[0.0,0.0,0.0]] # xyz, rpy
+  pose: [[0.0,0.0,0.01],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_base.stl"
 
 handle_center:
   frame_id: table_center_holder_link
-  pose: [[0.0,0.0,0.085],[0.0,0.0,0.0]] # xyz, rpy
+  pose: [[0.0,0.0,0.08],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/handle.stl"
 
 handle_right:
   frame_id: table_right_holder_link
-  pose: [[0.0,0.0,0.085],[0.0,0.0,0.0]] # xyz, rpy
+  pose: [[0.0,0.0,0.08],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/handle.stl"
 
 handle_left:
   frame_id: table_left_holder_link
-  pose: [[0.0,0.0,0.085],[0.0,0.0,0.0]] # xyz, rpy
+  pose: [[0.0,0.0,0.08],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/handle.stl"
 
@@ -63,9 +82,12 @@ table:
 
 
 objects:
-  - holder_right
-  - holder_left
-  - holder_center
+  - robot_holder_right
+  - robot_holder_left
+  - robot_holder_center
+  - table_holder_right
+  - table_holder_left
+  - table_holder_center
   - box_right
   - box_left
   - box_center
