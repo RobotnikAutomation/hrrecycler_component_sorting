@@ -9,15 +9,15 @@ approach_poses:
 
   robot_center:
     frame_id: robot_center_holder_approach
-    pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy
+    pose: [[-0.06, 0.0, +0.20],[0.0, 0.0, 0.0]] # xyz, rpy
 
   robot_right:
     frame_id: robot_right_holder_approach
-    pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy
+    pose: [[-0.06, 0.0, +0.20],[0.0, 0.0, 0.0]] # xyz, rpy
 
   robot_left:
     frame_id: robot_left_holder_approach
-    pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy  
+    pose: [[-0.06, 0.0, +0.20],[0.0, 0.0, 0.0]] # xyz, rpy  
  
   table_center:
     frame_id: table_center_holder_approach
@@ -42,27 +42,27 @@ place_poses:
 
   robot_center:
     frame_id: robot_center_holder_qr
-    pose: [[0.0, 0.0, 0.386],[0.0, +3.14159, -1.57080]]
+    pose: [[0.0, 0.0, 0.379],[0.0, +3.14159, -1.57080]]
 
   robot_right:
     frame_id: robot_right_holder_qr
-    pose: [[0.0, 0.0, 0.386],[0.0, +3.14159, -1.57080]]
+    pose: [[0.0, 0.0, 0.379],[0.0, +3.14159, -1.57080]]
   
   robot_left:
     frame_id: robot_left_holder_qr
-    pose: [[0.0, 0.0, 0.386],[0.0, +3.14159, -1.57080]]  
+    pose: [[0.0, 0.0, 0.379],[0.0, +3.14159, -1.57080]]  
 
   table_center:
     frame_id: table_center_holder_qr
-    pose: [[0.0, 0.0, 0.386],[0.0, +3.14159, -1.57080]]
+    pose: [[0.0, 0.0, 0.379],[0.0, +3.14159, -1.57080]]
 
   table_right:
     frame_id: table_right_holder_qr
-    pose: [[0.0, 0.0, 0.386],[0.0, +3.14159, -1.57080]]
+    pose: [[0.0, 0.0, 0.379],[0.0, +3.14159, -1.57080]]
   
   table_left:
     frame_id: table_left_holder_qr
-    pose: [[0.0, 0.0, 0.386],[0.0, +3.14159, -1.57080]]  
+    pose: [[0.0, 0.0, 0.379],[0.0, +3.14159, -1.57080]]  
 
 pre_place_poses:
   poses_to_use:
@@ -75,15 +75,15 @@ pre_place_poses:
 
   robot_center:
     frame_id: robot_center_holder_qr
-    pose: [[0.0, 0.0, 0.47],[0.0, +3.14159, -1.57080]]
+    pose: [[0.0, 0.0, 0.57],[0.0, +3.14159, -1.57080]]
 
   robot_right:
     frame_id: robot_right_holder_qr
-    pose: [[0.0, 0.0, 0.47],[0.0, +3.14159, -1.57080]]
+    pose: [[0.0, 0.0, 0.57],[0.0, +3.14159, -1.57080]]
   
   robot_left:
     frame_id: robot_left_holder_qr
-    pose: [[0.0, 0.0, 0.47],[0.0, +3.14159, -1.57080]]  
+    pose: [[0.0, 0.0, 0.57],[0.0, +3.14159, -1.57080]]  
 
   table_center:
     frame_id: table_center_holder_qr
@@ -108,27 +108,27 @@ pick_poses:
 
   robot_center:
     frame_id: box_grab_qr
-    pose: [[0.0, 0.0, 0.135],[0.0, +3.14159, -1.57080]]
+    pose: [[0.0, 0.0, 0.134],[0.0, +3.14159, -1.57080]]
 
   robot_right:
     frame_id: box_grab_qr
-    pose: [[0.0, 0.0, 0.135],[0.0, +3.14159, -1.57080]]
+    pose: [[0.0, 0.0, 0.134],[0.0, +3.14159, -1.57080]]
   
   robot_left:
     frame_id: box_grab_qr
-    pose: [[0.0, 0.0, 0.135],[0.0, +3.14159, -1.57080]] 
+    pose: [[0.0, 0.0, 0.134],[0.0, +3.14159, -1.57080]] 
 
   table_center:
     frame_id: box_grab_qr
-    pose: [[0.0, 0.0, 0.135],[0.0, +3.14159, -1.57080]]
+    pose: [[0.0, 0.0, 0.134],[0.0, +3.14159, -1.57080]]
 
   table_right:
     frame_id: box_grab_qr
-    pose: [[0.0, 0.0, 0.135],[0.0, +3.14159, -1.57080]]
+    pose: [[0.0, 0.0, 0.134],[0.0, +3.14159, -1.57080]]
   
   table_left:
     frame_id: box_grab_qr
-    pose: [[0.0, 0.0, 0.135],[0.0, +3.14159, -1.57080]] 
+    pose: [[0.0, 0.0, 0.134],[0.0, +3.14159, -1.57080]] 
 
 pre_pick_poses:
   poses_to_use:
