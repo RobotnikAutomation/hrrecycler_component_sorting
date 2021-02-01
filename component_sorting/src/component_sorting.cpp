@@ -81,11 +81,6 @@ int ComponentSorting::rosSetup()
   place_on_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this, std::string("place_on")));
   place_on_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
 
-  // Connect to database
-  //host = "localhost";
-  //port = 33829;
-  //connection_timeout = 5.0;
-  //connection_retries = 3;
 
   conn_ = moveit_warehouse::loadDatabase();
   conn_->setParams(host, port);
@@ -94,14 +89,11 @@ int ComponentSorting::rosSetup()
 
   while (!conn_->connect())
   {
-    ROS_WARN("Failed to connect to DB on %s:%d ", host.c_str(), port);
+    ROS_ERROR("Failed to connect to DB on %s:%d ", host.c_str(), port);
     ros::Duration(2).sleep();
     conn_->setParams(host, port);
   }
   
-
-  //move_group_->setPoseReferenceFrame("robot_map");
-
 
   move_group_->setConstraintsDatabase(host,port);
   std::vector< std::string > stored_constraints = move_group_->getKnownConstraints();
@@ -114,6 +106,8 @@ int ComponentSorting::rosSetup()
       ROS_INFO(" * %s", name.c_str());
   }
 
+
+  // Create planning scene
   create_planning_scene();
 
   // Read and store parameter: approach_poses from parameter server
@@ -177,7 +171,7 @@ int ComponentSorting::rosSetup()
   }
 
 
-
+  // Gazebo link_attacher service
   client = nh_.serviceClient<ur_msgs::SetIO>("arm/ur_hardware_interface/set_io");
   gazebo_link_attacher_client = nh_.serviceClient<gazebo_ros_link_attacher::Attach>("/link_attacher_node/attach");
   gazebo_link_detacher_client = nh_.serviceClient<gazebo_ros_link_attacher::Attach>("/link_attacher_node/detach");
@@ -201,8 +195,11 @@ int ComponentSorting::rosSetup()
   // bool spin_action_thread = true;
   // pickup_ac_.reset(new actionlib::SimpleActionClient<moveit_msgs::PickupAction>(nh_, "pickup", spin_action_thread));
   // place_ac_.reset(new actionlib::SimpleActionClient<moveit_msgs::PlaceAction>(nh_, "place", spin_action_thread));
+
+  // TF Listener and Broadcaster
   tf_latch_timer = pnh_.createTimer(ros::Duration(0.1), std::bind(&ComponentSorting::tfLatchCallback, this));
   tf_listener = new  tf2_ros::TransformListener(tfBuffer);
+
   return RComponent::rosSetup();
 }
 
@@ -256,36 +253,27 @@ void ComponentSorting::standbyState()
 //UNCOMMENT FOR VISUALIZATION
 /*   robot_state_ = move_group_->getCurrentState();
   joint_model_group= robot_state_->getJointModelGroup("arm"); */
-  
-  
 
-    // Move to home position without selected constraints
-  std::string end_effector = move_group_->getEndEffector()  ;
-  std:: cout << end_effector << endl;
+  // Move to home position without selected constraints
   move_group_->detachObject();  
   move_group_->clearPathConstraints();
   move_group_->setNamedTarget("home_position");
   success_move = (move_group_->move() == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
   if(success_move){
+
     ROS_INFO("Moved to home position, ready to take commands");
 
-      // Select constraint
+    // Select constraint
     move_group_->setPathConstraints(moveit_constraint);
 
     current_constraint = move_group_->getPathConstraints();
 
-  if(moveit_constraint != current_constraint.name){
-    ROS_ERROR("Desired moveit_constraint is not available in database, please modify and run generate_path_constraints.cpp");
-/*     pick_result_.success = false;
-    pick_result_.message = "Moveit constraint not available in database";
-    pickup_from_as_->setAborted(pick_result_);
-
-    place_result_.success = false;
-    place_result_.message = "Moveit constraint not available in database";
-    place_on_as_->setAborted(place_result_); */
-
-    switchToState(robotnik_msgs::State::FAILURE_STATE);
-  }
+    if(moveit_constraint != current_constraint.name){
+      ROS_ERROR("Desired moveit_constraint is not available in database, please modify or run generate_path_constraints.cpp");
+      switchToState(robotnik_msgs::State::FAILURE_STATE);
+      return;
+    }
 
     scan(approach_poses_.at("robot_left").get_pose(), place_poses_.at("robot_left").get_pose());
     ros::Duration(2).sleep();
@@ -301,11 +289,11 @@ void ComponentSorting::standbyState()
     ros::Duration(2).sleep();
 
     switchToState(robotnik_msgs::State::READY_STATE);
+
   }else{
-    ROS_INFO("Could not move to home position, warning");
+    ROS_WARN("Could not move to home position");
   }
 
-  
 }
 
 void ComponentSorting::readyState()
@@ -318,9 +306,6 @@ void ComponentSorting::readyState()
   }
 
   ROS_INFO_THROTTLE(3, "I have a new goal!");
-
-  //moveit_msgs::Constraints selected_constraint;
-  //selected_constraint.name = "downright"; 
 
   // Select constraint
   move_group_->setPathConstraints(moveit_constraint);
@@ -343,8 +328,6 @@ void ComponentSorting::readyState()
   }
 
   ROS_INFO("Planning with Constraint: %s", current_constraint.name.c_str());
-
-  
 
   // Value-Defintions of the different switch cases (desired chain actions)
    enum StringValue { ev_NotDefined,
@@ -746,6 +729,10 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
 { 
 /*   visual_tools_->deleteAllMarkers();
   visual_tools_->trigger(); */
+
+  pre_position.header.frame_id = pre_position.header.frame_id + "_latched";
+  position.header.frame_id = position.header.frame_id + "_latched";
+
   // Set pre-position goal
   move_group_->setPoseTarget(pre_position);
   //Plan to pre-position goal
@@ -790,7 +777,7 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
   waypoint_cartesian_pose.position.z += box_handle_displacement;
   waypoints.push_back(waypoint_cartesian_pose); 
 
-  move_group_->setPoseReferenceFrame(position.header.frame_id + "_latched");
+  move_group_->setPoseReferenceFrame(position.header.frame_id);
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
 
@@ -837,7 +824,7 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
   waypoint_cartesian_pose = position.pose;
 
   waypoints.push_back(waypoint_cartesian_pose);
-  move_group_->setPoseReferenceFrame(position.header.frame_id + "_latched");
+  move_group_->setPoseReferenceFrame(position.header.frame_id);
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
 
@@ -869,7 +856,7 @@ void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_posit
   waypoint_cartesian_pose = pre_position.pose;
 
   waypoints.push_back(waypoint_cartesian_pose);  
-  move_group_->setPoseReferenceFrame(pre_position.header.frame_id + "_latched" );
+  move_group_->setPoseReferenceFrame(pre_position.header.frame_id );
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
 
