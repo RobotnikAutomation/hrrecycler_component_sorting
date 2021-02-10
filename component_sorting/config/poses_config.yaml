@@ -9,15 +9,15 @@ approach_poses:
 
   robot_center:
     frame_id: robot_center_holder_approach
-    pose: [[-0.06, 0.0, +0.20],[0.0, 0.0, 0.0]] # xyz, rpy
+    pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy
 
   robot_right:
     frame_id: robot_right_holder_approach
-    pose: [[-0.06, 0.0, +0.20],[0.0, 0.0, 0.0]] # xyz, rpy
+    pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy
 
   robot_left:
     frame_id: robot_left_holder_approach
-    pose: [[-0.06, 0.0, +0.20],[0.0, 0.0, 0.0]] # xyz, rpy  
+    pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy  
  
   table_center:
     frame_id: table_center_holder_approach
