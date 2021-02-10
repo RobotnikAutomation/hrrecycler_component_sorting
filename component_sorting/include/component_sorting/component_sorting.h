@@ -19,6 +19,7 @@
 #include <moveit_msgs/PlaceAction.h>
 #include <component_sorting_msgs/PickupFromAction.h>
 #include <component_sorting_msgs/PlaceOnAction.h>
+#include <component_sorting_msgs/InitHolderAction.h>
 
 #include <string>
 #include <iostream>
@@ -32,8 +33,8 @@
 #include <geometry_msgs/TransformStamped.h>
 #include <tf2_ros/transform_broadcaster.h>
 
-#include <component_sorting/object.h>
-#include <component_sorting/pose.h>
+#include <component_sorting/object_builder.h>
+#include <component_sorting/pose_builder.h>
 
 class ComponentSorting : public rcomponent::RComponent
 {
@@ -74,21 +75,25 @@ protected:
   moveit::planning_interface::MoveGroupInterfacePtr move_group_;
   moveit::planning_interface::MoveGroupInterface::Plan plan;
   moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
-  std::vector< std::string > objects;
+  std::vector< std::string > objects_in_roi; //CHANGE
   
-  std::vector<Object> objects_;
+  std::vector<Object_Builder> parsed_objects;
   std::vector<moveit_msgs::CollisionObject> moveit_objects;
 
   std::string action_;
   actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>::GoalConstPtr pickup_from_goal_;
   actionlib::SimpleActionServer<component_sorting_msgs::PlaceOnAction>::GoalConstPtr place_on_goal_;
+  actionlib::SimpleActionServer<component_sorting_msgs::InitHolderAction>::GoalConstPtr init_holder_goal_;
   std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>> pickup_from_as_;
   std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::PlaceOnAction>> place_on_as_;
+  std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::InitHolderAction>> init_holder_as_;
 
   component_sorting_msgs::PlaceOnFeedback place_feedback_;
   component_sorting_msgs::PlaceOnResult place_result_;
   component_sorting_msgs::PickupFromFeedback pick_feedback_;
   component_sorting_msgs::PickupFromResult pick_result_;
+  component_sorting_msgs::InitHolderFeedback init_holder_feedback_;
+  component_sorting_msgs::InitHolderResult init_holder_result_;
 
   warehouse_ros::DatabaseConnection::Ptr conn_;
 
@@ -119,11 +124,11 @@ protected:
 
 
 
-  map<std::string, Pose> approach_poses_;
-  map<std::string, Pose> place_poses_;
-  map<std::string, Pose> pick_poses_;
-  map<std::string, Pose> pre_pick_poses_;
-  map<std::string, Pose> pre_place_poses_;
+  map<std::string, Pose_Builder> approach_poses_;
+  map<std::string, Pose_Builder> place_poses_;
+  map<std::string, Pose_Builder> pick_poses_;
+  map<std::string, Pose_Builder> pre_pick_poses_;
+  map<std::string, Pose_Builder> pre_place_poses_;
 
   ur_msgs::SetIO srv;
   gazebo_ros_link_attacher::Attach gazebo_link_attacher_msg;

@@ -1,6 +1,6 @@
-#include <component_sorting/pose.h>
+#include <component_sorting/pose_builder.h>
 
-Pose::Pose(ros::NodeHandle pnh)
+Pose_Builder::Pose_Builder(ros::NodeHandle pnh)
 {
     // Get parameters from parameter server
 
@@ -14,26 +14,26 @@ Pose::Pose(ros::NodeHandle pnh)
 
     if (pose_.getType() == XmlRpc::XmlRpcValue::TypeArray && pose_.size() == 2)
     {    
-        XmlRpc::XmlRpcValue pose_position_;
-        XmlRpc::XmlRpcValue pose_orientation_;
+        XmlRpc::XmlRpcValue pose_position;
+        XmlRpc::XmlRpcValue pose_orientation;
         tf2::Quaternion quaternion_orientation;
 
-        pose_position_ = pose_[0];
-        pose_orientation_ = pose_[1];
+        pose_position = pose_[0];
+        pose_orientation = pose_[1];
 
-        if (pose_position_.getType() == XmlRpc::XmlRpcValue::TypeArray && pose_position_.size() == 3){
+        if (pose_position.getType() == XmlRpc::XmlRpcValue::TypeArray && pose_position.size() == 3){
            
-            pose_stamped_msg.pose.position.x = (pose_position_[0]);
-            pose_stamped_msg.pose.position.y = (pose_position_[1]);
-            pose_stamped_msg.pose.position.z = (pose_position_[2]); 
+            pose_stamped_msg.pose.position.x = (pose_position[0]);
+            pose_stamped_msg.pose.position.y = (pose_position[1]);
+            pose_stamped_msg.pose.position.z = (pose_position[2]); 
 
         }else{
             ROS_WARN("Cannot process pose position parameter, it should contain [x,y,z] array, check object configuration yaml");
         }
 
-        if (pose_orientation_.getType() == XmlRpc::XmlRpcValue::TypeArray && pose_orientation_.size() == 3){
+        if (pose_orientation.getType() == XmlRpc::XmlRpcValue::TypeArray && pose_orientation.size() == 3){
 
-            quaternion_orientation.setRPY( pose_orientation_[0], pose_orientation_[1], pose_orientation_[2]);
+            quaternion_orientation.setRPY( pose_orientation[0], pose_orientation[1], pose_orientation[2]);
 
             pose_stamped_msg.pose.orientation.x = quaternion_orientation[0];
             pose_stamped_msg.pose.orientation.y = quaternion_orientation[1];
@@ -48,12 +48,12 @@ Pose::Pose(ros::NodeHandle pnh)
     }
 }
 
-Pose::~Pose(){
+Pose_Builder::~Pose_Builder(){
     
 };
 
 
-geometry_msgs::PoseStamped Pose::get_pose(){
+geometry_msgs::PoseStamped Pose_Builder::getPose(){
     return pose_stamped_msg;
 }
 

@@ -1,5 +1,5 @@
-#ifndef _COMPONENT_SORTING__OBJECT_H_
-#define _COMPONENT_SORTING__OBJECT_H_
+#ifndef _COMPONENT_SORTING__OBJECT_BUILDER_H_
+#define _COMPONENT_SORTING__OBJECT_BUILDER_H_
 
 #include <ros/ros.h>
 
@@ -7,32 +7,21 @@
 #include "geometric_shapes/mesh_operations.h"
 #include "geometric_shapes/shape_operations.h"
 #include <moveit_msgs/Constraints.h>
+#include <moveit_msgs/CollisionObject.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <ros/ros.h>
+#include <iostream>
+#include <string>
 
-class Object
+class Object_Builder
 {
   public:
     
-    Object(ros::NodeHandle pnh, std::string id);
+    Object_Builder(ros::NodeHandle pnh, std::string id);
 
-    virtual ~Object();
+    virtual ~Object_Builder();
 
-    std::string get_id();
-
-    std::string get_frame_id();
-
-    bool has_mesh();
-
-    bool has_primitive();
-
-    geometry_msgs::Pose get_pose();
-
-    shape_msgs::Mesh get_mesh();
-
-    shape_msgs::SolidPrimitive get_primitive();
-
-
+    moveit_msgs::CollisionObject getObject();
 
 
   private:
@@ -44,6 +33,7 @@ class Object
     std::string frame_id_; // Frame used for object relative positioning
     XmlRpc::XmlRpcValue geometry_; // Stores object geometry parameter
     XmlRpc::XmlRpcValue pose_; // Stores object pose parameter
+    moveit_msgs::CollisionObject collision_object_;
     
     // Variables created in Object class after processing parameter info 
 
@@ -51,10 +41,8 @@ class Object
     shape_msgs::Mesh mesh; // Will be filled in only for mesh objects
     shape_msgs::SolidPrimitive primitive; // Will be filled in only for primitive shape objects
     
-    bool check_mesh = false; // Checks if object is defined using mesh
-    bool check_primitive = false; // Checks if object is defined using primitive shape
       
       
 };
 
-#endif // _COMPONENT_SORTING__OBJECT_H_
+#endif // _COMPONENT_SORTING__OBJECT_BUILDER_H_

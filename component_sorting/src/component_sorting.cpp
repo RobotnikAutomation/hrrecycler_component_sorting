@@ -80,7 +80,10 @@ int ComponentSorting::rosSetup()
       new actionlib::SimpleActionServer<component_sorting_msgs::PlaceOnAction>(pnh_, "place_on", autostart));
   place_on_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this, std::string("place_on")));
   place_on_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
-
+  init_holder_as_.reset(
+      new actionlib::SimpleActionServer<component_sorting_msgs::InitHolderAction>(pnh_, "init_holder", autostart));
+  init_holder_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this, std::string("init_holder")));
+  init_holder_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
 
   conn_ = moveit_warehouse::loadDatabase();
   conn_->setParams(host, port);
@@ -119,7 +122,7 @@ int ComponentSorting::rosSetup()
   // Create class Pose objects
   for (auto & on: approach_poses_names)
   {
-    approach_poses_.insert(make_pair(on, Pose(ros::NodeHandle(pnh_approach_ , on))));
+    approach_poses_.insert(make_pair(on, Pose_Builder(ros::NodeHandle(pnh_approach_ , on))));
   }
 
   // Read and store parameter: place_poses from parameter server
@@ -131,7 +134,7 @@ int ComponentSorting::rosSetup()
   // Create class Pose objects
   for (auto & on: place_poses_names)
   {
-    place_poses_.insert(make_pair(on, Pose(ros::NodeHandle(pnh_place_ , on))));
+    place_poses_.insert(make_pair(on, Pose_Builder(ros::NodeHandle(pnh_place_ , on))));
   }
 
   // Read and store parameter: pick_poses from parameter server
@@ -143,7 +146,7 @@ int ComponentSorting::rosSetup()
   // Create class Pose objects
   for (auto & on: pick_poses_names)
   {
-    pick_poses_.insert(make_pair(on, Pose(ros::NodeHandle(pnh_pick_ , on))));
+    pick_poses_.insert(make_pair(on, Pose_Builder(ros::NodeHandle(pnh_pick_ , on))));
   }
 
   // Read and store parameter: pre_pick_poses from parameter server
@@ -155,7 +158,7 @@ int ComponentSorting::rosSetup()
   // Create class Pose objects
   for (auto & on: pre_pick_poses_names)
   {
-    pre_pick_poses_.insert(make_pair(on, Pose(ros::NodeHandle(pnh_pre_pick_ , on))));
+    pre_pick_poses_.insert(make_pair(on, Pose_Builder(ros::NodeHandle(pnh_pre_pick_ , on))));
   }
 
     // Read and store parameter: pre_pick_poses from parameter server
@@ -167,7 +170,7 @@ int ComponentSorting::rosSetup()
   // Create class Pose objects
   for (auto & on: pre_place_poses_names)
   {
-    pre_place_poses_.insert(make_pair(on, Pose(ros::NodeHandle(pnh_pre_place_ , on))));
+    pre_place_poses_.insert(make_pair(on, Pose_Builder(ros::NodeHandle(pnh_pre_place_ , on))));
   }
 
 
@@ -243,7 +246,8 @@ int ComponentSorting::setup()
   RCOMPONENT_INFO_STREAM("Started server: pickup from");
   place_on_as_->start();
   RCOMPONENT_INFO_STREAM("Started server: place on");
-
+  init_holder_as_->start();
+  RCOMPONENT_INFO_STREAM("Started server: init holder");
   return rcomponent::OK;
 }
 
@@ -275,17 +279,17 @@ void ComponentSorting::standbyState()
       return;
     }
 
-    scan(approach_poses_.at("robot_left").get_pose(), place_poses_.at("robot_left").get_pose());
+    scan(approach_poses_.at("robot_left").getPose(), place_poses_.at("robot_left").getPose());
     ros::Duration(2).sleep();
-    scan(approach_poses_.at("robot_center").get_pose(), place_poses_.at("robot_center").get_pose());
+    scan(approach_poses_.at("robot_center").getPose(), place_poses_.at("robot_center").getPose());
     ros::Duration(2).sleep();
-    scan(approach_poses_.at("robot_right").get_pose(), place_poses_.at("robot_right").get_pose());
+    scan(approach_poses_.at("robot_right").getPose(), place_poses_.at("robot_right").getPose());
     ros::Duration(2).sleep();
-    scan(approach_poses_.at("table_right").get_pose(), place_poses_.at("table_right").get_pose());
+    scan(approach_poses_.at("table_right").getPose(), place_poses_.at("table_right").getPose());
     ros::Duration(2).sleep();
-    scan(approach_poses_.at("table_center").get_pose(), place_poses_.at("table_center").get_pose());
+    scan(approach_poses_.at("table_center").getPose(), place_poses_.at("table_center").getPose());
     ros::Duration(2).sleep();
-    scan(approach_poses_.at("table_left").get_pose(), place_poses_.at("table_left").get_pose());
+    scan(approach_poses_.at("table_left").getPose(), place_poses_.at("table_left").getPose());
     ros::Duration(2).sleep();
 
     switchToState(robotnik_msgs::State::READY_STATE);
@@ -299,7 +303,7 @@ void ComponentSorting::standbyState()
 void ComponentSorting::readyState()
 { 
 
-  if (pickup_from_as_->isActive() == false && place_on_as_->isActive() == false)
+  if (pickup_from_as_->isActive() == false && place_on_as_->isActive() == false && init_holder_as_->isActive() == false)
   {
     ROS_INFO_THROTTLE(3, "I do not have a goal");
     return;
@@ -346,6 +350,20 @@ void ComponentSorting::readyState()
    s_mapStringValues["table_left"] = ev_table_left;
    s_mapStringValues["table_center"] = ev_table_center;
 
+  if(init_holder_as_->isActive() == true){ 
+
+    // Get desired goal and set as target
+    std::vector <std::string> prueba = init_holder_goal_->position; 
+    for (int i = 0; i < prueba.size(); i++) {
+        std::cout << prueba.at(i) << ' ';
+    }
+
+    init_holder_result_.success = true;
+    init_holder_result_.message = "read vector";
+    init_holder_as_->setSucceeded(init_holder_result_);
+    return;
+  }
+
   if(pickup_from_as_->isActive() == true){ 
 
     // Get desired goal and set as target
@@ -354,32 +372,32 @@ void ComponentSorting::readyState()
     switch(s_mapStringValues[desired_goal]){
       case ev_kairos_right :
       {  
-        pick_chain_movement(approach_poses_.at("robot_right").get_pose(), pre_pick_poses_.at("robot_right").get_pose(), pick_poses_.at("robot_right").get_pose());
+        pick_chain_movement(approach_poses_.at("robot_right").getPose(), pre_pick_poses_.at("robot_right").getPose(), pick_poses_.at("robot_right").getPose());
         break;
       }
       case ev_kairos_left :
       {
-        pick_chain_movement(approach_poses_.at("robot_left").get_pose(), pre_pick_poses_.at("robot_left").get_pose(), pick_poses_.at("robot_left").get_pose());
+        pick_chain_movement(approach_poses_.at("robot_left").getPose(), pre_pick_poses_.at("robot_left").getPose(), pick_poses_.at("robot_left").getPose());
         break;
       }
       case ev_kairos_center :
       {
-        pick_chain_movement(approach_poses_.at("robot_center").get_pose(), pre_pick_poses_.at("robot_center").get_pose(), pick_poses_.at("robot_center").get_pose());
+        pick_chain_movement(approach_poses_.at("robot_center").getPose(), pre_pick_poses_.at("robot_center").getPose(), pick_poses_.at("robot_center").getPose());
         break;
       }
       case ev_table_right :
       {
-        pick_chain_movement(approach_poses_.at("table_right").get_pose(), pre_pick_poses_.at("table_right").get_pose(), pick_poses_.at("table_right").get_pose());
+        pick_chain_movement(approach_poses_.at("table_right").getPose(), pre_pick_poses_.at("table_right").getPose(), pick_poses_.at("table_right").getPose());
         break;
       }
       case ev_table_left :
       {
-        pick_chain_movement(approach_poses_.at("table_left").get_pose(), pre_pick_poses_.at("table_left").get_pose(), pick_poses_.at("table_left").get_pose());
+        pick_chain_movement(approach_poses_.at("table_left").getPose(), pre_pick_poses_.at("table_left").getPose(), pick_poses_.at("table_left").getPose());
         break;
       }
       case ev_table_center :
       {
-        pick_chain_movement(approach_poses_.at("table_center").get_pose(), pre_pick_poses_.at("table_center").get_pose(), pick_poses_.at("table_center").get_pose());
+        pick_chain_movement(approach_poses_.at("table_center").getPose(), pre_pick_poses_.at("table_center").getPose(), pick_poses_.at("table_center").getPose());
         break;
       }
       default :
@@ -400,32 +418,32 @@ void ComponentSorting::readyState()
     switch(s_mapStringValues[desired_goal]){
       case ev_kairos_right :
       { 
-        place_chain_movement(pre_place_poses_.at("robot_right").get_pose(), place_poses_.at("robot_right").get_pose());
+        place_chain_movement(pre_place_poses_.at("robot_right").getPose(), place_poses_.at("robot_right").getPose());
         break;
       }
       case ev_kairos_left :
       {
-        place_chain_movement(pre_place_poses_.at("robot_left").get_pose(), place_poses_.at("robot_left").get_pose());
+        place_chain_movement(pre_place_poses_.at("robot_left").getPose(), place_poses_.at("robot_left").getPose());
         break;
       }
       case ev_kairos_center :
       {
-        place_chain_movement(pre_place_poses_.at("robot_center").get_pose(), place_poses_.at("robot_center").get_pose());
+        place_chain_movement(pre_place_poses_.at("robot_center").getPose(), place_poses_.at("robot_center").getPose());
         break;
       }
       case ev_table_right :
       {
-        place_chain_movement(pre_place_poses_.at("table_right").get_pose(), place_poses_.at("table_right").get_pose());
+        place_chain_movement(pre_place_poses_.at("table_right").getPose(), place_poses_.at("table_right").getPose());
         break;
       }
       case ev_table_left :
       {
-        place_chain_movement(pre_place_poses_.at("table_left").get_pose(), place_poses_.at("table_left").get_pose());
+        place_chain_movement(pre_place_poses_.at("table_left").getPose(), place_poses_.at("table_left").getPose());
         break;
       }
       case ev_table_center :
       {
-        place_chain_movement(pre_place_poses_.at("table_center").get_pose(), place_poses_.at("table_center").get_pose());
+        place_chain_movement(pre_place_poses_.at("table_center").getPose(), place_poses_.at("table_center").getPose());
         break;
       }
       default :
@@ -448,6 +466,8 @@ void ComponentSorting::goalCB(const std::string& action)
     pickup_from_goal_ = pickup_from_as_->acceptNewGoal();}
   if (action_ == "place_on"){
     place_on_goal_ = place_on_as_->acceptNewGoal();}
+  if (action_ == "init_holder"){
+    init_holder_goal_ = init_holder_as_->acceptNewGoal();}  
     
 }
 
@@ -459,6 +479,7 @@ void ComponentSorting::preemptCB()
   // set the action state to preempted
   pickup_from_as_->setPreempted();
   place_on_as_->setPreempted();
+  init_holder_as_->setPreempted();
 }
 
 void ComponentSorting::tfListener(std::string frame_name){
@@ -548,23 +569,23 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped approach_p
   // Get current end effector position and check whether there is a box to grab
   current_cartesian_pose = move_group_->getCurrentPose().pose;
 
-  objects.clear();
-  objects = planning_scene_interface.getKnownObjectNamesInROI(current_cartesian_pose.position.x - box.length/2, current_cartesian_pose.position.y - box.width/2 ,0, current_cartesian_pose.position.x 
+  objects_in_roi.clear();
+  objects_in_roi = planning_scene_interface.getKnownObjectNamesInROI(current_cartesian_pose.position.x - box.length/2, current_cartesian_pose.position.y - box.width/2 ,0, current_cartesian_pose.position.x 
   + box.length/2, current_cartesian_pose.position.y + box.width/2 , 3, false );
 
 
-  if(objects.size() < 2){
+  if(objects_in_roi.size() < 2){
     pick_result_.success = false;
     pick_result_.message = "There is no box to grab";
     pickup_from_as_->setAborted(pick_result_);
     return;
   }
 
-  for(int i=0; i < objects.size(); i++){
-   if(objects[i].compare(0,6,"handle")==0){
-     identified_handle = objects[i];
-   }else if (objects[i].compare(0,3,"box")==0) {
-      identified_box = objects[i];
+  for(int i=0; i < objects_in_roi.size(); i++){
+   if(objects_in_roi[i].compare(0,6,"handle")==0){
+     identified_handle = objects_in_roi[i];
+   }else if (objects_in_roi[i].compare(0,3,"box")==0) {
+      identified_box = objects_in_roi[i];
    }else {}
   }
 
@@ -960,28 +981,19 @@ void ComponentSorting::create_planning_scene()
   bool required = true;
   readParam(pnh_, "objects", object_names, object_names, required); 
 
-  // Create class Object objects
-  for (auto & on: object_names)
+  // Create class Object_Builder objects
+  for (auto & object_name: object_names)
   {
-    objects_.push_back(Object(ros::NodeHandle(pnh_ , on), on));
+    parsed_objects.push_back(Object_Builder(ros::NodeHandle(pnh_ , object_name), object_name));
   }
 
-  //Parse vector of Object objects into Moveit's collision objects
+  //Object_builder objects into Moveit's collision objects
 
-  for (auto & on: objects_)
+
+    for (auto & parsed_object: parsed_objects)
   { 
     moveit_msgs::CollisionObject collision_object;
-
-    collision_object.id = on.get_id();
-    collision_object.header.frame_id = on.get_frame_id();
-
-    if (on.has_mesh()){
-      collision_object.meshes.push_back(on.get_mesh());
-      collision_object.mesh_poses.push_back(on.get_pose());
-    }else if (on.has_primitive()){
-      collision_object.primitives.push_back(on.get_primitive());
-      collision_object.primitive_poses.push_back(on.get_pose());
-    }
+    collision_object = parsed_object.getObject();
 
     collision_object.operation = collision_object.ADD;
     moveit_objects.push_back(collision_object);

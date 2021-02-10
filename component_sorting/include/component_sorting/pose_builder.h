@@ -1,5 +1,5 @@
-#ifndef _COMPONENT_SORTING__POSE_H_
-#define _COMPONENT_SORTING__POSE_H_
+#ifndef _COMPONENT_SORTING__POSE_BUILDER_H_
+#define _COMPONENT_SORTING__POSE_BUILDER_H_
 
 #include <ros/ros.h>
 
@@ -12,15 +12,15 @@
 #include <iostream>
 #include <string>
 
-class Pose
+class Pose_Builder 
 {
   public:
     
-    Pose(ros::NodeHandle pnh);
+    Pose_Builder(ros::NodeHandle pnh);
 
-    virtual ~Pose();
+    virtual ~Pose_Builder();
 
-    geometry_msgs::PoseStamped get_pose();
+    geometry_msgs::PoseStamped getPose();
 
 
   private:
@@ -36,4 +36,4 @@ class Pose
     geometry_msgs::PoseStamped pose_stamped_msg; // MoveIt Object Pose message
 };
 
-#endif // _COMPONENT_SORTING__POSE_H_
+#endif // _COMPONENT_SORTING__POSE_BUILDER_H_
