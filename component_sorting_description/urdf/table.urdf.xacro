@@ -2,7 +2,7 @@
 <robot name="table" xmlns:xacro="http://wiki.ros.org/xacro">
 
   <xacro:include filename="$(find component_sorting_description)/urdf/inertia.urdf.xacro" />
-  <xacro:include filename="$(find component_sorting_description)/urdf/box/holder_table.urdf.xacro" />
+  <xacro:include filename="$(find component_sorting_description)/urdf/box/holder.urdf.xacro" />
 <!--   <xacro:include filename="$(find vigir_ar_alvar_description)/urdf/artag.urdf.xacro" /> -->
   <xacro:include filename="$(find component_sorting_description)/ar_tags/ar_tag_12cm_border.urdf.xacro" />
 
@@ -98,17 +98,17 @@
 
 
     <!-- HOLDERS -->
-  <xacro:holder_table prefix="${prefix}center_" parent="${prefix}base_link" tag_id="marker2_12cm" >
+  <xacro:holder prefix="${prefix}center_" parent="${prefix}base_link" tag_id="marker2_12cm" >
       <origin xyz="${center_holder_offset_x} ${center_holder_offset_y} ${center_holder_offset_z}" rpy="0 0 0"/>
-  </xacro:holder_table>
+  </xacro:holder>
 
-  <xacro:holder_table prefix="${prefix}left_" parent="${prefix}base_link" tag_id="marker3_12cm" >
+  <xacro:holder prefix="${prefix}left_" parent="${prefix}base_link" tag_id="marker3_12cm" >
       <origin xyz="${left_holder_offset_x} ${left_holder_offset_y} ${left_holder_offset_z}" rpy="0 0 0"/>
-  </xacro:holder_table>
+  </xacro:holder>
 
-  <xacro:holder_table prefix="${prefix}right_" parent="${prefix}base_link" tag_id="marker1_12cm" >
+  <xacro:holder prefix="${prefix}right_" parent="${prefix}base_link" tag_id="marker1_12cm" >
       <origin xyz="${right_holder_offset_x} ${right_holder_offset_y} ${right_holder_offset_z}" rpy="0 0 0"/>
-  </xacro:holder_table>
+  </xacro:holder>
 
   <gazebo reference="${prefix}base_link">
     <material>Gazebo/White</material>

@@ -16,13 +16,13 @@
     <xacro:include filename="$(find rbkairos_description)/robots/versions/rbkairos_ur5_vgc10.urdf.xacro" />
 
     <!-- Import holder for the boxes -->
-	<xacro:include filename="$(find rbkairos_description)/urdf/box/holder.urdf.xacro" />
+<!-- 	<xacro:include filename="$(find rbkairos_description)/urdf/box/holder.urdf.xacro" /> -->
 
     <!-- Import  holder for the boxes test -->
-	<xacro:include filename="$(find component_sorting_description)/urdf/box/holder_robot.urdf.xacro" />
+	<xacro:include filename="$(find component_sorting_description)/urdf/box/holder.urdf.xacro" />
    
   
-
+  <xacro:include filename="$(find component_sorting_description)/urdf/inertia.urdf.xacro" />
 
     <!-- Holder parameters -->
     <xacro:property name="center_holder_offset_x" value="-0.2025"/>
@@ -77,17 +77,17 @@
     </gazebo> -->
 
     <!-- HOLDERS -->
-     <xacro:holder_robot prefix="${prefix}center_" parent="${prefix}base_link" tag_id="marker5_12cm">
+     <xacro:holder prefix="${prefix}center_" parent="${prefix}base_link" tag_id="marker5_12cm">
         <origin xyz="${center_holder_offset_x} ${center_holder_offset_y} ${center_holder_offset_z}" rpy="0 0 3.14159"/>
-    </xacro:holder_robot>
+    </xacro:holder>
 
-    <xacro:holder_robot prefix="${prefix}left_" parent="${prefix}base_link" tag_id="marker6_12cm">
+    <xacro:holder prefix="${prefix}left_" parent="${prefix}base_link" tag_id="marker6_12cm">
         <origin xyz="${left_holder_offset_x} ${left_holder_offset_y} ${left_holder_offset_z}" rpy="0 0 3.14159"/>
-    </xacro:holder_robot>
+    </xacro:holder>
 
-    <xacro:holder_robot prefix="${prefix}right_" parent="${prefix}base_link" tag_id="marker4_12cm" >
+    <xacro:holder prefix="${prefix}right_" parent="${prefix}base_link" tag_id="marker4_12cm" >
         <origin xyz="${right_holder_offset_x} ${right_holder_offset_y} ${right_holder_offset_z}" rpy="0 0 3.14159"/>
-    </xacro:holder_robot> 
+    </xacro:holder> 
 
 
 

@@ -1,12 +1,18 @@
 <?xml version="1.0" ?>
 <robot name="holder" xmlns:xacro="http://wiki.ros.org/xacro">
 
+
+
   <xacro:include filename="$(find component_sorting_description)/urdf/inertia.urdf.xacro" />
+  <xacro:include filename="$(find component_sorting_description)/ar_tags/ar_tag_12cm_border.urdf.xacro" />
+
 
   <!--xacro:arg name="prefix" default="box_"/>
   <xacro:property name="prefix" value="$(arg prefix)" /-->
 
-  <xacro:macro name="holder" params="prefix parent *origin">
+  <xacro:macro name="holder" params="prefix parent tag_id *origin">
+
+   
 
     <joint name="${prefix}holder_base_joint" type="fixed">
       <xacro:insert_block name="origin" />
@@ -27,7 +33,8 @@
       <inertial>
         <mass value="0.1" />
         <origin xyz="0 0.011 0" />
-        <solid_cuboid_inertia m="0.1" h="0.022" d="0.225" w="0.31"/>
+        <xacro:solid_cuboid_inertia m="0.1" h="0.022" d="0.225" w="0.31">
+        </xacro:solid_cuboid_inertia>
       </inertial>
       <visual>
         <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -44,12 +51,26 @@
     </link>
     
     <joint name="${prefix}holder_approach_joint" type="fixed">
-      <origin rpy="3.1415 0 0" xyz="0 0 0.5"/>
+      <origin rpy="3.1416 0 0" xyz="-0.137 0 0.50"/>
       <parent link="${prefix}holder_link"/>
-      <child link="${prefix}holder_approach_link"/>
+      <child link="${prefix}holder_approach"/>
     </joint>
 
-    <link name="${prefix}holder_approach_link"/>
+    <link name="${prefix}holder_approach"/>
+
+<!--     <joint name="${prefix}grab_joint" type="fixed">
+      <origin rpy="3.1416 0 0" xyz="0 0 0.38"/>
+      <parent link="${prefix}holder_link"/>
+      <child link="${prefix}grab"/>
+    </joint>
+
+    <link name="${prefix}grab"/> -->
+
+    <!-- TABLE TAG -->
+    <xacro:ar_tag prefix="${prefix}holder_" parent="${prefix}holder_link" tag_id="${tag_id}">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:ar_tag>
+
 
     <gazebo reference="${prefix}holder_link">
       <visual>  
@@ -60,6 +81,7 @@
           <emissive>0.0 0.0 0.0 0.0</emissive>  
         </material>  
       </visual>  
+      
     </gazebo>
 
   </xacro:macro>
