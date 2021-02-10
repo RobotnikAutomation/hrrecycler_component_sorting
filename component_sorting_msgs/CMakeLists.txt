@@ -25,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS message_generation ${MSG_DEPS})
 set(ACT_FILES
 PickupFrom.action
 PlaceOn.action
+InitHolder.action
 )
 
 add_action_files(DIRECTORY action FILES ${ACT_FILES})
