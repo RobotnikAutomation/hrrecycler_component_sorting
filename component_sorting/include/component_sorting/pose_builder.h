@@ -22,6 +22,9 @@ class Pose_Builder
 
     geometry_msgs::PoseStamped getPose();
 
+    void setInit();
+
+    bool isInit();
 
   private:
 
@@ -30,6 +33,7 @@ class Pose_Builder
     ros::NodeHandle pnh_; // object paramenter node handle
     std::string frame_id_; // Frame used for object relative positioning
     XmlRpc::XmlRpcValue pose_; // Stores object pose parameter
+    bool is_init = false;
     
     // Variables created in Object class after processing parameter info 
 

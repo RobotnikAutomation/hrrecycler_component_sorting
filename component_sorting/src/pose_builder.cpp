@@ -57,3 +57,10 @@ geometry_msgs::PoseStamped Pose_Builder::getPose(){
     return pose_stamped_msg;
 }
 
+void Pose_Builder::setInit(){
+    is_init = true;
+}
+
+bool Pose_Builder::isInit(){
+    return is_init;
+}

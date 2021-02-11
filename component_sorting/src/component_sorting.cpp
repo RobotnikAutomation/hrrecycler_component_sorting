@@ -115,17 +115,61 @@ int ComponentSorting::rosSetup()
 
   // Read and store parameter: approach_poses from parameter server
   bool required = true;
-  std::vector<std::string> approach_poses_names;
-  ros::NodeHandle pnh_approach_ = ros::NodeHandle(pnh_ , "approach_poses");
-  readParam(pnh_approach_, "poses_to_use", approach_poses_names, approach_poses_names, required); 
+  readParam(pnh_, "positions_to_use", positions_to_use, positions_to_use, required); 
 
-  // Create class Pose objects
-  for (auto & on: approach_poses_names)
+  ros::NodeHandle pnh_approach_ = ros::NodeHandle(pnh_ , "approach_poses");
+  ros::NodeHandle pnh_place_ = ros::NodeHandle(pnh_ , "place_poses");
+  ros::NodeHandle pnh_pick_ = ros::NodeHandle(pnh_ , "pick_poses");
+  ros::NodeHandle pnh_pre_pick_ = ros::NodeHandle(pnh_ , "pre_pick_poses");
+  ros::NodeHandle pnh_pre_place_ = ros::NodeHandle(pnh_ , "pre_place_poses");
+/*   readParam(pnh_approach_, "poses_to_use", approach_poses_names, approach_poses_names, required);  */
+
+  // Create class Pose Builder objects
+  for (auto & position: positions_to_use)
   {
-    approach_poses_.insert(make_pair(on, Pose_Builder(ros::NodeHandle(pnh_approach_ , on))));
+    if(pnh_approach_.hasParam(position)){
+      approach_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_approach_ , position))));
+    }else{
+      ROS_ERROR("Approach pose has to be filled in for %s position", position.c_str());
+      switchToState(robotnik_msgs::State::FAILURE_STATE);
+      return -1;
+    }
+
+    if(pnh_place_.hasParam(position)){
+      place_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_place_ , position))));
+    }else{
+      ROS_ERROR("Place pose has to be filled in for %s position", position.c_str());
+      switchToState(robotnik_msgs::State::FAILURE_STATE);
+      return -1;
+    }
+
+    if(pnh_pick_.hasParam(position)){
+      pick_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_pick_ , position))));
+    }else{
+      ROS_ERROR("Pick pose has to be filled in for %s position", position.c_str());
+      switchToState(robotnik_msgs::State::FAILURE_STATE);
+      return -1;
+    }    
+
+    if(pnh_pre_pick_.hasParam(position)){
+      pre_pick_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_pre_pick_ , position)))); 
+    }else{
+      ROS_ERROR("Pre_pick pose has to be filled in for %s position", position.c_str());
+      switchToState(robotnik_msgs::State::FAILURE_STATE);
+      return -1;
+    }    
+    
+    if(pnh_pre_place_.hasParam(position)){
+      pre_place_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_pre_place_ , position))));
+    }else{
+      ROS_ERROR("Pre_place pose has to be filled in for %s position", position.c_str());
+      switchToState(robotnik_msgs::State::FAILURE_STATE);
+      return -1;
+    }  
+
   }
 
-  // Read and store parameter: place_poses from parameter server
+/*   // Read and store parameter: place_poses from parameter server
   required = true;
   std::vector<std::string> place_poses_names;
   ros::NodeHandle pnh_place_ = ros::NodeHandle(pnh_ , "place_poses");
@@ -171,7 +215,7 @@ int ComponentSorting::rosSetup()
   for (auto & on: pre_place_poses_names)
   {
     pre_place_poses_.insert(make_pair(on, Pose_Builder(ros::NodeHandle(pnh_pre_place_ , on))));
-  }
+  } */
 
 
   // Gazebo link_attacher service
@@ -279,7 +323,7 @@ void ComponentSorting::standbyState()
       return;
     }
 
-    scan(approach_poses_.at("robot_left").getPose(), place_poses_.at("robot_left").getPose());
+/*     scan(approach_poses_.at("robot_left").getPose(), place_poses_.at("robot_left").getPose());
     ros::Duration(2).sleep();
     scan(approach_poses_.at("robot_center").getPose(), place_poses_.at("robot_center").getPose());
     ros::Duration(2).sleep();
@@ -290,7 +334,7 @@ void ComponentSorting::standbyState()
     scan(approach_poses_.at("table_center").getPose(), place_poses_.at("table_center").getPose());
     ros::Duration(2).sleep();
     scan(approach_poses_.at("table_left").getPose(), place_poses_.at("table_left").getPose());
-    ros::Duration(2).sleep();
+    ros::Duration(2).sleep(); */
 
     switchToState(robotnik_msgs::State::READY_STATE);
 
@@ -352,14 +396,29 @@ void ComponentSorting::readyState()
 
   if(init_holder_as_->isActive() == true){ 
 
-    // Get desired goal and set as target
-    std::vector <std::string> prueba = init_holder_goal_->position; 
-    for (int i = 0; i < prueba.size(); i++) {
-        std::cout << prueba.at(i) << ' ';
+    // Get string of positions
+    std::vector <std::string> scanning_positions = init_holder_goal_->position; 
+
+    if(scanning_positions.empty()){
+      for (auto & position: positions_to_use)
+      {
+        scan(position);
+      }
+    }else{
+      for (auto & scanning_position: scanning_positions){
+        if(find(positions_to_use.begin(), positions_to_use.end(),scanning_position) != end(positions_to_use)){
+          scan(scanning_position);
+        }else {
+          ROS_WARN("Position %s does not exist", scanning_position.c_str());
+          init_holder_feedback_.state.clear();
+          init_holder_feedback_.state = scanning_position + " position does not exist";
+          init_holder_as_->publishFeedback(init_holder_feedback_);
+        }
+      }
     }
 
     init_holder_result_.success = true;
-    init_holder_result_.message = "read vector";
+    init_holder_result_.message = "Vector of positions processed ";
     init_holder_as_->setSucceeded(init_holder_result_);
     return;
   }
@@ -482,14 +541,46 @@ void ComponentSorting::preemptCB()
   init_holder_as_->setPreempted();
 }
 
-void ComponentSorting::tfListener(std::string frame_name){
+void ComponentSorting::tfListener(std::string scanning_position){
 /*   tf_listener.lookupTransform("robot_base_link",frame_name,ros::Time(0),transform); */
+  std::string frame_name = place_poses_.at(scanning_position).getPose().header.frame_id;
   try{
     transform_stamped = tfBuffer.lookupTransform("robot_base_link",frame_name,ros::Time(0));
-    latched_tf.push_back(transform_stamped);
   }
   catch(tf2::LookupException ex){
     ROS_WARN("Lookup Transform error: %s", ex.what());
+    if(init_holder_as_->isActive() == true){ 
+      init_holder_feedback_.state.clear();
+      init_holder_feedback_.state = "Could not scan " + scanning_position;
+      init_holder_as_->publishFeedback(init_holder_feedback_);
+    }
+    return;
+  }
+  catch(tf2::ExtrapolationException ex){
+    ROS_WARN("Lookup Transform error: %s", ex.what());
+    if(init_holder_as_->isActive() == true){ 
+      init_holder_feedback_.state.clear();
+      init_holder_feedback_.state = "Could not scan " + scanning_position;
+      init_holder_as_->publishFeedback(init_holder_feedback_);
+    }
+    return;
+  }
+  //Check if position is already published and remove it from vector
+  for(int i=0; i<latched_tf.size(); i++){
+    if(latched_tf[i].child_frame_id == transform_stamped.child_frame_id){
+      latched_tf.erase(latched_tf.begin() + i);
+    }
+  }
+
+  //Latch current visualized frame
+  latched_tf.push_back(transform_stamped);
+  //Set position holder frame as initialized
+  place_poses_.at(scanning_position).setInit();
+  //If init_holder action is runnning
+  if(init_holder_as_->isActive() == true){ 
+    init_holder_feedback_.state.clear();
+    init_holder_feedback_.state = scanning_position + " position was scanned succesfully";
+    init_holder_as_->publishFeedback(init_holder_feedback_);
   }
 }
 
@@ -504,23 +595,20 @@ void ComponentSorting::tfLatchCallback(){
   }
 }
 
-void ComponentSorting::scan(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position)
+void ComponentSorting::scan(std::string scanning_position)
 { 
-  // Set scan position goal
-  move_group_->setPoseTarget(pre_position);
-  // Plan to pre-position goal
+
+  //Plan to approach 
+  move_group_->setPoseTarget(approach_poses_.at(scanning_position).getPose());
   success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
- 
-/*   visual_tools_->publishTrajectoryLine(plan.trajectory_, joint_model_group);
-  visual_tools_->trigger(); */
+  
   //If plan is successful execute trajectory
   if(success_plan){
     success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
     if(success_execute){
-       tfListener(position.header.frame_id);
+      tfListener(scanning_position);
     }
   }
-
 }
 
 void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped approach_position, geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position)
@@ -748,6 +836,8 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped approach_p
 
 void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position)
 { 
+
+
 /*   visual_tools_->deleteAllMarkers();
   visual_tools_->trigger(); */
 

@@ -1,11 +1,12 @@
+positions_to_use:
+  - robot_center
+  - robot_right
+  - robot_left
+  - table_center
+  - table_right
+  - table_left
+
 approach_poses:
-  poses_to_use:
-    - robot_center
-    - robot_right
-    - robot_left
-    - table_center
-    - table_right
-    - table_left
 
   robot_center:
     frame_id: robot_center_holder_approach
@@ -32,13 +33,6 @@ approach_poses:
     pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy  
 
 place_poses:
-  poses_to_use:
-    - robot_center
-    - robot_right
-    - robot_left
-    - table_center
-    - table_right
-    - table_left
 
   robot_center:
     frame_id: robot_center_holder_qr
@@ -65,13 +59,6 @@ place_poses:
     pose: [[0.0, 0.0, 0.379],[0.0, +3.14159, -1.57080]]  
 
 pre_place_poses:
-  poses_to_use:
-    - robot_center
-    - robot_right
-    - robot_left
-    - table_center
-    - table_right
-    - table_left
 
   robot_center:
     frame_id: robot_center_holder_qr
@@ -98,13 +85,6 @@ pre_place_poses:
     pose: [[0.0, 0.0, 0.47],[0.0, +3.14159, -1.57080]]      
 
 pick_poses:
-  poses_to_use:
-    - robot_center
-    - robot_right
-    - robot_left
-    - table_center
-    - table_right
-    - table_left  
 
   robot_center:
     frame_id: box_grab_qr
@@ -131,13 +111,6 @@ pick_poses:
     pose: [[0.0, 0.0, 0.134],[0.0, +3.14159, -1.57080]] 
 
 pre_pick_poses:
-  poses_to_use:
-    - robot_center
-    - robot_right
-    - robot_left
-    - table_center
-    - table_right
-    - table_left  
 
   robot_center:
     frame_id: box_grab_qr

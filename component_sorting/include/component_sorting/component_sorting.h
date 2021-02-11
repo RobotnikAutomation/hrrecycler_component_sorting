@@ -24,6 +24,8 @@
 #include <string>
 #include <iostream>
 #include <map>
+#include <algorithm>
+#include <vector>
 
 #include <ur_msgs/SetIO.h>
 
@@ -65,7 +67,7 @@ protected:
   // MoveIt stuff
   void pick_chain_movement(geometry_msgs::PoseStamped approach_position, geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position);
   void place_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position);
-  void scan(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position);
+  void scan(std::string scanning_position);
   void create_planning_scene();
   void gripper_on();
   void gripper_off();
@@ -130,6 +132,8 @@ protected:
   map<std::string, Pose_Builder> pre_pick_poses_;
   map<std::string, Pose_Builder> pre_place_poses_;
 
+  std::vector<std::string> positions_to_use;
+
   ur_msgs::SetIO srv;
   gazebo_ros_link_attacher::Attach gazebo_link_attacher_msg;
   ros::ServiceClient client;
@@ -171,7 +175,7 @@ protected:
   std::vector <geometry_msgs::TransformStamped> latched_tf;
   tf2_ros::TransformBroadcaster tf_broadcaster;
 
-  void tfListener(std::string frame_name);
+  void tfListener(std::string scanning_position);
 /*    tf::TransformListener tf_listener;
   tf::StampedTransform transform; */
   tf2_ros::Buffer tfBuffer;
