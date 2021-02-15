@@ -65,10 +65,10 @@ protected:
   std::shared_ptr<tf2_ros::Buffer> tf2_buffer_;
 
   // MoveIt stuff
-  void pick_chain_movement(geometry_msgs::PoseStamped approach_position, geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position);
-  void place_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position);
+  void pick_chain_movement(std::string pick_position);
+  void place_chain_movement(std::string place_position);
   void scan(std::string scanning_position);
-  void create_planning_scene();
+  bool create_planning_scene();
   void gripper_on();
   void gripper_off();
 

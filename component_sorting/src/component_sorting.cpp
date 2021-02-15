@@ -110,9 +110,6 @@ int ComponentSorting::rosSetup()
   }
 
 
-  // Create planning scene
-  create_planning_scene();
-
   // Read and store parameter: approach_poses from parameter server
   bool required = true;
   readParam(pnh_, "positions_to_use", positions_to_use, positions_to_use, required); 
@@ -168,54 +165,6 @@ int ComponentSorting::rosSetup()
     }  
 
   }
-
-/*   // Read and store parameter: place_poses from parameter server
-  required = true;
-  std::vector<std::string> place_poses_names;
-  ros::NodeHandle pnh_place_ = ros::NodeHandle(pnh_ , "place_poses");
-  readParam(pnh_place_, "poses_to_use", place_poses_names, place_poses_names, required); 
-
-  // Create class Pose objects
-  for (auto & on: place_poses_names)
-  {
-    place_poses_.insert(make_pair(on, Pose_Builder(ros::NodeHandle(pnh_place_ , on))));
-  }
-
-  // Read and store parameter: pick_poses from parameter server
-  required = true;
-  std::vector<std::string> pick_poses_names;
-  ros::NodeHandle pnh_pick_ = ros::NodeHandle(pnh_ , "pick_poses");
-  readParam(pnh_pick_, "poses_to_use", pick_poses_names, pick_poses_names, required); 
-
-  // Create class Pose objects
-  for (auto & on: pick_poses_names)
-  {
-    pick_poses_.insert(make_pair(on, Pose_Builder(ros::NodeHandle(pnh_pick_ , on))));
-  }
-
-  // Read and store parameter: pre_pick_poses from parameter server
-  required = true;
-  std::vector<std::string> pre_pick_poses_names;
-  ros::NodeHandle pnh_pre_pick_ = ros::NodeHandle(pnh_ , "pre_pick_poses");
-  readParam(pnh_pre_pick_, "poses_to_use", pre_pick_poses_names, pre_pick_poses_names, required); 
-
-  // Create class Pose objects
-  for (auto & on: pre_pick_poses_names)
-  {
-    pre_pick_poses_.insert(make_pair(on, Pose_Builder(ros::NodeHandle(pnh_pre_pick_ , on))));
-  }
-
-    // Read and store parameter: pre_pick_poses from parameter server
-  required = true;
-  std::vector<std::string> pre_place_poses_names;
-  ros::NodeHandle pnh_pre_place_ = ros::NodeHandle(pnh_ , "pre_place_poses");
-  readParam(pnh_pre_place_, "poses_to_use", pre_place_poses_names, pre_place_poses_names, required); 
-
-  // Create class Pose objects
-  for (auto & on: pre_place_poses_names)
-  {
-    pre_place_poses_.insert(make_pair(on, Pose_Builder(ros::NodeHandle(pnh_pre_place_ , on))));
-  } */
 
 
   // Gazebo link_attacher service
@@ -292,7 +241,13 @@ int ComponentSorting::setup()
   RCOMPONENT_INFO_STREAM("Started server: place on");
   init_holder_as_->start();
   RCOMPONENT_INFO_STREAM("Started server: init holder");
-  return rcomponent::OK;
+
+  // Create planning scene
+  if(create_planning_scene()){
+    return rcomponent::OK;
+  }else{
+    return rcomponent::ERROR;
+  }
 }
 
 void ComponentSorting::standbyState()
@@ -322,19 +277,6 @@ void ComponentSorting::standbyState()
       switchToState(robotnik_msgs::State::FAILURE_STATE);
       return;
     }
-
-/*     scan(approach_poses_.at("robot_left").getPose(), place_poses_.at("robot_left").getPose());
-    ros::Duration(2).sleep();
-    scan(approach_poses_.at("robot_center").getPose(), place_poses_.at("robot_center").getPose());
-    ros::Duration(2).sleep();
-    scan(approach_poses_.at("robot_right").getPose(), place_poses_.at("robot_right").getPose());
-    ros::Duration(2).sleep();
-    scan(approach_poses_.at("table_right").getPose(), place_poses_.at("table_right").getPose());
-    ros::Duration(2).sleep();
-    scan(approach_poses_.at("table_center").getPose(), place_poses_.at("table_center").getPose());
-    ros::Duration(2).sleep();
-    scan(approach_poses_.at("table_left").getPose(), place_poses_.at("table_left").getPose());
-    ros::Duration(2).sleep(); */
 
     switchToState(robotnik_msgs::State::READY_STATE);
 
@@ -377,22 +319,6 @@ void ComponentSorting::readyState()
 
   ROS_INFO("Planning with Constraint: %s", current_constraint.name.c_str());
 
-  // Value-Defintions of the different switch cases (desired chain actions)
-   enum StringValue { ev_NotDefined,
-                      ev_kairos_right, 
-                      ev_kairos_left, 
-                      ev_kairos_center, 
-                      ev_table_right,
-                      ev_table_left,
-                      ev_table_center };
-  // Map switch case values (desired chain actions)
-   static std::map<std::string, StringValue> s_mapStringValues;
-   s_mapStringValues["kairos_right"] = ev_kairos_right;
-   s_mapStringValues["kairos_left"] = ev_kairos_left;
-   s_mapStringValues["kairos_center"] = ev_kairos_center;
-   s_mapStringValues["table_right"] = ev_table_right;
-   s_mapStringValues["table_left"] = ev_table_left;
-   s_mapStringValues["table_center"] = ev_table_center;
 
   if(init_holder_as_->isActive() == true){ 
 
@@ -426,94 +352,47 @@ void ComponentSorting::readyState()
   if(pickup_from_as_->isActive() == true){ 
 
     // Get desired goal and set as target
-    std::string desired_goal = pickup_from_goal_->from;
+    std::string pick_position = pickup_from_goal_->from;
+    //Check if position exists
+    if(find(positions_to_use.begin(), positions_to_use.end(),pick_position) != end(positions_to_use)){
+      pick_chain_movement(pick_position);
+    }else {
+      ROS_WARN("Position %s does not exist", pick_position.c_str());
+            
+      pick_result_.success = false;
+      pick_result_.message = "Position does not exist";
+      pickup_from_as_->setAborted(pick_result_);
+      return;
+    }
     
-    switch(s_mapStringValues[desired_goal]){
-      case ev_kairos_right :
-      {  
-        pick_chain_movement(approach_poses_.at("robot_right").getPose(), pre_pick_poses_.at("robot_right").getPose(), pick_poses_.at("robot_right").getPose());
-        break;
-      }
-      case ev_kairos_left :
-      {
-        pick_chain_movement(approach_poses_.at("robot_left").getPose(), pre_pick_poses_.at("robot_left").getPose(), pick_poses_.at("robot_left").getPose());
-        break;
-      }
-      case ev_kairos_center :
-      {
-        pick_chain_movement(approach_poses_.at("robot_center").getPose(), pre_pick_poses_.at("robot_center").getPose(), pick_poses_.at("robot_center").getPose());
-        break;
-      }
-      case ev_table_right :
-      {
-        pick_chain_movement(approach_poses_.at("table_right").getPose(), pre_pick_poses_.at("table_right").getPose(), pick_poses_.at("table_right").getPose());
-        break;
-      }
-      case ev_table_left :
-      {
-        pick_chain_movement(approach_poses_.at("table_left").getPose(), pre_pick_poses_.at("table_left").getPose(), pick_poses_.at("table_left").getPose());
-        break;
-      }
-      case ev_table_center :
-      {
-        pick_chain_movement(approach_poses_.at("table_center").getPose(), pre_pick_poses_.at("table_center").getPose(), pick_poses_.at("table_center").getPose());
-        break;
-      }
-      default :
-      {   
-        ROS_INFO("Introduced goal position is not defined");
-        pick_result_.success = false;
-        pick_result_.message = "Introduced goal position is not defined";
-        pickup_from_as_->setAborted(pick_result_);
-        break;
-      }
-    }  
   }   
   
   if(place_on_as_->isActive() == true){ 
     // Get desired goal and set as target
-    std::string desired_goal = place_on_goal_->in;
-    
-    switch(s_mapStringValues[desired_goal]){
-      case ev_kairos_right :
-      { 
-        place_chain_movement(pre_place_poses_.at("robot_right").getPose(), place_poses_.at("robot_right").getPose());
-        break;
-      }
-      case ev_kairos_left :
-      {
-        place_chain_movement(pre_place_poses_.at("robot_left").getPose(), place_poses_.at("robot_left").getPose());
-        break;
-      }
-      case ev_kairos_center :
-      {
-        place_chain_movement(pre_place_poses_.at("robot_center").getPose(), place_poses_.at("robot_center").getPose());
-        break;
-      }
-      case ev_table_right :
-      {
-        place_chain_movement(pre_place_poses_.at("table_right").getPose(), place_poses_.at("table_right").getPose());
-        break;
-      }
-      case ev_table_left :
-      {
-        place_chain_movement(pre_place_poses_.at("table_left").getPose(), place_poses_.at("table_left").getPose());
-        break;
-      }
-      case ev_table_center :
-      {
-        place_chain_movement(pre_place_poses_.at("table_center").getPose(), place_poses_.at("table_center").getPose());
-        break;
-      }
-      default :
-      {   
-        ROS_INFO("Introduced goal position is not defined");
+    std::string place_position = place_on_goal_->in;
+
+    //Check if position exists
+    if(find(positions_to_use.begin(), positions_to_use.end(),place_position) != end(positions_to_use)){
+      //Check if place position is initialized
+      if( place_poses_.at(place_position).isInit()){
+        place_chain_movement(place_position);
+      }else{
+        ROS_WARN("Place pose for Position %s is not initialized ", place_position.c_str());
+
         place_result_.success = false;
-        place_result_.message = "Introduced goal position is not defined";
+        place_result_.message = "Place pose not initialized";
         place_on_as_->setAborted(place_result_);
-        break;
+        return;
       }
-    }  
+    }else {
+      ROS_WARN("Position %s does not exist", place_position.c_str());
+
+      place_result_.success = false;
+      place_result_.message = "Position does not exist";
+      place_on_as_->setAborted(place_result_);
+      return;
+    }
+    
   }   
 }
 
@@ -611,8 +490,13 @@ void ComponentSorting::scan(std::string scanning_position)
   }
 }
 
-void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped approach_position, geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position)
-{ 
+void ComponentSorting::pick_chain_movement(std::string pick_position)
+{  
+  //Extract position poses:
+  geometry_msgs::PoseStamped approach_position = approach_poses_.at(pick_position).getPose();
+  geometry_msgs::PoseStamped pre_position = pre_pick_poses_.at(pick_position).getPose();
+  geometry_msgs::PoseStamped position = pick_poses_.at(pick_position).getPose();
+ 
 /*   visual_tools_->deleteAllMarkers();
   visual_tools_->trigger(); */
   // Set pre-position goal
@@ -834,15 +718,18 @@ void ComponentSorting::pick_chain_movement(geometry_msgs::PoseStamped approach_p
 
 }
 
-void ComponentSorting::place_chain_movement(geometry_msgs::PoseStamped pre_position, geometry_msgs::PoseStamped position)
+void ComponentSorting::place_chain_movement(std::string place_position)
 { 
+  //EXtract place_position poses
+  geometry_msgs::PoseStamped pre_position = pre_place_poses_.at(place_position).getPose();
+  geometry_msgs::PoseStamped position = place_poses_.at(place_position).getPose();
 
+  //Correct frame to latched 
+  pre_position.header.frame_id = pre_position.header.frame_id + "_latched";
+  position.header.frame_id = position.header.frame_id + "_latched";
 
 /*   visual_tools_->deleteAllMarkers();
   visual_tools_->trigger(); */
-
-  pre_position.header.frame_id = pre_position.header.frame_id + "_latched";
-  position.header.frame_id = position.header.frame_id + "_latched";
 
   // Set pre-position goal
   move_group_->setPoseTarget(pre_position);
@@ -1063,7 +950,7 @@ void ComponentSorting::gripper_off(){
    }
 }
 
-void ComponentSorting::create_planning_scene()
+bool ComponentSorting::create_planning_scene()
 {
 
   // Read and store parameter: objects from parameter server
@@ -1085,12 +972,33 @@ void ComponentSorting::create_planning_scene()
     moveit_msgs::CollisionObject collision_object;
     collision_object = parsed_object.getObject();
 
+    try{
+      transform_stamped = tfBuffer.lookupTransform("robot_base_link",collision_object.header.frame_id,ros::Time(0),ros::Duration(1.0));
+    }
+    catch(tf2::LookupException ex){
+      ROS_ERROR("Lookup Transform error: %s", ex.what());
+      switchToState(robotnik_msgs::State::FAILURE_STATE);
+      return false;
+    }
+    catch(tf2::ExtrapolationException ex){
+      ROS_ERROR("Lookup Transform error: %s", ex.what());
+      switchToState(robotnik_msgs::State::FAILURE_STATE);
+      return false;
+    }
+    catch(tf2::ConnectivityException ex){
+      ROS_ERROR("Could not find collision object %s frame. Lookup Transform error: %s",collision_object.id.c_str(), ex.what());
+      switchToState(robotnik_msgs::State::FAILURE_STATE);
+      return false;
+    }
+
+
     collision_object.operation = collision_object.ADD;
     moveit_objects.push_back(collision_object);
   }
 
   // Add collision objects into the world
-  planning_scene_interface.addCollisionObjects(moveit_objects);
+  planning_scene_interface.applyCollisionObjects(moveit_objects);
 
+  return true;
 
 }
