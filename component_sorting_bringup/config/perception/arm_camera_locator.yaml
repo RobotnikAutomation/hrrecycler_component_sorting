@@ -9,6 +9,8 @@ input_topic_name: wrist_rgbd/color/image
 # from which topic read the camera calibration
 camera_info_topic_name: wrist_rgbd/color/camera_info
 # marker size, in m
+
+robot_sensor_frame: robot_wrist_rgbd_color_optical_frame
 marker_size: 0.12
 
 # to specify special characteristics for some markers
