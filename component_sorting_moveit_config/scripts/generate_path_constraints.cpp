@@ -90,7 +90,44 @@ int main(int argc, char** argv)
     constraints_storage_->addConstraints(constraints, robot, group);
     ROS_INFO("Adding");
     ROS_INFO_STREAM(constraints);
-  
+
+  //   moveit_msgs::Constraints constraints;
+    constraints = moveit_msgs::Constraints();
+    moveit_msgs::JointConstraint joint;
+    //constraints.header.frame_id = "robot_base_link";
+   // moveit_msgs::OrientationConstraint orientation;
+    orientation.header.frame_id = "robot_base_link";
+    orientation.link_name = "robot_arm_tool0";
+    orientation.orientation.x=  0.707;
+    orientation.orientation.y =  0.707;
+    orientation.orientation.z = 0;
+    orientation.orientation.w = 0;
+    orientation.absolute_x_axis_tolerance = 0.3;
+    orientation.absolute_y_axis_tolerance = 0.3;
+    orientation.absolute_z_axis_tolerance = 3.15;
+    orientation.weight = 100;
+    constraints.name = "elbow_up";
+    constraints.orientation_constraints.clear();
+    constraints.orientation_constraints.push_back(orientation);
+    constraints.joint_constraints.clear();
+    joint.joint_name = "robot_arm_elbow_joint";
+    joint.position = 0;
+    joint.tolerance_below = 0.18;
+    joint.tolerance_above = 3.1415;
+    joint.weight = 100;
+    constraints.joint_constraints.push_back(joint);
+    joint.joint_name = "robot_arm_shoulder_lift_joint";
+    joint.position = -1.57;
+    joint.tolerance_below = 1.40; //0.78
+    joint.tolerance_above = 1.40; //0.78
+    joint.weight = 100;
+    constraints.joint_constraints.push_back(joint);
+    constraints_storage_->addConstraints(constraints, robot, group);
+    
+    
+
+
+
   //constraints_storage_->getKnownConstraints(names);
   constraints_storage_->getKnownConstraints(names, robot, group);
   ROS_INFO_STREAM("Has 221" << names.size());
