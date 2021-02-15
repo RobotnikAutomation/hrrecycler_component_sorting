@@ -1,6 +1,6 @@
 ## run
 
-To launch simulation + perception + navigation + navigation:
+To launch simulation + perception + navigation + localization:
 
 `roslaunch component_sorting_bringup component_sorting_bringup.launch`
 
@@ -26,5 +26,6 @@ To launch boxes into simulation:
 
 Component sorting actions:
 
-`rosrun actionlib axclient.py /component_sorting_cartesian/pickup_from`
-`rosrun actionlib axclient.py /component_sorting_cartesian/place_on`
+- `rosrun actionlib axclient.py /component_sorting_cartesian/pickup_from`
+
+- `rosrun actionlib axclient.py /component_sorting_cartesian/place_on`
