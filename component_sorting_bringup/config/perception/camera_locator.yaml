@@ -10,6 +10,7 @@ input_topic_name: front_rgbd_camera/rgb/image
 camera_info_topic_name: front_rgbd_camera/rgb/camera_info
 # marker size, in m
 marker_size: 0.12
+
 robot_sensor_frame: robot_front_rgbd_camera_rgb_optical_frame
 
 # to specify special characteristics for some markers

@@ -33,7 +33,7 @@ publish_debug_frames: true
 offset_for_heading_adjustment: 0.5
 offset_for_overshoot: 0.5
 
-tf_timeout: 1
+tf_timeout: 10
 free_goal_velocity: false
 
 check_robot_is_moving_to_goal: false
