@@ -74,15 +74,15 @@ pre_place_poses:
 
   table_center:
     frame_id: table_center_holder_qr
-    pose: [[0.0, 0.0, 0.47],[0.0, +3.14159, -1.57080]]
+    pose: [[0.0, 0.0, 0.45],[0.0, +3.14159, -1.57080]]
 
   table_right:
     frame_id: table_right_holder_qr
-    pose: [[0.0, 0.0, 0.47],[0.0, +3.14159, -1.57080]]
+    pose: [[0.0, 0.0, 0.45],[0.0, +3.14159, -1.57080]]
   
   table_left:
     frame_id: table_left_holder_qr
-    pose: [[0.0, 0.0, 0.47],[0.0, +3.14159, -1.57080]]      
+    pose: [[0.0, 0.0, 0.45],[0.0, +3.14159, -1.57080]]      
 
 pick_poses:
 
