@@ -78,7 +78,9 @@ table:
       height: 0.75
       width: 0.63
       length: 0.63
-  pose: [[0.0,0.0,0.0],[0.0,0.0,0.0]] # xyz, rpy
+    qr:
+      height: 0.375
+  pose: [[0.0,0.0,0.375],[0.0,0.0,0.0]] # xyz, rpy
 
 
 objects:

@@ -10,17 +10,20 @@
   <xacro:property name="prefix" value="$(arg prefix)" />
   
 
-  <xacro:property name="yaml_file" value="$(find component_sorting)/config/component_sorting.yaml" />
-  <xacro:property name="component_sorting" value="${load_yaml(yaml_file)}"/>
+  <xacro:property name="objects_config_yaml_file" value="$(find component_sorting)/config/objects_config.yaml" />
+  <xacro:property name="objects_config" value="${load_yaml(objects_config_yaml_file)}"/>
+
+  <xacro:property name="component_sorting_yaml_file" value="$(find component_sorting)/config/component_sorting.yaml" />
+  <xacro:property name="component_sorting" value="${load_yaml(component_sorting_yaml_file)}"/>
 
   <xacro:arg name="table_length" default="0.63"/>
-  <xacro:property name="table_length" value="${component_sorting['table']['length']}" />
+  <xacro:property name="table_length" value="${objects_config['table']['geometry']['box']['length']}" />
 
   <xacro:arg name="table_width" default="0.63"/>
-  <xacro:property name="table_width" value="${component_sorting['table']['width']}" />
+  <xacro:property name="table_width" value="${objects_config['table']['geometry']['box']['width']}" />
 
   <xacro:arg name="table_height" default="0.75"/>
-  <xacro:property name="table_height" value="${component_sorting['table']['height']}" />
+  <xacro:property name="table_height" value="${objects_config['table']['geometry']['box']['height']}" />
 
   <xacro:arg name="holder_width" default="0.228"/>
   <xacro:property name="holder_width" value="${component_sorting['holder']['width']}" />
@@ -29,15 +32,15 @@
   <xacro:property name="holder_length" value="${component_sorting['holder']['length']}" />
 
   <xacro:arg name="qr_height" default="0.375"/>
-  <xacro:property name="qr_height" value="${component_sorting['qr_height']}" />
+  <xacro:property name="qr_height" value="${objects_config['table']['geometry']['qr']['height']}" />
   
 
   <gazebo>
     <plugin name="${prefix}tf_publisher" filename="librobotnik_gazebo_ground_truth_odom.so">
       <alwaysOn>true</alwaysOn>
       <updateRate>50.0</updateRate>
-      <bodyName>${prefix}qr</bodyName> 
-      <frameName>${prefix}qr_gt</frameName> 
+      <bodyName>${prefix}base_link</bodyName> 
+      <frameName>${prefix}base_link_gt</frameName> 
       <worldBodyName>world</worldBodyName> 
       <worldFrameName>robot_map</worldFrameName> 
       <topicName>${prefix}tf</topicName>
@@ -48,35 +51,34 @@
     </plugin>
   </gazebo>
 
-  <static>true</static> 
-
-  <link name="${prefix}qr">
-  </link>
-
-  <joint name="${prefix}base_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="${table_length/2}  0 ${-qr_height+table_height/2}"/>
-    <parent link="${prefix}qr"/>
-    <child link="${prefix}base_link"/>
-  </joint>
-
+ 
   <link name="${prefix}base_link">
     <inertial>
-      <mass value="70" />
-      <origin xyz="0 0 0" rpy="0 0 0" />
-      <solid_cuboid_inertia m="70" h="${table_height}" d="${table_length}" w="${table_width}"/>
+      <mass value="100" />
+      <origin xyz="0 0 ${table_height/2}" rpy="0 0 0" />
+      <solid_cuboid_inertia m="100" h="${table_height}" d="${table_length}" w="${table_width}"/>
     </inertial>
     <visual>
-      <origin xyz="0 0 0"/>
+      <origin xyz="0 0 ${table_height/2}"/>
       <geometry>
         <box size="${table_length} ${table_width} ${table_height}" />
       </geometry>
     </visual>
     <collision>
-      <origin xyz="0 0 0"/>
+      <origin xyz="0 0 ${table_height/2}"/>
       <geometry>
         <box size="${table_length} ${table_width} ${table_height}" />
       </geometry>
     </collision>
+  </link>
+
+  <joint name="${prefix}base_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="${-table_length/2}  0 ${+qr_height}"/>
+    <parent link="${prefix}base_link"/>
+    <child link="${prefix}qr"/>
+  </joint>
+
+  <link name="${prefix}qr">
   </link>
 
         <!-- TABLE TAG -->
@@ -86,15 +88,15 @@
 
   <xacro:property name="center_holder_offset_x" value="${(holder_length-table_length)/2}"/>
   <xacro:property name="center_holder_offset_y" value="0.0"/>
-  <xacro:property name="center_holder_offset_z" value="${table_height/2}"/> 
+  <xacro:property name="center_holder_offset_z" value="${table_height}"/> 
 
   <xacro:property name="left_holder_offset_x" value="${(holder_length-table_length)/2}"/> <!-- -0.195 -->
   <xacro:property name="left_holder_offset_y" value="${holder_width}"/> <!-- 0.225 -->
-  <xacro:property name="left_holder_offset_z" value="${table_height/2}"/>
+  <xacro:property name="left_holder_offset_z" value="${table_height}"/>
 
   <xacro:property name="right_holder_offset_x" value="${(holder_length-table_length)/2}"/>
   <xacro:property name="right_holder_offset_y" value="${-holder_width}"/>
-  <xacro:property name="right_holder_offset_z" value="${table_height/2}"/>
+  <xacro:property name="right_holder_offset_z" value="${table_height}"/>
 
 
     <!-- HOLDERS -->
@@ -117,6 +119,7 @@
     <kp>10000000.0</kp>
     <kd>1.0</kd>
     <static>true</static>
+
   </gazebo>
 
 

@@ -1,14 +1,14 @@
 <launch>
 
-    <arg name="center_x" default="0.15"/>
+    <arg name="center_x" default="-0.165"/>
     <arg name="center_y" default="0.0"/>
-    <arg name="center_z" default="0.385"/> <!-- 0.382125 -->
-    <arg name="left_x" default="0.15"/> <!-- -0.195 -->
+    <arg name="center_z" default="0.76"/> <!-- 0.382125 -->
+    <arg name="left_x" default="-0.165"/> <!-- -0.195 -->
     <arg name="left_y" default="0.228"/> <!-- 0.225 -->
-    <arg name="left_z" default="0.385"/>
-    <arg name="right_x" default="0.15"/>
+    <arg name="left_z" default="0.76"/>
+    <arg name="right_x" default="-0.165"/>
     <arg name="right_y" default="-0.228"/>
-    <arg name="right_z" default="0.385"/>
+    <arg name="right_z" default="0.76"/>
     <arg name="yaw" default="0"/>
 
     <arg name="center_prefix" default="box_center_"/>
@@ -26,7 +26,7 @@
 
 
     <!-- Spawn a robot into Gazebo -->
-    <node name="spawn_center_box" pkg="gazebo_ros" type="spawn_model" args="-param center_box_description -urdf -model box_center -reference_frame table_qr -x $(arg center_x) -y $(arg center_y) -z $(arg center_z) -Y $(arg yaw)" />
+    <node name="spawn_center_box" pkg="gazebo_ros" type="spawn_model" args="-param center_box_description -urdf -model box_center -reference_frame table_base_link -x $(arg center_x) -y $(arg center_y) -z $(arg center_z) -Y $(arg yaw)" />
 
 
     <!-- Convert xacro and put on parameter server -->
@@ -37,7 +37,7 @@
 
 
     <!-- Spawn a robot into Gazebo -->
-    <node name="spawn_right_box" pkg="gazebo_ros" type="spawn_model" args="-param right_box_description -urdf -model box_right -reference_frame table_qr -x $(arg right_x) -y $(arg right_y) -z $(arg right_z) -Y $(arg yaw)" />
+    <node name="spawn_right_box" pkg="gazebo_ros" type="spawn_model" args="-param right_box_description -urdf -model box_right -reference_frame table_base_link -x $(arg right_x) -y $(arg right_y) -z $(arg right_z) -Y $(arg yaw)" />
 
 
 
@@ -49,7 +49,7 @@
 
 
     <!-- Spawn a robot into Gazebo -->
-    <node name="spawn_left_box" pkg="gazebo_ros" type="spawn_model" args="-param left_box_description -urdf -model box_left -reference_frame table_qr -x $(arg left_x) -y $(arg left_y) -z $(arg left_z) -Y $(arg yaw)" />
+    <node name="spawn_left_box" pkg="gazebo_ros" type="spawn_model" args="-param left_box_description -urdf -model box_left -reference_frame table_base_link -x $(arg left_x) -y $(arg left_y) -z $(arg left_z) -Y $(arg yaw)" />
 
 
 <!--     <node name="table_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
