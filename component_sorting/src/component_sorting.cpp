@@ -45,6 +45,10 @@ void ComponentSorting::rosReadParams()
   moveit_constraint = "";
   readParam(pnh_, "moveit_constraint", moveit_constraint, moveit_constraint, required); 
 
+  required = true;
+  simulation = true;
+  readParam(pnh_, "simulation", simulation, simulation, required); 
+
 }
 
 int ComponentSorting::rosSetup()
@@ -70,6 +74,11 @@ int ComponentSorting::rosSetup()
     RCOMPONENT_ERROR_STREAM("Exception: " << e.what());
     return rcomponent::ERROR;
   }
+
+  bool wait = true;
+  std::string name_space = "";
+  planning_scene_interface_.reset(
+        new moveit::planning_interface::PlanningSceneInterface(name_space, wait));
 
   bool autostart = false;
   pickup_from_as_.reset(
@@ -110,65 +119,8 @@ int ComponentSorting::rosSetup()
   }
 
 
-  // Read and store parameter: approach_poses from parameter server
-  bool required = true;
-  readParam(pnh_, "positions_to_use", positions_to_use, positions_to_use, required); 
-
-  ros::NodeHandle pnh_approach_ = ros::NodeHandle(pnh_ , "approach_poses");
-  ros::NodeHandle pnh_place_ = ros::NodeHandle(pnh_ , "place_poses");
-  ros::NodeHandle pnh_pick_ = ros::NodeHandle(pnh_ , "pick_poses");
-  ros::NodeHandle pnh_pre_pick_ = ros::NodeHandle(pnh_ , "pre_pick_poses");
-  ros::NodeHandle pnh_pre_place_ = ros::NodeHandle(pnh_ , "pre_place_poses");
-/*   readParam(pnh_approach_, "poses_to_use", approach_poses_names, approach_poses_names, required);  */
-
-  // Create class Pose Builder objects
-  for (auto & position: positions_to_use)
-  {
-    if(pnh_approach_.hasParam(position)){
-      approach_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_approach_ , position))));
-    }else{
-      ROS_ERROR("Approach pose has to be filled in for %s position", position.c_str());
-      switchToState(robotnik_msgs::State::FAILURE_STATE);
-      return -1;
-    }
-
-    if(pnh_place_.hasParam(position)){
-      place_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_place_ , position))));
-    }else{
-      ROS_ERROR("Place pose has to be filled in for %s position", position.c_str());
-      switchToState(robotnik_msgs::State::FAILURE_STATE);
-      return -1;
-    }
-
-    if(pnh_pick_.hasParam(position)){
-      pick_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_pick_ , position))));
-    }else{
-      ROS_ERROR("Pick pose has to be filled in for %s position", position.c_str());
-      switchToState(robotnik_msgs::State::FAILURE_STATE);
-      return -1;
-    }    
-
-    if(pnh_pre_pick_.hasParam(position)){
-      pre_pick_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_pre_pick_ , position)))); 
-    }else{
-      ROS_ERROR("Pre_pick pose has to be filled in for %s position", position.c_str());
-      switchToState(robotnik_msgs::State::FAILURE_STATE);
-      return -1;
-    }    
-    
-    if(pnh_pre_place_.hasParam(position)){
-      pre_place_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_pre_place_ , position))));
-    }else{
-      ROS_ERROR("Pre_place pose has to be filled in for %s position", position.c_str());
-      switchToState(robotnik_msgs::State::FAILURE_STATE);
-      return -1;
-    }  
-
-  }
-
-
   // Gazebo link_attacher service
-  client = nh_.serviceClient<ur_msgs::SetIO>("arm/ur_hardware_interface/set_io");
+  gripper_client = nh_.serviceClient<ur_msgs::SetIO>("arm/ur_hardware_interface/set_io");
   gazebo_link_attacher_client = nh_.serviceClient<gazebo_ros_link_attacher::Attach>("/link_attacher_node/attach");
   gazebo_link_detacher_client = nh_.serviceClient<gazebo_ros_link_attacher::Attach>("/link_attacher_node/detach");
 
@@ -241,6 +193,62 @@ int ComponentSorting::setup()
   RCOMPONENT_INFO_STREAM("Started server: place on");
   init_holder_as_->start();
   RCOMPONENT_INFO_STREAM("Started server: init holder");
+
+    // Read and store parameter: approach_poses from parameter server
+  bool required = true;
+  readParam(pnh_, "positions_to_use", positions_to_use, positions_to_use, required); 
+
+  ros::NodeHandle pnh_approach_ = ros::NodeHandle(pnh_ , "approach_poses");
+  ros::NodeHandle pnh_place_ = ros::NodeHandle(pnh_ , "place_poses");
+  ros::NodeHandle pnh_pick_ = ros::NodeHandle(pnh_ , "pick_poses");
+  ros::NodeHandle pnh_pre_pick_ = ros::NodeHandle(pnh_ , "pre_pick_poses");
+  ros::NodeHandle pnh_pre_place_ = ros::NodeHandle(pnh_ , "pre_place_poses");
+/*   readParam(pnh_approach_, "poses_to_use", approach_poses_names, approach_poses_names, required);  */
+
+  // Create class Pose Builder objects
+  for (auto const & position: positions_to_use)
+  {
+    if(pnh_approach_.hasParam(position)){
+      approach_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_approach_ , position))));
+    }else{
+      ROS_ERROR("Approach pose has to be filled in for %s position", position.c_str());
+      switchToState(robotnik_msgs::State::FAILURE_STATE);
+      return -1;
+    }
+
+    if(pnh_place_.hasParam(position)){
+      place_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_place_ , position))));
+    }else{
+      ROS_ERROR("Place pose has to be filled in for %s position", position.c_str());
+      switchToState(robotnik_msgs::State::FAILURE_STATE);
+      return -1;
+    }
+
+    if(pnh_pick_.hasParam(position)){
+      pick_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_pick_ , position))));
+    }else{
+      ROS_ERROR("Pick pose has to be filled in for %s position", position.c_str());
+      switchToState(robotnik_msgs::State::FAILURE_STATE);
+      return -1;
+    }    
+
+    if(pnh_pre_pick_.hasParam(position)){
+      pre_pick_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_pre_pick_ , position)))); 
+    }else{
+      ROS_ERROR("Pre_pick pose has to be filled in for %s position", position.c_str());
+      switchToState(robotnik_msgs::State::FAILURE_STATE);
+      return -1;
+    }    
+    
+    if(pnh_pre_place_.hasParam(position)){
+      pre_place_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_pre_place_ , position))));
+    }else{
+      ROS_ERROR("Pre_place pose has to be filled in for %s position", position.c_str());
+      switchToState(robotnik_msgs::State::FAILURE_STATE);
+      return -1;
+    }  
+
+  }
 
   // Create planning scene
   if(create_planning_scene()){
@@ -326,12 +334,12 @@ void ComponentSorting::readyState()
     std::vector <std::string> scanning_positions = init_holder_goal_->position; 
 
     if(scanning_positions.empty()){
-      for (auto & position: positions_to_use)
+      for (auto const & position: positions_to_use)
       {
         scan(position);
       }
     }else{
-      for (auto & scanning_position: scanning_positions){
+      for (auto const & scanning_position: scanning_positions){
         if(find(positions_to_use.begin(), positions_to_use.end(),scanning_position) != end(positions_to_use)){
           scan(scanning_position);
         }else {
@@ -426,8 +434,8 @@ void ComponentSorting::tfListener(std::string scanning_position){
   try{
     transform_stamped = tfBuffer.lookupTransform("robot_base_link",frame_name,ros::Time(0));
   }
-  catch(tf2::LookupException ex){
-    ROS_WARN("Lookup Transform error: %s", ex.what());
+  catch(tf2::TransformException ex){
+    ROS_ERROR("Lookup Transform error: %s", ex.what());
     if(init_holder_as_->isActive() == true){ 
       init_holder_feedback_.state.clear();
       init_holder_feedback_.state = "Could not scan " + scanning_position;
@@ -435,15 +443,7 @@ void ComponentSorting::tfListener(std::string scanning_position){
     }
     return;
   }
-  catch(tf2::ExtrapolationException ex){
-    ROS_WARN("Lookup Transform error: %s", ex.what());
-    if(init_holder_as_->isActive() == true){ 
-      init_holder_feedback_.state.clear();
-      init_holder_feedback_.state = "Could not scan " + scanning_position;
-      init_holder_as_->publishFeedback(init_holder_feedback_);
-    }
-    return;
-  }
+
   //Check if position is already published and remove it from vector
   for(int i=0; i<latched_tf.size(); i++){
     if(latched_tf[i].child_frame_id == transform_stamped.child_frame_id){
@@ -542,11 +542,12 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   current_cartesian_pose = move_group_->getCurrentPose().pose;
 
   objects_in_roi.clear();
-  objects_in_roi = planning_scene_interface.getKnownObjectNamesInROI(current_cartesian_pose.position.x - box.length/2, current_cartesian_pose.position.y - box.width/2 ,0, current_cartesian_pose.position.x 
+  objects_in_roi = planning_scene_interface_->getKnownObjectNamesInROI(current_cartesian_pose.position.x - box.length/2, current_cartesian_pose.position.y - box.width/2 ,0, current_cartesian_pose.position.x 
   + box.length/2, current_cartesian_pose.position.y + box.width/2 , 3, false );
 
 
   if(objects_in_roi.size() < 2){
+    ROS_WARN("There is no box collision object to grab");
     pick_result_.success = false;
     pick_result_.message = "There is no box to grab";
     pickup_from_as_->setAborted(pick_result_);
@@ -634,7 +635,7 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   };
 
   //Activate gripper
-  gripper_on();
+  if(!simulation){gripper_on();};
   ros::Duration(1).sleep();
 
   //Move 5cm upwards and attach box
@@ -727,6 +728,22 @@ void ComponentSorting::place_chain_movement(std::string place_position)
   //Correct frame to latched 
   pre_position.header.frame_id = pre_position.header.frame_id + "_latched";
   position.header.frame_id = position.header.frame_id + "_latched";
+
+  std::map< std::string, moveit_msgs::AttachedCollisionObject > attached_objects_map = planning_scene_interface_->getAttachedObjects();
+  std::vector< std::string> attached_objects;
+  for(auto const & object : attached_objects_map)
+  {
+    attached_objects.push_back(object.first);
+  }
+
+  if(attached_objects.empty()){
+    ROS_WARN("There is no box to detach");
+    place_result_.success = false;
+    place_result_.message = "There is no box to detach";
+    place_on_as_->setAborted(place_result_);
+    return;
+  }
+
 
 /*   visual_tools_->deleteAllMarkers();
   visual_tools_->trigger(); */
@@ -842,7 +859,7 @@ void ComponentSorting::place_chain_movement(std::string place_position)
   };
 
   //Deactivate gripper
-  gripper_off();
+  if(!simulation){gripper_off();};
   ros::Duration(2).sleep();
 
   // Check if goal is active and Plan to target goal
@@ -899,25 +916,25 @@ void ComponentSorting::gripper_on(){
   srv.request.fun = 1;
   srv.request.pin =16;
   srv.request.state =1;
-  if (client.call(srv))
+  if (gripper_client.call(srv))
    {
      ROS_INFO("Result: %d", srv.response.success);
    }
   else
    {
-     ROS_ERROR("Failed to call service set/IO on pin 16: %s", client.getService().c_str());
+     ROS_ERROR("Failed to call service set/IO on pin 16: %s", gripper_client.getService().c_str());
      return;
    }
   srv.request.fun = 1;
   srv.request.pin =17;
   srv.request.state =1;
-  if (client.call(srv))
+  if (gripper_client.call(srv))
    {
      ROS_INFO("Result: %d", srv.response.success);
    }
   else
    {
-     ROS_ERROR("Failed to call service set/IO on pin 17: %s", client.getService().c_str());
+     ROS_ERROR("Failed to call service set/IO on pin 17: %s", gripper_client.getService().c_str());
      return;
    }
 }
@@ -927,25 +944,25 @@ void ComponentSorting::gripper_off(){
   srv.request.fun = 1;
   srv.request.pin =16;
   srv.request.state =0;
-  if (client.call(srv))
+  if (gripper_client.call(srv))
    {
      ROS_INFO("Result: %d", srv.response.success);
    }
   else
    {
-     ROS_ERROR("Failed to call service set/IO on pin 16: %s", client.getService().c_str());
+     ROS_ERROR("Failed to call service set/IO on pin 16: %s", gripper_client.getService().c_str());
      return;
    }
   srv.request.fun = 1;
   srv.request.pin =17;
   srv.request.state =0;
-  if (client.call(srv))
+  if (gripper_client.call(srv))
    {
      ROS_INFO("Result: %d", srv.response.success);
    }
   else
    {
-     ROS_ERROR("Failed to call service set/IO on pin 17: %s", client.getService().c_str());
+     ROS_ERROR("Failed to call service set/IO on pin 17: %s", gripper_client.getService().c_str());
      return;
    }
 }
@@ -959,7 +976,7 @@ bool ComponentSorting::create_planning_scene()
   readParam(pnh_, "objects", object_names, object_names, required); 
 
   // Create class Object_Builder objects
-  for (auto & object_name: object_names)
+  for (auto const & object_name: object_names)
   {
     parsed_objects.push_back(Object_Builder(ros::NodeHandle(pnh_ , object_name), object_name));
   }
@@ -975,18 +992,8 @@ bool ComponentSorting::create_planning_scene()
     try{
       transform_stamped = tfBuffer.lookupTransform("robot_base_link",collision_object.header.frame_id,ros::Time(0),ros::Duration(1.0));
     }
-    catch(tf2::LookupException ex){
-      ROS_ERROR("Lookup Transform error: %s", ex.what());
-      switchToState(robotnik_msgs::State::FAILURE_STATE);
-      return false;
-    }
-    catch(tf2::ExtrapolationException ex){
-      ROS_ERROR("Lookup Transform error: %s", ex.what());
-      switchToState(robotnik_msgs::State::FAILURE_STATE);
-      return false;
-    }
-    catch(tf2::ConnectivityException ex){
-      ROS_ERROR("Could not find collision object %s frame. Lookup Transform error: %s",collision_object.id.c_str(), ex.what());
+    catch(tf2::TransformException ex){
+      ROS_ERROR("Error when adding %s object to desired frame. Lookup Transform error: %s",collision_object.id.c_str(), ex.what());
       switchToState(robotnik_msgs::State::FAILURE_STATE);
       return false;
     }
@@ -997,7 +1004,7 @@ bool ComponentSorting::create_planning_scene()
   }
 
   // Add collision objects into the world
-  planning_scene_interface.applyCollisionObjects(moveit_objects);
+  planning_scene_interface_->applyCollisionObjects(moveit_objects);
 
   return true;
 

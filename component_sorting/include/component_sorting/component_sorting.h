@@ -76,7 +76,7 @@ protected:
   ros::WallDuration move_group_timeout_;
   moveit::planning_interface::MoveGroupInterfacePtr move_group_;
   moveit::planning_interface::MoveGroupInterface::Plan plan;
-  moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
+  moveit::planning_interface::PlanningSceneInterfacePtr planning_scene_interface_;
   std::vector< std::string > objects_in_roi; //CHANGE
   
   std::vector<Object_Builder> parsed_objects;
@@ -136,7 +136,7 @@ protected:
 
   ur_msgs::SetIO srv;
   gazebo_ros_link_attacher::Attach gazebo_link_attacher_msg;
-  ros::ServiceClient client;
+  ros::ServiceClient gripper_client;
   ros::ServiceClient gazebo_link_attacher_client;
   ros::ServiceClient gazebo_link_detacher_client;
 
@@ -155,6 +155,8 @@ protected:
   std::string identified_handle;
 
   double box_handle_displacement;
+
+  bool simulation;
 
   std::string moveit_constraint;
   moveit_msgs::Constraints current_constraint;
