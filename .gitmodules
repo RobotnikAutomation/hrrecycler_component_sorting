@@ -37,3 +37,6 @@
 [submodule "gazebo_ros_link_attacher"]
 	path = gazebo_ros_link_attacher
 	url = https://github.com/RobotnikAutomation/gazebo_ros_link_attacher
+[submodule "robotnik_navigation_msgs"]
+	path = robotnik_navigation_msgs
+	url = https://github.com/RobotnikAutomation/robotnik_navigation_msgs
