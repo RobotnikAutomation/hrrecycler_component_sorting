@@ -18,8 +18,10 @@ robot_sensor_frame: robot_front_rgbd_camera_rgb_optical_frame
 markers:
   - id_type: single
     id: 10
-    exact_name: robot_noisy_table_qr
+    exact_name: table_qr
     size: 0.12
+    parent_frame: table_base_link
+    filter_tag: robot_noisy_
   
 
 
