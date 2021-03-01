@@ -72,8 +72,8 @@
     </collision>
   </link>
 
-  <joint name="${prefix}base_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="${-table_length/2}  0 ${+qr_height}"/>
+  <joint name="${prefix}qr_joint" type="fixed">
+    <origin rpy="${+3.14159/2} 0 ${-3.14159/2}" xyz="${-table_length/2}  0 ${+qr_height}"/>
     <parent link="${prefix}base_link"/>
     <child link="${prefix}qr"/>
   </joint>
@@ -81,9 +81,18 @@
   <link name="${prefix}qr">
   </link>
 
+  <joint name="${prefix}docking_joint" type="fixed">
+    <origin rpy="0 ${+3.14159/2} ${+3.14159/2}" xyz="0 0 0.115"/>
+    <parent link="${prefix}qr"/>
+    <child link="${prefix}docking"/>
+  </joint>
+
+  <link name="${prefix}docking">
+  </link>
+
         <!-- TABLE TAG -->
   <xacro:ar_tag prefix="${prefix}" parent="${prefix}qr" tag_id="marker10_12cm">
-      <origin xyz="0 0 0" rpy="0 ${-3.14159/2} 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
   </xacro:ar_tag>
 
   <xacro:property name="center_holder_offset_x" value="${(holder_length-table_length)/2}"/>
