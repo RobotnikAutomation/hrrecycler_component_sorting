@@ -31,7 +31,7 @@
     </link>
 
     <joint name="${prefix}ar_tag_joint" type="fixed">
-      <origin rpy="0 0 0" xyz="0 0 0.0005"/>
+      <origin rpy="0 0 ${+3.14159/2}" xyz="0 0 0.0005"/>
       <parent link="${prefix}ar_tag_base_link"/>
       <child link="${prefix}ar_tag_link"/>
     </joint>
