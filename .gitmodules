@@ -40,3 +40,6 @@
 [submodule "robotnik_navigation_msgs"]
 	path = robotnik_navigation_msgs
 	url = https://github.com/RobotnikAutomation/robotnik_navigation_msgs
+[submodule "robotnik_msgs"]
+	path = robotnik_msgs
+	url = https://github.com/RobotnikAutomation/robotnik_msgs
