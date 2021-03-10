@@ -1,45 +1,45 @@
 [submodule "egh_gripper_common"]
-	path = egh_gripper_common
+	path = robot/egh_gripper_common
 	url = https://github.com/RobotnikAutomation/egh_gripper_common
 [submodule "rbkairos_common"]
-	path = rbkairos_common
+	path = robot/rbkairos_common
 	url = https://github.com/RobotnikAutomation/rbkairos_common
 [submodule "rbkairos_sim"]
-	path = rbkairos_sim
+	path = robot/rbkairos_sim
 	url = https://github.com/RobotnikAutomation/rbkairos_sim
 [submodule "robotnik_sensors"]
-	path = robotnik_sensors
+	path = robot/robotnik_sensors
 	url = https://github.com/RobotnikAutomation/robotnik_sensors
 [submodule "summit_xl_common"]
-	path = summit_xl_common
+	path = robot/summit_xl_common
 	url = https://github.com/RobotnikAutomation/summit_xl_common
 [submodule "universal_robot"]
-	path = universal_robot
+	path = robot/universal_robot
 	url = https://github.com/fmauch/universal_robot.git
 [submodule "realsense_gazebo_plugin"]
-	path = realsense_gazebo_plugin
+	path = sim/realsense_gazebo_plugin
 	url = https://github.com/RobotnikAutomation/realsense_gazebo_plugin
 [submodule "robotnik_gazebo_plugins"]
-	path = robotnik_gazebo_plugins
+	path = sim/robotnik_gazebo_plugins
 	url = https://github.com/RobotnikAutomation/robotnik_gazebo_plugins
 [submodule "stomp_ros"]
-	path = stomp_ros
+	path = utils/stomp_ros
 	url = https://github.com/ros-industrial/stomp_ros
 [submodule "rcomponent"]
-	path = rcomponent
+	path = utils/rcomponent
 	url = https://github.com/RobotnikAutomation/rcomponent
 [submodule "robotnik_navigation"]
-	path = robotnik_navigation
+	path = navigation/robotnik_navigation
 	url = https://github.com/RobotnikAutomation/robotnik_navigation
 [submodule "robotnik_gazebo_models"]
-	path = robotnik_gazebo_models
+	path = sim/robotnik_gazebo_models
 	url = https://github.com/RobotnikAutomation/robotnik_gazebo_models
 [submodule "gazebo_ros_link_attacher"]
-	path = gazebo_ros_link_attacher
+	path = sim/gazebo_ros_link_attacher
 	url = https://github.com/RobotnikAutomation/gazebo_ros_link_attacher
 [submodule "robotnik_navigation_msgs"]
-	path = robotnik_navigation_msgs
+	path = navigation/robotnik_navigation_msgs
 	url = https://github.com/RobotnikAutomation/robotnik_navigation_msgs
 [submodule "robotnik_msgs"]
-	path = robotnik_msgs
+	path = robot/robotnik_msgs
 	url = https://github.com/RobotnikAutomation/robotnik_msgs
