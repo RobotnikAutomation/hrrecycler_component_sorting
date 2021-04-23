@@ -98,13 +98,14 @@ int main(int argc, char** argv)
    // moveit_msgs::OrientationConstraint orientation;
     orientation.header.frame_id = "robot_base_link";
     orientation.link_name = "robot_arm_tool0";
-    orientation.orientation.x=  0.707;
-    orientation.orientation.y =  0.707;
-    orientation.orientation.z = 0;
+/*     orientation.orientation.x=  0;
+    orientation.orientation.y = 0;
+    orientation.orientation.z = 0; */
+    orientation.orientation.x = 1;
     orientation.orientation.w = 0;
-    orientation.absolute_x_axis_tolerance = 0.3;
-    orientation.absolute_y_axis_tolerance = 0.3;
-    orientation.absolute_z_axis_tolerance = 3.15;
+    orientation.absolute_x_axis_tolerance = 0.5;
+    orientation.absolute_y_axis_tolerance = 0.5;
+    orientation.absolute_z_axis_tolerance = 6.28318531;
     orientation.weight = 100;
     constraints.name = "elbow_up";
     constraints.orientation_constraints.clear();
@@ -112,7 +113,7 @@ int main(int argc, char** argv)
     constraints.joint_constraints.clear();
     joint.joint_name = "robot_arm_elbow_joint";
     joint.position = 0;
-    joint.tolerance_below = 0.18;
+    joint.tolerance_below = 0.20;
     joint.tolerance_above = 3.1415;
     joint.weight = 100;
     constraints.joint_constraints.push_back(joint);
