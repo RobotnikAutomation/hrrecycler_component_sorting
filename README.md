@@ -52,7 +52,7 @@ place position is computed in relation to the desired holder qr position)
 
 - `rosrun actionlib axclient.py /component_sorting/place_on`
 
-* The available positions can be found in positions_to_use parameter inside /component_sorting/config/poses_config.yaml)
+*The available positions can be found in positions_to_use parameter inside /component_sorting/config/poses_config.yaml)
 
     positions_to_use:
     - robot_center
