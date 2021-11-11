@@ -1,0 +1,21 @@
+<launch>
+  <group ns="rtabmap">
+    <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" args="--delete_db_on_start">
+        <remap from="rgb/image"       to="/front_rgbd_camera/rgb/image"/>
+        <remap from="depth/image"     to="/front_rgbd_camera/depth/image_raw"/>
+        <remap from="rgb/camera_info" to="/front_rgbd_camera/rgb/camera_info"/>
+        
+        
+        <param name="publish_tf"              value="false"/>
+        <param name="frame_id"              value="robot_base_link"/>
+        <param name="odom_frame_id"         value="robot_odom"/> <!-- fake fixed odometry -->
+        <param name="approx_sync"           value="false"/>     <!-- D435i has exact synchronized frames -->
+        <param name="Rtabmap/DetectionRate" value="2"/>         <!-- increase to make the map faster -->
+        <param name="Kp/MaxFeatures"        value="-1"/>        <!-- disable loop closure detection -->
+        <param name="RGBD/ProximityDetectionBySpace" value="false"/> <!-- disable proximity detection -->
+        <param name="RGBD/LinearUpdate"     value="0.0"/> <!-- always add new frames even if we don't move... arm is fixed -->
+        <param name="RGBD/AngularUpdate"    value="0.0"/> 
+    </node>
+  </group>
+
+</launch>

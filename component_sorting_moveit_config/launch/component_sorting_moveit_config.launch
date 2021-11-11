@@ -25,12 +25,12 @@
     <arg name="info" value="true"/>
     <arg name="debug" value="$(arg debug)"/>
     <arg name="pipeline" value="$(arg pipeline)" />
-    <arg name="sim" value="$(arg sim)"/>
+
   </include>
 
   <!-- Run Rviz and load the default config to see the state of the move_group node -->
   <include file="$(find component_sorting_moveit_config)/launch/moveit_rviz.launch">
-    <arg name="config" value="true"/>
+
     <arg name="debug" value="$(arg debug)"/>
   </include>
 
