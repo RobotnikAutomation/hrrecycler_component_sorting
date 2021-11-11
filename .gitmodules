@@ -13,9 +13,6 @@
 [submodule "summit_xl_common"]
 	path = robot/summit_xl_common
 	url = https://github.com/RobotnikAutomation/summit_xl_common
-[submodule "universal_robot"]
-	path = robot/universal_robot
-	url = https://github.com/fmauch/universal_robot.git
 [submodule "realsense_gazebo_plugin"]
 	path = sim/realsense_gazebo_plugin
 	url = https://github.com/RobotnikAutomation/realsense_gazebo_plugin
