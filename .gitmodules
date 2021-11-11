@@ -40,3 +40,6 @@
 [submodule "robotnik_msgs"]
 	path = robot/robotnik_msgs
 	url = https://github.com/RobotnikAutomation/robotnik_msgs
+[submodule "robot/universal_robot"]
+	path = robot/universal_robot
+	url = https://github.com/RobotnikAutomation/universal_robot
