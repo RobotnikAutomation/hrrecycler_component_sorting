@@ -14,7 +14,7 @@
 
     <xacro:property name="PI" value="3.1415926535897931"/>
 
-    <xacro:include filename="$(find rbkairos_description)/robots/versions/rbkairos_ur5_plus.urdf.xacro" />
+    <xacro:include filename="$(find component_sorting_description)/robots/rbkairos_ur5_plus.urdf.xacro" />
     <!-- <xacro:include filename="$(find rbkairos_description)/robots/versions/rbkairos_ur5_vgc10.urdf.xacro" /> -->
 
     <!-- Import holder for the boxes -->
