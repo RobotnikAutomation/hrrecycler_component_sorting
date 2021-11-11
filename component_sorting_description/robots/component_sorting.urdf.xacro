@@ -12,8 +12,10 @@
   	<xacro:arg name="prefix" default="robot_"/>
     <xacro:property name="prefix" value="$(arg prefix)" />
 
-    <!--xacro:include filename="$(find rbkairos_description)/robots/versions/rbkairos_ur5_oem_vgc10.urdf.xacro" /-->
-    <xacro:include filename="$(find rbkairos_description)/robots/versions/rbkairos_ur5_vgc10.urdf.xacro" />
+    <xacro:property name="PI" value="3.1415926535897931"/>
+
+    <xacro:include filename="$(find rbkairos_description)/robots/versions/rbkairos_ur5_plus.urdf.xacro" />
+    <!-- <xacro:include filename="$(find rbkairos_description)/robots/versions/rbkairos_ur5_vgc10.urdf.xacro" /> -->
 
     <!-- Import holder for the boxes -->
 <!-- 	<xacro:include filename="$(find rbkairos_description)/urdf/box/holder.urdf.xacro" /> -->
@@ -27,15 +29,15 @@
     <!-- Holder parameters -->
     <xacro:property name="center_holder_offset_x" value="-0.2025"/>
     <xacro:property name="center_holder_offset_y" value="0.0"/>
-    <xacro:property name="center_holder_offset_z" value="0.38212"/> 
+    <xacro:property name="center_holder_offset_z" value="0.564"/> 
 
     <xacro:property name="left_holder_offset_x" value="-0.2025"/> <!-- -0.195 -->
     <xacro:property name="left_holder_offset_y" value="0.228"/> <!-- 0.225 -->
-    <xacro:property name="left_holder_offset_z" value="0.38212"/>
+    <xacro:property name="left_holder_offset_z" value="0.564"/>
 
     <xacro:property name="right_holder_offset_x" value="-0.2025"/>
     <xacro:property name="right_holder_offset_y" value="-0.228"/>
-    <xacro:property name="right_holder_offset_z" value="0.38212"/>
+    <xacro:property name="right_holder_offset_z" value="0.564"/>
 
     <xacro:property name="center_table_holder_offset_x" value="0.68"/>
     <xacro:property name="center_table_holder_offset_y" value="0.0"/>
@@ -50,7 +52,7 @@
     <xacro:property name="right_table_holder_offset_z" value="0.9"/>
 
     <!-- ROBOT -->
-    <xacro:rbkairos_ur5_oem_vgc10 prefix="$(arg prefix)" publish_bf="true" hq="true" load_kinematics_file="$(arg load_kinematics_file)"/>
+    <xacro:rbkairos prefix="$(arg prefix)" publish_bf="true" hq="true" load_kinematics_file="$(arg load_kinematics_file)"/>
 
 <!--     <joint name="${prefix}base_boxes" type="fixed">
       <origin rpy="0 0 0" xyz="0 0 0"/>
