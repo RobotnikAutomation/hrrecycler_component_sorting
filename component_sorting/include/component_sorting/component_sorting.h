@@ -14,6 +14,7 @@
 #include <moveit/warehouse/constraints_storage.h>
 #include <moveit_msgs/Constraints.h>
 #include <moveit_visual_tools/moveit_visual_tools.h>
+#include <moveit/planning_scene_monitor/planning_scene_monitor.h>
 
 #include <moveit_msgs/PickupAction.h>
 #include <moveit_msgs/PlaceAction.h>
@@ -34,6 +35,9 @@
 #include <tf2_ros/transform_listener.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <tf2_ros/transform_broadcaster.h>
+#include <tf2/convert.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+
 
 #include <component_sorting/object_builder.h>
 #include <component_sorting/pose_builder.h>
@@ -77,6 +81,11 @@ protected:
   moveit::planning_interface::MoveGroupInterfacePtr move_group_;
   moveit::planning_interface::MoveGroupInterface::Plan plan;
   moveit::planning_interface::PlanningSceneInterfacePtr planning_scene_interface_;
+  planning_scene_monitor::PlanningSceneMonitorPtr planning_scene_monitor_;
+  collision_detection::AllowedCollisionMatrix acm_;
+  moveit_msgs::PlanningScene planning_scene_msg;
+
+
   std::vector< std::string > objects_in_roi; //CHANGE
   
   std::vector<Object_Builder> parsed_objects;
@@ -123,8 +132,6 @@ protected:
   int port;
   float connection_timeout;
   int connection_retries;
-
-
 
   map<std::string, Pose_Builder> approach_poses_;
   map<std::string, Pose_Builder> place_poses_;
@@ -181,7 +188,7 @@ protected:
 /*    tf::TransformListener tf_listener;
   tf::StampedTransform transform; */
   tf2_ros::Buffer tfBuffer;
-  tf2_ros::TransformListener* tf_listener;
+  tf2_ros::TransformListener* tf_listener_;
   geometry_msgs::TransformStamped transform_stamped;
   geometry_msgs::TransformStamped table_qr_transform_stamped;
 };

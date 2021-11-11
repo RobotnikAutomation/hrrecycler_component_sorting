@@ -11,41 +11,34 @@ ComponentSorting::~ComponentSorting()
 void ComponentSorting::rosReadParams()
 {
   bool required = true;
+  bool not_required = false;
 
-  required = true;
+
   group_name_ = "arm";
   readParam(pnh_, "group_name", group_name_, group_name_, required);
 
-  required = true;
   host = "localhost";
   readParam(pnh_, "host", host, host, required);  
 
-  required = true;
   port = 33829;
   readParam(pnh_, "port", port, port, required);
 
-  required = false;
   double timeout = 20;
-  readParam(pnh_, "move_group_timeout", timeout, timeout, required);
+  readParam(pnh_, "move_group_timeout", timeout, timeout, not_required);
   move_group_timeout_ = ros::WallDuration(timeout);
 
-  required = true;
   box.width = 0.20;
   readParam(pnh_, "box/width", box.width, box.width, required);
 
-  required = true;
   box.length = 0.28;
   readParam(pnh_, "box/length", box.length, box.length, required);
 
-  required = true;
   box_handle_displacement = 0.05;
   readParam(pnh_, "box_handle_displacement", box_handle_displacement, box_handle_displacement, required);
-  
-  required = true;
+
   moveit_constraint = "";
   readParam(pnh_, "moveit_constraint", moveit_constraint, moveit_constraint, required); 
 
-  required = true;
   simulation = true;
   readParam(pnh_, "simulation", simulation, simulation, required); 
 
@@ -62,6 +55,7 @@ int ComponentSorting::rosSetup()
 
   tf2_buffer_.reset(new tf2_ros::Buffer);
 
+  //Reset move group interface
   try
   {
     move_group_.reset(
@@ -75,10 +69,24 @@ int ComponentSorting::rosSetup()
     return rcomponent::ERROR;
   }
 
+
+  //Reset planning scene interface
   bool wait = true;
   std::string name_space = "";
   planning_scene_interface_.reset(
         new moveit::planning_interface::PlanningSceneInterface(name_space, wait));
+
+  //Reset planning scene monitor
+  planning_scene_monitor_.reset(new planning_scene_monitor::PlanningSceneMonitor("robot_description"));      
+
+  // update the planning scene monitor with the current state
+  bool success = planning_scene_monitor_->requestPlanningSceneState("/get_planning_scene");
+  ROS_INFO_STREAM("Request planning scene " << (success ? "succeeded." : "failed."));
+
+  // keep up to date with new changes
+  planning_scene_monitor_->startSceneMonitor("/move_group/monitored_planning_scene");
+
+ /*  planning_scene_(new planning_scene::PlanningScene(move_group_->getRobotModel())); */
 
   bool autostart = false;
   pickup_from_as_.reset(
@@ -125,7 +133,6 @@ int ComponentSorting::rosSetup()
   gazebo_link_detacher_client = nh_.serviceClient<gazebo_ros_link_attacher::Attach>("/link_attacher_node/detach");
 
 
-
   //UNCOMMENT FOR VISUALIZATION
 /*   visual_tools_.reset(new moveit_visual_tools::MoveItVisualTools("robot_base_footprint","/move_group/display_grasp_markers"));
   visual_tools_->deleteAllMarkers();
@@ -146,7 +153,7 @@ int ComponentSorting::rosSetup()
 
   // TF Listener and Broadcaster
   tf_latch_timer = pnh_.createTimer(ros::Duration(0.1), std::bind(&ComponentSorting::tfLatchCallback, this));
-  tf_listener = new  tf2_ros::TransformListener(tfBuffer);
+  tf_listener_ = new  tf2_ros::TransformListener(tfBuffer);
 
   return RComponent::rosSetup();
 }
@@ -194,7 +201,7 @@ int ComponentSorting::setup()
   init_holder_as_->start();
   RCOMPONENT_INFO_STREAM("Started server: init holder");
 
-    // Read and store parameter: approach_poses from parameter server
+  // Read and store parameter: approach_poses from parameter server
   bool required = true;
   readParam(pnh_, "positions_to_use", positions_to_use, positions_to_use, required); 
 
@@ -432,7 +439,7 @@ void ComponentSorting::tfListener(std::string scanning_position){
 /*   tf_listener.lookupTransform("robot_base_link",frame_name,ros::Time(0),transform); */
   std::string frame_name = place_poses_.at(scanning_position).getPose().header.frame_id;
   try{
-    transform_stamped = tfBuffer.lookupTransform("robot_base_link",frame_name,ros::Time(0));
+    transform_stamped = tfBuffer.lookupTransform("robot_base_link",frame_name,ros::Time::now());
   }
   catch(tf2::TransformException ex){
     ROS_ERROR("Lookup Transform error: %s", ex.what());
@@ -649,6 +656,13 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   cartesian_plan.trajectory_ = trajectory;
   move_group_->execute(cartesian_plan);
 
+  //Allow contact between attached box and holder
+  acm_ = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
+  acm_.setEntry("holder_" + pick_position, identified_box, true);
+  acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
+  planning_scene_msg.is_diff = true;
+  planning_scene_interface_->applyPlanningScene(planning_scene_msg);
+
 
   if(move_group_->attachObject(identified_box)){
     pick_feedback_.state.clear();
@@ -661,6 +675,7 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     return;
   }
 
+
   // Cartesian move to pre-position
   waypoints.clear();
   waypoint_cartesian_pose = pre_position.pose;
@@ -670,6 +685,13 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
   move_group_->execute(cartesian_plan);
+
+  //Restore collision checking between box to attach and holder
+  acm_ = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
+  acm_.removeEntry("holder_" + pick_position, identified_box);
+  acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
+  planning_scene_msg.is_diff = true;
+  planning_scene_interface_->applyPlanningScene(planning_scene_msg);
 
   // Move back to approach position
   waypoints.clear();
@@ -744,7 +766,6 @@ void ComponentSorting::place_chain_movement(std::string place_position)
     return;
   }
 
-
 /*   visual_tools_->deleteAllMarkers();
   visual_tools_->trigger(); */
 
@@ -785,7 +806,16 @@ void ComponentSorting::place_chain_movement(std::string place_position)
     return;
   }
 
-  //Plan to position goal + 0.05 m 
+  
+  //Allow contact between attached box and holder
+  acm_ = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
+  acm_.setEntry("holder_" + place_position, identified_box, true);
+  acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
+  acm_.print(std::cout);
+  planning_scene_msg.is_diff = true;
+  planning_scene_interface_->applyPlanningScene(planning_scene_msg);
+
+  //Plan to position goal 
 
   waypoints.clear();
   waypoint_cartesian_pose = position.pose;
@@ -819,6 +849,10 @@ void ComponentSorting::place_chain_movement(std::string place_position)
       place_result_.success = false;
       place_result_.message = "Could not move to desired position";
       place_on_as_->setAborted(place_result_);
+      acm_.removeEntry("holder_" + place_position, identified_box);
+      acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
+      planning_scene_msg.is_diff = true;
+      planning_scene_interface_->applyPlanningScene(planning_scene_msg);
       return;
     }
           
@@ -826,12 +860,22 @@ void ComponentSorting::place_chain_movement(std::string place_position)
     place_result_.success = false;
     place_result_.message = "Could not plan to desired position";
     place_on_as_->setAborted(place_result_);
+    acm_.removeEntry("holder_" + place_position, identified_box);
+    acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
+    planning_scene_msg.is_diff = true;
+    planning_scene_interface_->applyPlanningScene(planning_scene_msg);
     return;
   }
 
   //Detach box from end effector
-
   move_group_->detachObject(identified_box);
+
+  //Restore collision checking between attached box and holder
+  acm_.removeEntry("holder_" + place_position, identified_box);
+  acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
+  planning_scene_msg.is_diff = true;
+  planning_scene_interface_->applyPlanningScene(planning_scene_msg);
+
 
 
   //Move to position goal and detach handle from end effector
@@ -984,13 +1028,13 @@ bool ComponentSorting::create_planning_scene()
   //Object_builder objects into Moveit's collision objects
 
 
-    for (auto & parsed_object: parsed_objects)
+  for (auto & parsed_object: parsed_objects)
   { 
     moveit_msgs::CollisionObject collision_object;
     collision_object = parsed_object.getObject();
 
     try{
-      transform_stamped = tfBuffer.lookupTransform("robot_base_link",collision_object.header.frame_id,ros::Time(0),ros::Duration(1.0));
+      transform_stamped = tfBuffer.lookupTransform("robot_base_link",collision_object.header.frame_id,ros::Time::now(),ros::Duration(1.0));
     }
     catch(tf2::TransformException ex){
       ROS_ERROR("Error when adding %s object to desired frame. Lookup Transform error: %s",collision_object.id.c_str(), ex.what());
