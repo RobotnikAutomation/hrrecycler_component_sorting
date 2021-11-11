@@ -4,6 +4,7 @@ project(component_sorting_msgs)
 set(MSG_DEPS
   std_msgs
   actionlib_msgs
+  geometry_msgs
 )
 #  sensor_msgs
 #  geometry_msgs
