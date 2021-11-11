@@ -20,8 +20,8 @@
   <depend>moveit_visual_tools</depend>
   <depend>rviz_visual_tools</depend>
   <depend> gazebo_ros_link_attacher</depend>
-
-
+  <depend>tf2_ros</depend>
+  <depend>tf2</depend>
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- Other tools can request additional information be placed here -->

@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   moveit_visual_tools
   rviz_visual_tools
   gazebo_ros_link_attacher
+  tf2_ros
+  tf2
 )
 
 catkin_package(
