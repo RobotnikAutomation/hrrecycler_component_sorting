@@ -13,8 +13,8 @@
   
     <node pkg="image_filter" type="image_filter" name="image_filter">
         <!-- This filter is for making whitey areas more white, so alvar detector can work in different lightning conditions -->
-        <remap from="image_in" to="front_rgbd_camera/rgb/image_raw" />
-        <remap from="image_out" to="front_rgbd_camera/rgb/image" />
+        <remap from="image_in" to="/front_rgbd_camera/color/image_raw" />
+        <remap from="image_out" to="/front_rgbd_camera/color/image" />
         <param name="threshold" value="135" />
     </node>
 
@@ -27,8 +27,8 @@
 
     <node pkg="image_filter" type="image_filter" name="arm_image_filter">
         <!-- This filter is for making whitey areas more white, so alvar detector can work in different lightning conditions -->
-        <remap from="image_in" to="wrist_rgbd/color/image_raw" />
-        <remap from="image_out" to="wrist_rgbd/color/image" />
+        <remap from="image_in" to="/arm_rgbd_camera/rgb/image_raw" />
+        <remap from="image_out" to="/arm_rgbd_camera/rgb/image" />
         <param name="threshold" value="135" />
     </node>
 

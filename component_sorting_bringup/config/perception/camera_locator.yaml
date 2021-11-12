@@ -5,13 +5,13 @@ fixed_frame: robot_odom
 # output frame. if locator is able to provide id, this will be 
 object_frame: robot_noisy_marker
 # from which topic read the image stream
-input_topic_name: front_rgbd_camera/rgb/image
+input_topic_name: /front_rgbd_camera/color/image
 # from which topic read the camera calibration
-camera_info_topic_name: front_rgbd_camera/rgb/camera_info
+camera_info_topic_name: /front_rgbd_camera/color/camera_info
 # marker size, in m
 marker_size: 0.12
 
-robot_sensor_frame: robot_front_rgbd_camera_rgb_optical_frame
+robot_sensor_frame: robot_front_rgbd_camera_color_optical_frame
 
 # to specify special characteristics for some markers
 # still no read by alvar_camera_locator 
