@@ -119,7 +119,7 @@
     <!-- Here we create the robot elements using the xacro:macros imported at the beggining of this file -->
 
     <!-- Summit XL base -->
-    <xacro:summit_xls_base prefix="${prefix}" publish_bf="true" hq="${hq}" laser_support="false"/>
+    <xacro:summit_xls_base prefix="${prefix}" publish_bf="true" hq="${hq}" laser_support="true"/>
 
     <xacro:omni_wheel prefix="${prefix}front_right" parent="${prefix}base_link" reflect="false" hq="${hq}">
         <origin xyz="${wheel_offset_x} -${wheel_offset_y} ${wheel_offset_z}" rpy="0 0 0"/>
@@ -166,7 +166,7 @@
     </xacro:sensor_sick_s300>
 
 
-    <xacro:sensor_intel_d435 prefix="${prefix}front_rgbd_camera" parent="${prefix}base_link" prefix_topic="front_rgbd_camera">
+    <xacro:sensor_intel_d435 prefix="${prefix}front_rgbd_camera" parent="${prefix}base_link" prefix_topic="front_rgbd_camera" use_nominal_extrinsics="true">
       <origin xyz="${front_rgbd_camera_offset_x} ${front_rgbd_camera_offset_y} ${front_rgbd_camera_offset_z}" rpy="0 0 0"/>
     </xacro:sensor_intel_d435>
 
