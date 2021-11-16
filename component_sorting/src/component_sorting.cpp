@@ -647,13 +647,14 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   gazebo_link_attacher_msg.request.model_name_2 = "robot";
   gazebo_link_attacher_msg.request.link_name_2 = "robot_arm_wrist_3_link";
 
-  if(gazebo_link_attacher_client.call(gazebo_link_attacher_msg)){
-    /* std:: cout << "ok" << endl; */
-  };
 
   //Activate gripper
-  if(!simulation){gripper_on();};
-  ros::Duration(1).sleep();
+  if(simulation){
+   gazebo_link_attacher_client.call(gazebo_link_attacher_msg);
+  }else{
+   gripper_on();
+   ros::Duration(0.5).sleep();
+  };
 
   //Move 5cm upwards and attach box
   waypoints.clear();
@@ -908,13 +909,13 @@ void ComponentSorting::place_chain_movement(std::string place_position)
   gazebo_link_attacher_msg.request.model_name_2 = "robot";
   gazebo_link_attacher_msg.request.link_name_2 = "robot_arm_wrist_3_link";
 
-  if(gazebo_link_detacher_client.call(gazebo_link_attacher_msg)){
-    /* std:: cout << "ok" << endl; */
-  };
-
   //Deactivate gripper
-  if(!simulation){gripper_off();};
-  ros::Duration(2).sleep();
+  if(simulation){
+   gazebo_link_detacher_client.call(gazebo_link_attacher_msg);
+  }else{
+   gripper_off();
+   ros::Duration(0.5).sleep();
+  };
 
   // Check if goal is active and Plan to target goal
   if (!place_on_as_->isActive()) return;
@@ -1050,7 +1051,7 @@ bool ComponentSorting::create_planning_scene()
     moveit_msgs::CollisionObject collision_object;
     collision_object = parsed_object.getObject();
 
-    try{
+   try{
       transform_stamped = tfBuffer.lookupTransform("robot_base_link",collision_object.header.frame_id,ros::Time::now(),ros::Duration(1.0));
     }
     catch(tf2::TransformException ex){
