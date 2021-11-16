@@ -42,6 +42,16 @@ void ComponentSorting::rosReadParams()
   simulation = true;
   readParam(pnh_, "simulation", simulation, simulation, required); 
 
+  multi_pin_ = false;
+  readParam(pnh_, "multi_pin", multi_pin_, multi_pin_, required);	
+
+  pin_1_ = 16;
+  readParam(pnh_, "pin_1", pin_1_, pin_1_, required);	
+
+  pin_2_ = 17;
+  readParam(pnh_, "pin_2", pin_2_, pin_2_, required);	
+	
+
 }
 
 int ComponentSorting::rosSetup()
@@ -957,8 +967,10 @@ void ComponentSorting::place_chain_movement(std::string place_position)
 }
 
 void ComponentSorting::gripper_on(){
+
+
   srv.request.fun = 1;
-  srv.request.pin =16;
+  srv.request.pin = pin_1_;
   srv.request.state =1;
   if (gripper_client.call(srv))
    {
@@ -966,27 +978,30 @@ void ComponentSorting::gripper_on(){
    }
   else
    {
-     ROS_ERROR("Failed to call service set/IO on pin 16: %s", gripper_client.getService().c_str());
+     ROS_ERROR("Failed to call service set/IO on pin %d: %s",pin_1_, gripper_client.getService().c_str());
      return;
    }
   srv.request.fun = 1;
-  srv.request.pin =17;
+  srv.request.pin = pin_2_;
   srv.request.state =1;
-  if (gripper_client.call(srv))
-   {
-     ROS_INFO("Result: %d", srv.response.success);
-   }
-  else
-   {
-     ROS_ERROR("Failed to call service set/IO on pin 17: %s", gripper_client.getService().c_str());
-     return;
-   }
+  if(multi_pin_){	
+    if (gripper_client.call(srv))
+     {
+       ROS_INFO("Result: %d", srv.response.success);
+     }
+    else
+     {
+       ROS_ERROR("Failed to call service set/IO on pin %d: %s", pin_2_, gripper_client.getService().c_str());
+       return;
+     }
+  } 
 }
 
 
 void ComponentSorting::gripper_off(){
+
   srv.request.fun = 1;
-  srv.request.pin =16;
+  srv.request.pin = pin_1_;
   srv.request.state =0;
   if (gripper_client.call(srv))
    {
@@ -994,21 +1009,23 @@ void ComponentSorting::gripper_off(){
    }
   else
    {
-     ROS_ERROR("Failed to call service set/IO on pin 16: %s", gripper_client.getService().c_str());
+     ROS_ERROR("Failed to call service set/IO on pin %d: %s",pin_1_, gripper_client.getService().c_str());
      return;
    }
   srv.request.fun = 1;
-  srv.request.pin =17;
+  srv.request.pin = pin_2_;
   srv.request.state =0;
-  if (gripper_client.call(srv))
-   {
-     ROS_INFO("Result: %d", srv.response.success);
-   }
-  else
-   {
-     ROS_ERROR("Failed to call service set/IO on pin 17: %s", gripper_client.getService().c_str());
-     return;
-   }
+  if(multi_pin_){	
+    if (gripper_client.call(srv))
+     {
+       ROS_INFO("Result: %d", srv.response.success);
+     }
+    else
+     {
+       ROS_ERROR("Failed to call service set/IO on pin %d: %s", pin_2_, gripper_client.getService().c_str());
+       return;
+     }
+  }
 }
 
 bool ComponentSorting::create_planning_scene()

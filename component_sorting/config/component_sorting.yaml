@@ -22,3 +22,8 @@ moveit_constraint: "elbow_up" #Motion planning constraint to be used
 
 simulation: true 
 
+#Gripper IO
+multi_pin: false
+pin_1: 4
+pin_2: 4
+
