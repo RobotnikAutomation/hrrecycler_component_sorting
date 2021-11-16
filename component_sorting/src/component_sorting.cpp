@@ -449,7 +449,7 @@ void ComponentSorting::tfListener(std::string scanning_position){
 /*   tf_listener.lookupTransform("robot_base_link",frame_name,ros::Time(0),transform); */
   std::string frame_name = place_poses_.at(scanning_position).getPose().header.frame_id;
   try{
-    transform_stamped = tfBuffer.lookupTransform("robot_base_link",frame_name,ros::Time::now());
+    transform_stamped = tfBuffer.lookupTransform("robot_base_link",frame_name,ros::Time(0));
   }
   catch(tf2::TransformException ex){
     ROS_ERROR("Lookup Transform error: %s", ex.what());
@@ -1052,7 +1052,7 @@ bool ComponentSorting::create_planning_scene()
     collision_object = parsed_object.getObject();
 
    try{
-      transform_stamped = tfBuffer.lookupTransform("robot_base_link",collision_object.header.frame_id,ros::Time::now(),ros::Duration(1.0));
+      transform_stamped = tfBuffer.lookupTransform("robot_base_link",collision_object.header.frame_id,ros::Time(0),ros::Duration(1.0));
     }
     catch(tf2::TransformException ex){
       ROS_ERROR("Error when adding %s object to desired frame. Lookup Transform error: %s",collision_object.id.c_str(), ex.what());
