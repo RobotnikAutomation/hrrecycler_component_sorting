@@ -3,7 +3,7 @@
 
   <!-- By default, we are not in debug mode -->
   <arg name="debug" default="false" />
-  <arg name="sim" default="true" />
+  <arg name="sim" default="false" />
   <arg name="pipeline" default="ompl" />
 
   <!-- By default, we do not start a database (it can be large) -->
@@ -29,10 +29,9 @@
   </include>
 
   <!-- Run Rviz and load the default config to see the state of the move_group node -->
-  <include file="$(find component_sorting_moveit_config)/launch/moveit_rviz.launch">
-
+  <!--include file="$(find component_sorting_moveit_config)/launch/moveit_rviz.launch">
     <arg name="debug" value="$(arg debug)"/>
-  </include>
+  </include-->
 
     <!-- If database loading was enabled, start mongodb as well -->
   <include file="$(find component_sorting_moveit_config)/launch/default_warehouse_db.launch" if="$(arg db)">
