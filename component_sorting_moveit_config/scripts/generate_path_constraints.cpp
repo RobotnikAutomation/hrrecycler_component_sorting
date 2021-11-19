@@ -118,9 +118,9 @@ int main(int argc, char** argv)
     joint.weight = 100;
     constraints.joint_constraints.push_back(joint);
     joint.joint_name = "robot_arm_shoulder_lift_joint";
-    joint.position = -1.57;
-    joint.tolerance_below = 1.40; //0.78
-    joint.tolerance_above = 1.40; //0.78
+    joint.position = -1.6057;
+    joint.tolerance_below = 0.6981; //0.78
+    joint.tolerance_above = 0.6981; //0.78
     joint.weight = 100;
     constraints.joint_constraints.push_back(joint);
     constraints_storage_->addConstraints(constraints, robot, group);

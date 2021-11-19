@@ -8,8 +8,10 @@
   <!-- Load universal robot description format (URDF) -->
   <param if="$(arg load_robot_description)" name="$(arg robot_description)" command="xacro --inorder load_kinematics_file:=true '$(find component_sorting_description)/robots/component_sorting.urdf.xacro'"/>
 
+
   <!-- The semantic description that corresponds to the URDF -->
   <param name="$(arg robot_description)_semantic" textfile="$(find component_sorting_moveit_config)/config/component_sorting.srdf" />
+
 
   <!-- Load updated joint limits (override information from URDF) -->
   <group ns="$(arg robot_description)_planning">
