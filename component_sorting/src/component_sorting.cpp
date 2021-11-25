@@ -50,6 +50,9 @@ void ComponentSorting::rosReadParams()
 
   pin_2_ = 17;
   readParam(pnh_, "pin_2", pin_2_, pin_2_, required);	
+
+  scale_vel_ = 1;
+  readParam(pnh_, "scale_vel", scale_vel_, scale_vel_, required);
 	
 
 }
@@ -175,6 +178,9 @@ int ComponentSorting::rosShutdown()
 
 int ComponentSorting::setup()
 {
+  
+  // Move group vel
+  move_group_->setMaxVelocityScalingFactor(scale_vel_);
   // Checks if has been initialized
   int setup_result;
 
@@ -399,7 +405,8 @@ void ComponentSorting::readyState()
     //Check if position exists
     if(find(positions_to_use.begin(), positions_to_use.end(),place_position) != end(positions_to_use)){
       //Check if place position is initialized
-      if( place_poses_.at(place_position).isInit()){
+      //if( place_poses_.at(place_position).isInit()){
+      if( true){
         place_chain_movement(place_position);
       }else{
         ROS_WARN("Place pose for Position %s is not initialized ", place_position.c_str());
@@ -559,9 +566,7 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   current_cartesian_pose = move_group_->getCurrentPose().pose;
 
   objects_in_roi.clear();
-  objects_in_roi = planning_scene_interface_->getKnownObjectNamesInROI(current_cartesian_pose.position.x - box.length/2, current_cartesian_pose.position.y - box.width/2 ,0, current_cartesian_pose.position.x 
-  + box.length/2, current_cartesian_pose.position.y + box.width/2 , 3, false );
-
+  objects_in_roi = planning_scene_interface_->getKnownObjectNames();
 
   if(objects_in_roi.size() < 2){
     ROS_WARN("There is no box collision object to grab");
@@ -586,6 +591,17 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     { 
       success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
     }
+
+  //Allow contact between end effector and handle
+  acm_ = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
+  acm_.setEntry("robot_vgc10_vgc10_link", identified_handle, true);
+  acm_.setEntry("robot_vgc10_vacuum_cup_1_joint", identified_handle, true);
+  acm_.setEntry("robot_vgc10_vacuum_cup_2_joint", identified_handle, true);
+  acm_.setEntry("robot_vgc10_vacuum_cup_3_joint", identified_handle, true);
+  acm_.setEntry("robot_vgc10_vacuum_cup_4_joint", identified_handle, true);
+  acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
+  planning_scene_msg.is_diff = true;
+  planning_scene_interface_->applyPlanningScene(planning_scene_msg);
 
   // Cartesian move to position  
   waypoints.clear();
@@ -657,22 +673,23 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   };
 
   //Move 5cm upwards and attach box
+  geometry_msgs::PoseStamped current_pose= move_group_->getCurrentPose();
   waypoints.clear();
-  waypoint_cartesian_pose = position.pose;
+  waypoint_cartesian_pose = current_pose.pose;
   waypoint_cartesian_pose.position.z += box_handle_displacement; 
   waypoints.push_back(waypoint_cartesian_pose);  
 
-  move_group_->setPoseReferenceFrame(position.header.frame_id);
+  move_group_->setPoseReferenceFrame(current_pose.header.frame_id);
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
   move_group_->execute(cartesian_plan);
 
   //Allow contact between attached box and holder
-  acm_ = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
-  acm_.setEntry("holder_" + pick_position, identified_box, true);
-  acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
-  planning_scene_msg.is_diff = true;
-  planning_scene_interface_->applyPlanningScene(planning_scene_msg);
+  //acm_ = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
+  //acm_.setEntry("holder_" + pick_position, identified_box, true);
+  //acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
+  //planning_scene_msg.is_diff = true;
+  //planning_scene_interface_->applyPlanningScene(planning_scene_msg);
 
 
   if(move_group_->attachObject(identified_box)){
@@ -703,6 +720,17 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
   planning_scene_msg.is_diff = true;
   planning_scene_interface_->applyPlanningScene(planning_scene_msg);
+
+  //Restore collision checking between end effector and handle
+  //acm_ = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
+  //acm_.removeEntry("robot_vgc10_vgc10_link", identified_handle);
+  //acm_.removeEntry("robot_vgc10_vacuum_cup_1_joint", identified_handle);
+  //acm_.removeEntry("robot_vgc10_vacuum_cup_2_joint", identified_handle);
+  //acm_.removeEntry("robot_vgc10_vacuum_cup_3_joint", identified_handle);
+  //acm_.removeEntry("robot_vgc10_vacuum_cup_4_joint", identified_handle);
+  //acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
+  //planning_scene_msg.is_diff = true;
+  //planning_scene_interface_->applyPlanningScene(planning_scene_msg);
 
   // Move back to approach position
   waypoints.clear();
@@ -759,8 +787,10 @@ void ComponentSorting::place_chain_movement(std::string place_position)
   geometry_msgs::PoseStamped position = place_poses_.at(place_position).getPose();
 
   //Correct frame to latched 
-  pre_position.header.frame_id = pre_position.header.frame_id + "_latched";
-  position.header.frame_id = position.header.frame_id + "_latched";
+  //pre_position.header.frame_id = pre_position.header.frame_id + "_latched";
+  pre_position.header.frame_id = pre_position.header.frame_id;
+  //position.header.frame_id = position.header.frame_id + "_latched";
+  position.header.frame_id = position.header.frame_id;
 
   std::map< std::string, moveit_msgs::AttachedCollisionObject > attached_objects_map = planning_scene_interface_->getAttachedObjects();
   std::vector< std::string> attached_objects;
@@ -821,6 +851,7 @@ void ComponentSorting::place_chain_movement(std::string place_position)
   //Allow contact between attached box and holder
   acm_ = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
   acm_.setEntry("holder_" + place_position, identified_box, true);
+  acm_.setEntry("holder_" + place_position, identified_handle, true);
   acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
   acm_.print(std::cout);
   planning_scene_msg.is_diff = true;
@@ -830,7 +861,7 @@ void ComponentSorting::place_chain_movement(std::string place_position)
 
   waypoints.clear();
   waypoint_cartesian_pose = position.pose;
-  waypoint_cartesian_pose.position.z += box_handle_displacement;
+  //waypoint_cartesian_pose.position.z += box_handle_displacement;
   waypoints.push_back(waypoint_cartesian_pose); 
 
   move_group_->setPoseReferenceFrame(position.header.frame_id);
@@ -861,6 +892,7 @@ void ComponentSorting::place_chain_movement(std::string place_position)
       place_result_.message = "Could not move to desired position";
       place_on_as_->setAborted(place_result_);
       acm_.removeEntry("holder_" + place_position, identified_box);
+      acm_.removeEntry("holder_" + place_position, identified_handle);
       acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
       planning_scene_msg.is_diff = true;
       planning_scene_interface_->applyPlanningScene(planning_scene_msg);
@@ -872,6 +904,7 @@ void ComponentSorting::place_chain_movement(std::string place_position)
     place_result_.message = "Could not plan to desired position";
     place_on_as_->setAborted(place_result_);
     acm_.removeEntry("holder_" + place_position, identified_box);
+    acm_.removeEntry("holder_" + place_position, identified_handle);
     acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
     planning_scene_msg.is_diff = true;
     planning_scene_interface_->applyPlanningScene(planning_scene_msg);
@@ -881,26 +914,27 @@ void ComponentSorting::place_chain_movement(std::string place_position)
   //Detach box from end effector
   move_group_->detachObject(identified_box);
 
-  //Restore collision checking between attached box and holder
-  acm_.removeEntry("holder_" + place_position, identified_box);
-  acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
-  planning_scene_msg.is_diff = true;
-  planning_scene_interface_->applyPlanningScene(planning_scene_msg);
-
-
 
   //Move to position goal and detach handle from end effector
+  geometry_msgs::PoseStamped current_pose= move_group_->getCurrentPose();
   waypoints.clear();
-  waypoint_cartesian_pose = position.pose;
+  waypoint_cartesian_pose = current_pose.pose;
+  waypoint_cartesian_pose.position.z -= box_handle_displacement; 
+  waypoints.push_back(waypoint_cartesian_pose);  
 
-  waypoints.push_back(waypoint_cartesian_pose);
-  move_group_->setPoseReferenceFrame(position.header.frame_id);
+  move_group_->setPoseReferenceFrame(current_pose.header.frame_id);
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
-
   move_group_->execute(cartesian_plan);
 
   move_group_->detachObject(identified_handle);
+
+  //Restore collision checking between attached box and holder
+  acm_.removeEntry("holder_" + place_position, identified_box);
+  acm_.removeEntry("holder_" + place_position, identified_handle);
+  acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
+  planning_scene_msg.is_diff = true;
+  planning_scene_interface_->applyPlanningScene(planning_scene_msg);
 
 
   //Detach handle in gazebo
@@ -929,6 +963,17 @@ void ComponentSorting::place_chain_movement(std::string place_position)
   move_group_->setPoseReferenceFrame(pre_position.header.frame_id );
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
+
+ //Allow contact between end effector and handle
+  acm_ = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
+  acm_.setEntry("robot_vgc10_vgc10_link", identified_handle, false);
+  acm_.setEntry("robot_vgc10_vacuum_cup_1_joint", identified_handle, false);
+  acm_.setEntry("robot_vgc10_vacuum_cup_2_joint", identified_handle, false);
+  acm_.setEntry("robot_vgc10_vacuum_cup_3_joint", identified_handle, false);
+  acm_.setEntry("robot_vgc10_vacuum_cup_4_joint", identified_handle, false);
+  acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
+  planning_scene_msg.is_diff = true;
+  planning_scene_interface_->applyPlanningScene(planning_scene_msg);
 
   //If plan is successful execute trajectory
   if(success_cartesian_plan >= allowed_fraction_success){

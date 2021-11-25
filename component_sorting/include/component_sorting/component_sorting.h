@@ -126,6 +126,8 @@ protected:
   int pin_1_;
   int pin_2_;
 
+  double scale_vel_;
+
   const moveit::core::JointModelGroup* joint_model_group;
   robot_state::RobotStatePtr robot_state_;
  // moveit_visual_tools::MoveItVisualTools visual_tools_("robot_base_footprint");
