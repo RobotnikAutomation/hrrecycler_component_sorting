@@ -12,8 +12,6 @@
 
   <xacro:macro name="holder" params="prefix parent tag_id *origin">
 
-   
-
     <joint name="${prefix}holder_base_joint" type="fixed">
       <xacro:insert_block name="origin" />
       <parent link="${parent}"/>
@@ -42,29 +40,39 @@
           <mesh filename="package://component_sorting_description/meshes/box/box_holder.stl"/>
         </geometry>
       </visual>
-      <collision>
+      <!--collision>
         <origin rpy="0 0 0" xyz="0 0 0"/>
         <geometry>
           <mesh filename="package://component_sorting_description/meshes/box/box_holder.stl"/>
         </geometry>
-      </collision>  
+      </collision-->  
+    </link>
+
+    <joint name="${prefix}holder_oriented_joint" type="fixed">
+      <origin rpy="${-3.14159} 0 ${-3.14159/2}" xyz="0 0 0"/>
+      <parent link="${prefix}holder_link"/>
+      <child link="${prefix}holder_oriented_link"/>
+    </joint>
+
+
+    <link name="${prefix}holder_oriented_link">
     </link>
     
     <joint name="${prefix}holder_approach_joint" type="fixed">
-      <origin rpy="3.1416 0 0" xyz="-0.137 0 0.50"/>
-      <parent link="${prefix}holder_link"/>
+      <origin rpy="0 0 0" xyz="0 0.137 -0.50"/>
+      <parent link="${prefix}holder_oriented_link"/>
       <child link="${prefix}holder_approach"/>
     </joint>
 
     <link name="${prefix}holder_approach"/>
 
-<!--     <joint name="${prefix}grab_joint" type="fixed">
-      <origin rpy="3.1416 0 0" xyz="0 0 0.38"/>
-      <parent link="${prefix}holder_link"/>
-      <child link="${prefix}grab"/>
+    <joint name="${prefix}grab_joint" type="fixed">
+      <origin rpy="0 0 0" xyz="0 0 -0.5"/>
+      <parent link="${prefix}holder_oriented_link"/>
+      <child link="${prefix}grab_link"/>
     </joint>
 
-    <link name="${prefix}grab"/> -->
+    <link name="${prefix}grab_link"/>
 
     <!-- TABLE TAG -->
     <xacro:ar_tag prefix="${prefix}holder_" parent="${prefix}holder_link" tag_id="${tag_id}">

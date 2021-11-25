@@ -11,7 +11,7 @@
   <xacro:include filename="$(find summit_xl_description)/urdf/bases/summit_xlsk_base_plus.urdf.xacro" />
 
   <!-- Include UR-5 ARM -->
-  <xacro:include filename="$(find ur_description)/urdf/inc/ur5_macro.xacro" />
+  <xacro:include filename="$(find ur_description)/urdf/inc/ur5e_macro.xacro" />
 
   <!-- Include OnRobot vgc10 -->
   <xacro:include filename="$(find rbkairos_description)/urdf/structures/vgc10.urdf.xacro" />
@@ -42,7 +42,7 @@
   <xacro:property name="arm_position_z" value="0.56162"/>
   <xacro:property name="arm_orientation_r" value="0"/>
   <xacro:property name="arm_orientation_p" value="0"/>
-  <xacro:property name="arm_orientation_y" value="0"/>	  
+  <xacro:property name="arm_orientation_y" value="${PI}"/>	  
 
   <!-- Wheel parameters -->
   <xacro:property name="wheel_offset_x" value="0.21528" />    <!-- x,y,z in translation from base_link to the center of the wheel -->
@@ -75,7 +75,7 @@
   <xacro:property name="front_rgbd_camera_offset_z" value="0.25062"/>
 
   <xacro:property name="arm_rgbd_camera_offset_x" value="0.0"/>
-  <xacro:property name="arm_rgbd_camera_offset_y" value="0.0876"/>
+  <xacro:property name="arm_rgbd_camera_offset_y" value="-0.0876"/>
   <xacro:property name="arm_rgbd_camera_offset_z" value="0.0475"/>
 
   <xacro:property name="gps_offset_x" value="-0.365"/>
@@ -108,7 +108,7 @@
   <xacro:property name="arm_position_z" value="0.56162"/>
   <xacro:property name="arm_orientation_r" value="0"/>
   <xacro:property name="arm_orientation_p" value="0"/>
-  <xacro:property name="arm_orientation_y" value="0"/>
+  <xacro:property name="arm_orientation_y" value="${PI}"/>
 
   <xacro:macro name="rbkairos" params="prefix publish_bf hq load_kinematics_file gpu:=false">
 
@@ -138,8 +138,8 @@
     </xacro:omni_wheel>
 
     <!-- UR-5 ARM -->
-    <xacro:ur5_robot prefix="$(arg prefix)arm_" >
-    </xacro:ur5_robot>
+    <xacro:ur5e_robot prefix="$(arg prefix)arm_" joint_limits_parameters_file='$(find component_sorting_description)/config/joint_limits.yaml'>
+    </xacro:ur5e_robot>
 
     <joint name="${prefix}arm_base_joint" type="fixed">
       <origin xyz="${arm_position_x} ${arm_position_y} ${arm_position_z}" rpy="${arm_orientation_r} ${arm_orientation_p} ${arm_orientation_y}"/>
@@ -149,7 +149,7 @@
 
     <!-- OnRobot VGC-10 -->
     <xacro:vgc10 prefix="${prefix}vgc10" parent="${prefix}arm_tool0">
-        <origin xyz="0 0 0.01" rpy="0 -${PI/2.0} ${PI}"/>
+        <origin xyz="0 0 0.01" rpy="0 -${PI/2.0} ${PI/2}"/>
     </xacro:vgc10>
 
     <!-- IMU -->
@@ -171,11 +171,11 @@
     </xacro:sensor_intel_d435>
 
     <xacro:sensor_orbbec_astra_embedded_s prefix="${prefix}arm_rgbd_camera" parent="${prefix}arm_tool0" prefix_topic="arm_rgbd_camera">
-      <origin xyz="${arm_rgbd_camera_offset_x} ${arm_rgbd_camera_offset_y} ${arm_rgbd_camera_offset_z}" rpy="0 ${-PI/2} ${-PI/2}"/>
+      <origin xyz="${arm_rgbd_camera_offset_x} ${arm_rgbd_camera_offset_y} ${arm_rgbd_camera_offset_z}" rpy="0 ${-PI/2} ${PI/2}"/>
     </xacro:sensor_orbbec_astra_embedded_s>  
 
     <joint name="$(arg prefix)arm_camera_support" type="fixed">
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 ${PI}"/>
       <parent link="$(arg prefix)arm_tool0" />
       <child link="$(arg prefix)arm_camera_support_link" />
     </joint>
@@ -183,17 +183,17 @@
     <link name="$(arg prefix)arm_camera_support_link">
       <inertial>
         <mass value="0.2" />
-        <origin xyz="0 0 0" />
+        <origin rpy="0 -${PI/2.0} -${PI/2.0}" xyz="-0.038 -0.038 0"/>
         <solid_cuboid_inertia m="0.2" h="0.015" d="0.05" w="0.015"/>
       </inertial>
       <visual>
-        <origin rpy="0 -${PI/2.0} -${PI/2.0}" xyz="-0.035 -0.035 0"/>
+        <origin rpy="0 -${PI/2.0} -${PI/2.0}" xyz="-0.038 -0.038 0"/>
         <geometry>
           <mesh filename="package://component_sorting_description/meshes/embedded_s_support.dae"/>
         </geometry>
       </visual>
       <collision>
-        <origin rpy="0 -${PI/2.0} -${PI/2.0}" xyz="-0.035 -0.035 0"/>
+        <origin rpy="0 -${PI/2.0} -${PI/2.0}" xyz="-0.038 -0.038 0"/>
         <geometry>
           <mesh filename="package://component_sorting_description/meshes/embedded_s_support.dae"/>
         </geometry>
