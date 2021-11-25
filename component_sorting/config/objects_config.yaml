@@ -1,3 +1,9 @@
+holder_table_demo:
+  frame_id: robot_base_footprint
+  pose: [[1.015,0.0,0.845],[0.0,0.0,0.0]] # xyz, rpy
+  geometry:
+    mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
+
 holder_table_right:
   frame_id: table_right_holder_link
   pose: [[0.0,0.0,-0.01],[0.0,0.0,0.0]] # xyz, rpy
@@ -12,25 +18,25 @@ holder_table_left:
 
 holder_table_center:
   frame_id: table_center_holder_link
-  pose: [[0.0,0.0,-0.01],[0.0,0.0,0.0]] # xyz, rpy
+  pose: [[0.0,0.0,0.0],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
 
 holder_robot_right:
   frame_id: robot_right_holder_link
-  pose: [[0.0,0.0,-0.01],[0.0,0.0,0.0]] # xyz, rpy
+  pose: [[0.0,0.0,0.0],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
 
 holder_robot_left:
   frame_id: robot_left_holder_link
-  pose: [[0.0,0.0,-0.01],[0.0,0.0,0.0]] # xyz, rpy
+  pose: [[0.0,0.0,0.0],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
 
 holder_robot_center:
   frame_id: robot_center_holder_link
-  pose: [[0.0,0.0,-0.01],[0.0,0.0,0.0]] # xyz, rpy
+  pose: [[0.0,0.0,0.0],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
 
@@ -72,28 +78,54 @@ handle_left:
     mesh: "package://component_sorting_description/meshes/box/handle.stl"
 
 table:
-  frame_id: table_base_link
+  frame_id: robot_base_footprint
   geometry:
     box:
-      height: 0.75
+      height: 0.85
       width: 0.63
       length: 0.63
     qr:
-      height: 0.375
-  pose: [[0.0,0.0,0.375],[0.0,0.0,0.0]] # xyz, rpy
+      height: 0.345
+  pose: [[0.865,0.0,0.425],[0.0,0.0,0.0]] # xyz, rpy
 
+box_demo:
+  frame_id: robot_base_footprint
+  pose: [[0.710,0.0,0.86],[0.0,0.0,0.0]] # xyz, rpy
+  geometry:
+    mesh: "package://component_sorting_description/meshes/box/box_base.stl"
+
+handle_demo:
+  frame_id: robot_base_footprint
+  pose: [[0.710,0.0,0.92],[0.0,0.0,0.0]] # xyz, rpy
+  geometry:
+    mesh: "package://component_sorting_description/meshes/box/handle.stl"
+
+holder_table_demo:
+  frame_id: robot_base_footprint
+  pose: [[0.71,0.0,0.85],[0.0,0.0,0.0]] # xyz, rpy
+  geometry:
+    mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
+#objects:
+#  - holder_robot_right
+#  - holder_robot_left
+#  - holder_robot_center
+#  - holder_table_right
+#  - holder_table_left
+#  - holder_table_center
+#  - box_right
+#  - box_left
+#  - box_center
+#  - handle_right
+#  - handle_left
+#  - handle_center 
+#  - table
 
 objects:
   - holder_robot_right
   - holder_robot_left
   - holder_robot_center
-  - holder_table_right
-  - holder_table_left
-  - holder_table_center
-  - box_right
-  - box_left
-  - box_center
-  - handle_right
-  - handle_left
-  - handle_center 
   - table
+  - box_demo
+  - handle_demo
+  - holder_table_demo
+ 

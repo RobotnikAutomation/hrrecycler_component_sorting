@@ -5,21 +5,23 @@ positions_to_use:
   - table_right
   - table_center
   - table_left
+  - table_demo
+  - pick_table
 
 approach_poses:
 
   robot_center:
-    frame_id: robot_center_holder_approach
-    pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy
+    frame_id: robot_center_holder_oriented_link
+    pose: [[0.0, 0.0, -0.50],[0.0, 0.0, 0.0]]
 
   robot_right:
-    frame_id: robot_right_holder_approach
-    pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy
+    frame_id: robot_right_holder_oriented_link
+    pose: [[0.0, 0.0, -0.50],[0.0, 0.0, 0.0]]
 
   robot_left:
-    frame_id: robot_left_holder_approach
-    pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy  
- 
+    frame_id: robot_left_holder_oriented_link
+    pose: [[0.0, 0.0, -0.50],[0.0, 0.0, 0.0]]
+
   table_center:
     frame_id: table_center_holder_approach
     pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy
@@ -32,19 +34,29 @@ approach_poses:
     frame_id: table_left_holder_approach
     pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy  
 
+  table_demo:
+    frame_id: table_demo_link
+    pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy  
+
+  pick_table:
+    frame_id: table_pick
+    pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy 
+
+ 
+
 place_poses:
 
   robot_center:
-    frame_id: robot_center_holder_qr
-    pose: [[0.0, 0.0, 0.380],[0.0, +3.14159, -1.57080]]
+    frame_id: robot_center_holder_oriented_link
+    pose: [[0.0, 0.0, -0.423],[0.0, 0.0, 0.0]]
 
   robot_right:
-    frame_id: robot_right_holder_qr
-    pose: [[0.0, 0.0, 0.380],[0.0, +3.14159, -1.57080]]
+    frame_id: robot_right_holder_oriented_link
+    pose: [[0.0, 0.0, -0.423],[0.0, 0.0, 0.0]]
   
   robot_left:
-    frame_id: robot_left_holder_qr
-    pose: [[0.0, 0.0, 0.380],[0.0, +3.14159, -1.57080]]  
+    frame_id: robot_left_holder_oriented_link
+    pose: [[0.0, 0.0, -0.423],[0.0, 0.0, 0.0]]
 
   table_center:
     frame_id: table_center_holder_qr
@@ -58,19 +70,26 @@ place_poses:
     frame_id: table_left_holder_qr
     pose: [[0.0, 0.0, 0.380],[0.0, +3.14159, -1.57080]]  
 
+  table_demo:
+    frame_id: table_demo_link
+    pose: [[0.0, 0.0, 0.13],[0.0, 0.0, 0.0]] # xyz, rpy  
+  pick_table:
+    frame_id: table_pick
+    pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy  
+
 pre_place_poses:
 
   robot_center:
-    frame_id: robot_center_holder_qr
-    pose: [[0.0, 0.0, 0.57],[0.0, +3.14159, -1.57080]]
+    frame_id: robot_center_holder_oriented_link
+    pose: [[0.0, 0.0, -0.50],[0.0, 0.0, 0.0]]
 
   robot_right:
-    frame_id: robot_right_holder_qr
-    pose: [[0.0, 0.0, 0.57],[0.0, +3.14159, -1.57080]]
+    frame_id: robot_right_holder_oriented_link
+    pose: [[0.0, 0.0, -0.50],[0.0, 0.0, 0.0]]
   
   robot_left:
-    frame_id: robot_left_holder_qr
-    pose: [[0.0, 0.0, 0.57],[0.0, +3.14159, -1.57080]]  
+    frame_id: robot_left_holder_oriented_link
+    pose: [[0.0, 0.0, -0.50],[0.0, 0.0, 0.0]] 
 
   table_center:
     frame_id: table_center_holder_qr
@@ -84,19 +103,27 @@ pre_place_poses:
     frame_id: table_left_holder_qr
     pose: [[0.0, 0.0, 0.46],[0.0, +3.14159, -1.57080]]      
 
+  table_demo:
+    frame_id: table_demo_link
+    pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy  
+
+  pick_table:
+    frame_id: table_pick
+    pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy  
+
 pick_poses:
 
   robot_center:
-    frame_id: box_grab_qr
-    pose: [[0.0, 0.0, 0.134],[0.0, +3.14159, -1.57080]]
+    frame_id: robot_center_holder_oriented_link
+    pose: [[0.0, 0.0, -0.375],[0.0, 0.0, 0.0]]
 
   robot_right:
-    frame_id: box_grab_qr
-    pose: [[0.0, 0.0, 0.134],[0.0, +3.14159, -1.57080]]
+    frame_id: robot_right_holder_oriented_link
+    pose: [[0.0, 0.0, -0.375],[0.0, 0.0, 0.0]]
   
   robot_left:
-    frame_id: box_grab_qr
-    pose: [[0.0, 0.0, 0.134],[0.0, +3.14159, -1.57080]] 
+    frame_id: robot_left_holder_oriented_link
+    pose: [[0.0, 0.0, -0.375],[0.0, 0.0, 0.0]] 
 
   table_center:
     frame_id: box_grab_qr
@@ -109,20 +136,28 @@ pick_poses:
   table_left:
     frame_id: box_grab_qr
     pose: [[0.0, 0.0, 0.134],[0.0, +3.14159, -1.57080]] 
+
+  table_demo:
+    frame_id: table_demo_link
+    pose: [[0.0, 0.0, 0.18],[0.0, 0.0, 0.0]] # xyz, rpy  
+
+  pick_table:
+    frame_id: table_pick
+    pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy  
 
 pre_pick_poses:
 
   robot_center:
-    frame_id: box_grab_qr
-    pose: [[0.0, 0.0, 0.215],[0.0, +3.14159, -1.57080]]
+    frame_id: robot_center_holder_oriented_link
+    pose: [[0.0, 0.0, -0.50],[0.0, 0.0, 0.0]]
 
   robot_right:
-    frame_id: box_grab_qr
-    pose: [[0.0, 0.0, 0.215],[0.0, +3.14159, -1.57080]]
+    frame_id: robot_right_holder_oriented_link
+    pose: [[0.0, 0.0, -0.50],[0.0, 0.0, 0.0]]
   
   robot_left:
-    frame_id: box_grab_qr
-    pose: [[0.0, 0.0, 0.215],[0.0, +3.14159, -1.57080]] 
+    frame_id: robot_right_holder_oriented_link
+    pose: [[0.0, 0.0, -0.50],[0.0, 0.0, 0.0]]
 
   table_center:
     frame_id: box_grab_qr
@@ -135,6 +170,14 @@ pre_pick_poses:
   table_left:
     frame_id: box_grab_qr
     pose: [[0.0, 0.0, 0.215],[0.0, +3.14159, -1.57080]] 
+
+  table_demo:
+    frame_id: table_demo_link
+    pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy  
+
+  pick_table:
+    frame_id: table_pick
+    pose: [[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]] # xyz, rpy  
 
 
 #holder_qr_frames:

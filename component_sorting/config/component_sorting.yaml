@@ -20,10 +20,13 @@ box_handle_displacement: 0.05 #Used to recreate box/handle behaviour during tran
 #MoveIt constraint
 moveit_constraint: "elbow_up" #Motion planning constraint to be used
 
-simulation: true 
+simulation: false 
 
 #Gripper IO
 multi_pin: false
 pin_1: 4
 pin_2: 4
+
+#Moveit velocity
+scale_vel: 0.5
 
