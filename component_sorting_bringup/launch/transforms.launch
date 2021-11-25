@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+
+  <node pkg="tf" type="static_transform_publisher" name="demo_transforms_broadcaster" args="0.71 0.0 1.4 -1.57 0 3.14 robot_base_footprint table_demo_link 10"/>
+
+</launch>
