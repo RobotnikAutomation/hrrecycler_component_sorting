@@ -2,13 +2,13 @@
 
     <arg name="center_x" default="-0.165"/>
     <arg name="center_y" default="0.0"/>
-    <arg name="center_z" default="0.76"/> <!-- 0.382125 -->
+    <arg name="center_z" default="0.90"/> <!-- 0.382125 -->
     <arg name="left_x" default="-0.165"/> <!-- -0.195 -->
     <arg name="left_y" default="0.228"/> <!-- 0.225 -->
-    <arg name="left_z" default="0.76"/>
+    <arg name="left_z" default="0.90"/>
     <arg name="right_x" default="-0.165"/>
     <arg name="right_y" default="-0.228"/>
-    <arg name="right_z" default="0.76"/>
+    <arg name="right_z" default="0.90"/>
     <arg name="yaw" default="0"/>
 
     <arg name="center_prefix" default="box_center_"/>
