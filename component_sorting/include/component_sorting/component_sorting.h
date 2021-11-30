@@ -117,7 +117,7 @@ protected:
   const double eef_step = 0.01;
 
   double success_cartesian_plan;
-  double allowed_fraction_success = 0.95;
+  double allowed_fraction_success = 0.80;
   bool success_plan;
   bool success_move;
   bool success_execute;
