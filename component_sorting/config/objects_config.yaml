@@ -85,7 +85,7 @@ table:
       width: 0.63
       length: 0.63
     qr:
-      height: 0.345
+      height: 0.365
   pose: [[0.865,0.0,0.425],[0.0,0.0,0.0]] # xyz, rpy
 
 box_demo:
@@ -105,27 +105,22 @@ holder_table_demo:
   pose: [[0.71,0.0,0.85],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
-#objects:
-#  - holder_robot_right
-#  - holder_robot_left
-#  - holder_robot_center
-#  - holder_table_right
-#  - holder_table_left
-#  - holder_table_center
-#  - box_right
-#  - box_left
-#  - box_center
-#  - handle_right
-#  - handle_left
-#  - handle_center 
-#  - table
 
 objects:
   - holder_robot_right
   - holder_robot_left
   - holder_robot_center
+  - holder_table_right
+  - holder_table_left
+  - holder_table_center
+  - box_right
+  - box_left
+  - box_center
+  - handle_right
+  - handle_left
+  - handle_center 
   - table
-  - box_demo
-  - handle_demo
-  - holder_table_demo
+  #- box_demo
+  #- handle_demo
+  #- holder_table_demo
  
