@@ -3,8 +3,10 @@
 
   <!-- By default, we are not in debug mode -->
   <arg name="debug" default="false" />
-  <arg name="sim" default="false" />
+  <arg name="sim" default="true" />
   <arg name="pipeline" default="ompl" />
+  <arg unless="$(arg sim)" name="arm_joint_topic" value="/robot/arm/joint_states" />
+  <arg if="$(arg sim)" name="arm_joint_topic" value="/joint_states" />
 
   <!-- By default, we do not start a database (it can be large) -->
   <arg name="db" default="true" />
@@ -25,7 +27,7 @@
     <arg name="info" value="true"/>
     <arg name="debug" value="$(arg debug)"/>
     <arg name="pipeline" value="$(arg pipeline)" />
-
+    <arg name="arm_joint_topic" value="$(arg arm_joint_topic)" />
   </include>
 
   <!-- Run Rviz and load the default config to see the state of the move_group node -->
