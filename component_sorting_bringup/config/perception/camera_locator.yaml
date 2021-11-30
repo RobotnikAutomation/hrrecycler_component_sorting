@@ -11,7 +11,7 @@ camera_info_topic_name: /front_rgbd_camera/color/camera_info
 # marker size, in m
 marker_size: 0.12
 
-robot_sensor_frame: robot_front_rgbd_camera_color_optical_frame
+robot_sensor_frame: robot_front_rgbd_camera_depth_optical_frame
 
 # to specify special characteristics for some markers
 # still no read by alvar_camera_locator 
@@ -20,7 +20,7 @@ markers:
     id: 10
     exact_name: table_qr
     size: 0.12
-    parent_frame: table_base_link
+    #parent_frame: table_base_link
     filter_tag: robot_noisy_
   
 
