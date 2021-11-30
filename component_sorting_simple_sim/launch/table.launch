@@ -14,11 +14,11 @@
 
     <!-- Spawn table into Gazebo -->
     <node name="spawn_table" pkg="gazebo_ros" type="spawn_model" args="-param table_description -urdf -model gazebo_table -x $(arg table_x_pose) -y $(arg table_y_pose) -z 0" />
-
+<!-- 
 
     <node name="table_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
 	  <remap from="robot_description" to="table_description"/>
-    </node>
+    </node> -->
 
 
 
