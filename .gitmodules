@@ -43,3 +43,6 @@
 [submodule "robot/universal_robot"]
 	path = robot/universal_robot
 	url = https://github.com/fmauch/universal_robot
+[submodule "sim/gazebo_ros_pkgs"]
+	path = sim/gazebo_ros_pkgs
+	url = https://github.com/RobotnikAutomation/gazebo_ros_pkgs
