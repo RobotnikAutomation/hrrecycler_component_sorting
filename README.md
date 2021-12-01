@@ -4,10 +4,6 @@ To launch simulation + perception + navigation + localization:
 
 `roslaunch component_sorting_bringup component_sorting_bringup.launch`
 
-To launch MoveIt Database:
-
-`roslaunch component_sorting_moveit_config default_warehouse_db.launch`
-
 Upload MoveIt custom constraints to the database (This step should only be carried out once):
 
 `rosrun component_sorting_moveit_config  generate_path_constraints`
@@ -16,7 +12,7 @@ To launch MoveIt node (simulation + database must be running):
 
 `roslaunch component_sorting_moveit_config component_sorting_moveit_config.launch`
 
-To launch MoveIt RVIZ: 
+To launch MoveIt RVIZ (once move_group node is ready): 
 
 `roslaunch component_sorting_moveit_config moveit_rviz.launch`
 
