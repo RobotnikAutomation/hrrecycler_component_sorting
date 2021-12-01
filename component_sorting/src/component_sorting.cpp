@@ -565,8 +565,11 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   // Get current end effector position and check whether there is a box to grab
   current_cartesian_pose = move_group_->getCurrentPose().pose;
 
+/*   objects_in_roi.clear();
+  objects_in_roi = planning_scene_interface_->getKnownObjectNames(); */
   objects_in_roi.clear();
-  objects_in_roi = planning_scene_interface_->getKnownObjectNames();
+  objects_in_roi = planning_scene_interface_->getKnownObjectNamesInROI(current_cartesian_pose.position.x - box.length/2, current_cartesian_pose.position.y - box.width/2 ,0, current_cartesian_pose.position.x 
+  + box.length/2, current_cartesian_pose.position.y + box.width/2 , 3, false );
 
   if(objects_in_roi.size() < 2){
     ROS_WARN("There is no box collision object to grab");
@@ -851,6 +854,7 @@ void ComponentSorting::place_chain_movement(std::string place_position)
   //Allow contact between attached box and holder
   acm_ = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
   acm_.setEntry("holder_" + place_position, identified_box, true);
+  acm_.setEntry(place_position + "_holder_link", identified_box, true);
   acm_.setEntry("holder_" + place_position, identified_handle, true);
   acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
   acm_.print(std::cout);
@@ -892,6 +896,7 @@ void ComponentSorting::place_chain_movement(std::string place_position)
       place_result_.message = "Could not move to desired position";
       place_on_as_->setAborted(place_result_);
       acm_.removeEntry("holder_" + place_position, identified_box);
+      acm_.removeEntry(place_position + "_holder_link", identified_box);
       acm_.removeEntry("holder_" + place_position, identified_handle);
       acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
       planning_scene_msg.is_diff = true;
@@ -905,6 +910,7 @@ void ComponentSorting::place_chain_movement(std::string place_position)
     place_on_as_->setAborted(place_result_);
     acm_.removeEntry("holder_" + place_position, identified_box);
     acm_.removeEntry("holder_" + place_position, identified_handle);
+    acm_.removeEntry(place_position + "_holder_link", identified_box);
     acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
     planning_scene_msg.is_diff = true;
     planning_scene_interface_->applyPlanningScene(planning_scene_msg);
@@ -932,6 +938,7 @@ void ComponentSorting::place_chain_movement(std::string place_position)
   //Restore collision checking between attached box and holder
   acm_.removeEntry("holder_" + place_position, identified_box);
   acm_.removeEntry("holder_" + place_position, identified_handle);
+  acm_.removeEntry(place_position + "_holder_link", identified_box);
   acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
   planning_scene_msg.is_diff = true;
   planning_scene_interface_->applyPlanningScene(planning_scene_msg);
