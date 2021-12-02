@@ -29,9 +29,9 @@
 
     <link name="${prefix}holder_link">
       <inertial>
-        <mass value="0.1" />
+        <mass value="0.01" />
         <origin xyz="0 0.011 0" />
-        <xacro:solid_cuboid_inertia m="0.1" h="0.022" d="0.225" w="0.31">
+        <xacro:solid_cuboid_inertia m="0.01" h="0.022" d="0.225" w="0.31">
         </xacro:solid_cuboid_inertia>
       </inertial>
       <visual>
@@ -75,9 +75,114 @@
     <link name="${prefix}grab_link"/>
 
     <!-- TABLE TAG -->
-    <xacro:ar_tag prefix="${prefix}holder_" parent="${prefix}holder_link" tag_id="${tag_id}">
+<!--     <xacro:ar_tag prefix="${prefix}holder_" parent="${prefix}holder_link" tag_id="${tag_id}">
       <origin xyz="0 0 0" rpy="0 0 ${-3.14159/2}"/>
     </xacro:ar_tag>
+ -->
+<!-- Collision bumper -->
+        <joint name="${prefix}holder_right_joint" type="fixed">
+      <origin rpy="0 0 0" xyz="0 -0.10 0.005"/>
+      <parent link="${prefix}holder_base_link"/>
+      <child link="${prefix}holder_right_link"/>
+    </joint>
+
+    <link name="${prefix}holder_right_link">
+    <inertial>
+      <mass value="0.01" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <solid_cuboid_inertia m="0.01" h="0.01" d="0.26" w="0.01"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="0.26 0.01 0.01" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="0.26 0.01 0.01" />
+      </geometry>
+    </collision>
+    </link>
+
+    <joint name="${prefix}holder_left_joint" type="fixed">
+      <origin rpy="0 0 0" xyz="0 +0.10 0.005"/>
+      <parent link="${prefix}holder_base_link"/>
+      <child link="${prefix}holder_left_link"/>
+    </joint>
+
+    <link name="${prefix}holder_left_link">
+    <inertial>
+      <mass value="0.01" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <solid_cuboid_inertia m="0.01" h="0.01" d="0.26" w="0.01"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="0.26 0.01 0.01" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="0.26 0.01 0.01" />
+      </geometry>
+    </collision>
+    </link>
+
+    <joint name="${prefix}holder_top_joint" type="fixed">
+      <origin rpy="0 0 0" xyz="0.145 0 0.005"/>
+      <parent link="${prefix}holder_base_link"/>
+      <child link="${prefix}holder_top_link"/>
+    </joint>
+
+    <link name="${prefix}holder_top_link">
+    <inertial>
+      <mass value="0.01" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <solid_cuboid_inertia m="0.01" h="0.01" d="0.01" w="0.16"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.16 0.01" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.16 0.01" />
+      </geometry>
+    </collision>
+    </link>
+
+        <joint name="${prefix}holder_bottom_joint" type="fixed">
+      <origin rpy="0 0 0" xyz="-0.145 0 0.005"/>
+      <parent link="${prefix}holder_base_link"/>
+      <child link="${prefix}holder_bottom_link"/>
+    </joint>
+
+    <link name="${prefix}holder_bottom_link">
+    <inertial>
+      <mass value="0.01" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <solid_cuboid_inertia m="0.01" h="0.01" d="0.01" w="0.16"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.16 0.01" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.16 0.01" />
+      </geometry>
+    </collision>
+    </link>
 
 
     <gazebo reference="${prefix}holder_link">
