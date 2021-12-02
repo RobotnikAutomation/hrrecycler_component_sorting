@@ -4,21 +4,18 @@ To launch simulation + perception + navigation + localization:
 
 `roslaunch component_sorting_bringup component_sorting_bringup.launch`
 
+To launch MoveIt node (simulation must be running):
+
+`roslaunch component_sorting_moveit_config component_sorting_moveit_config.launch`
+
 Upload MoveIt custom constraints to the database (This step should only be carried out once):
 
 `rosrun component_sorting_moveit_config  generate_path_constraints`
 
-To launch MoveIt node (simulation + database must be running):
-
-`roslaunch component_sorting_moveit_config component_sorting_moveit_config.launch`
 
 To launch MoveIt RVIZ (once move_group node is ready): 
 
 `roslaunch component_sorting_moveit_config moveit_rviz.launch`
-
-To launch boxes into simulation: 
- - In table : `roslaunch component_sorting_simple_sim boxes_table.launch`
- - In kairos: `roslaunch component_sorting_simple_sim boxes.launch`
 
 
 How to launch and use the component_sorting manipulation application:
@@ -28,7 +25,7 @@ How to launch and use the component_sorting manipulation application:
     dock_frame: 'table_docking'
     robot_dock_frame: 'robot_base_docking_contact'
 
-3. Launch component sorting MoveIt manipulation application (simulation + database + MoveIt node must be running + robot positioned):
+3. Launch component sorting MoveIt manipulation application (simulation + MoveIt node must be running + robot positioned):
 
 `roslaunch component_sorting component_sorting.launch`
 
