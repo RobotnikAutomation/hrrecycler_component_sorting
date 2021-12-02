@@ -11,15 +11,15 @@ approach_poses:
 
   robot_center:
     frame_id: robot_center_holder_oriented_link
-    pose: [[0.0, 0.0, -0.50],[0.0, 0.0, 0.0]]
+    pose: [[0.0, 0.079, -0.50],[0.0, 0.0, 0.0]]
 
   robot_right:
     frame_id: robot_right_holder_oriented_link
-    pose: [[0.0, 0.0, -0.50],[0.0, 0.0, 0.0]]
+    pose: [[0.0, 0.079, -0.50],[0.0, 0.0, 0.0]]
 
   robot_left:
     frame_id: robot_left_holder_oriented_link
-    pose: [[0.0, 0.0, -0.50],[0.0, 0.0, 0.0]]
+    pose: [[0.0, 0.079, -0.50],[0.0, 0.0, 0.0]]
 
   table_center:
     frame_id: table_center_holder_oriented_link
@@ -54,15 +54,15 @@ place_poses:
 
   table_center:
     frame_id: table_center_holder_oriented_link
-    pose: [[0.0, 0.0, -0.380],[0.0, 0.0, 0.0]]
+    pose: [[0.0, 0.0, -0.423],[0.0, 0.0, 0.0]]
 
   table_right:
     frame_id: table_right_holder_oriented_link
-    pose: [[0.0, 0.0, -0.380],[0.0, 0.0, 0.0]]
+    pose: [[0.0, 0.0, -0.423],[0.0, 0.0, 0.0]]
   
   table_left:
     frame_id: table_left_holder_oriented_link
-    pose: [[0.0, 0.0, -0.380],[0.0, 0.0, 0.0]]  
+    pose: [[0.0, 0.0, -0.423],[0.0, 0.0, 0.0]]  
 
   table_demo:
     frame_id: table_demo_link
@@ -85,15 +85,15 @@ pre_place_poses:
 
   table_center:
     frame_id: table_center_holder_oriented_link
-    pose: [[0.0, 0.0, -0.46],[0.0, 0.0, 0.0]]
+    pose: [[0.0, 0.0, -0.50],[0.0, 0.0, 0.0]]
 
   table_right:
     frame_id: table_right_holder_oriented_link
-    pose: [[0.0, 0.0, -0.46],[0.0, 0.0, 0.0]]
+    pose: [[0.0, 0.0, -0.50],[0.0, 0.0, 0.0]]
   
   table_left:
     frame_id: table_left_holder_oriented_link
-    pose: [[0.0, 0.0, -0.46],[0.0, 0.0, 0.0]]      
+    pose: [[0.0, 0.0, -0.50],[0.0, 0.0, 0.0]]      
 
   table_demo:
     frame_id: table_demo_link
