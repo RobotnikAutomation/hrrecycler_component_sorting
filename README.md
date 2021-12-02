@@ -4,6 +4,10 @@ To launch simulation + perception + navigation + localization:
 
 `roslaunch component_sorting_bringup component_sorting_bringup.launch`
 
+To launch boxes on top of table:
+
+`roslaunch component_sorting_simple_sim boxes_table.launch`
+
 To launch MoveIt node (simulation must be running):
 
 `roslaunch component_sorting_moveit_config component_sorting_moveit_config.launch`
