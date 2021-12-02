@@ -54,9 +54,9 @@
  
   <link name="${prefix}base_link">
     <inertial>
-      <mass value="100" />
+      <mass value="200" />
       <origin xyz="0 0 ${table_height/2}" rpy="0 0 0" />
-      <solid_cuboid_inertia m="100" h="${table_height}" d="${table_length}" w="${table_width}"/>
+      <solid_cuboid_inertia m="200" h="${table_height}" d="${table_length}" w="${table_width}"/>
     </inertial>
     <visual>
       <origin xyz="0 0 ${table_height/2}"/>
@@ -82,7 +82,7 @@
   </link>
 
   <joint name="${prefix}docking_joint" type="fixed">
-    <origin rpy="0 ${+3.14159/2} ${+3.14159/2}" xyz="0 0 0.15"/>
+    <origin rpy="0 ${+3.14159/2} ${+3.14159/2}" xyz="0 0 0.2"/>
     <parent link="${prefix}qr"/>
     <child link="${prefix}docking"/>
   </joint>
