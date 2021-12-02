@@ -15,7 +15,7 @@ box: #Used to locate boxes in the Region of Interest
   width: 0.25
   length: 0.32
 
-box_handle_displacement: 0.05 #Used to recreate box/handle behaviour during transport in MoveIt
+box_handle_displacement: 0.04 #Used to recreate box/handle behaviour during transport in MoveIt
 
 #MoveIt constraint
 moveit_constraint: "elbow_up" #Motion planning constraint to be used

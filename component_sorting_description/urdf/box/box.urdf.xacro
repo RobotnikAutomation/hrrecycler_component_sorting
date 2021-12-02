@@ -63,7 +63,7 @@
 
   <joint name="${prefix}handle_joint" type="prismatic">
     <axis xyz="0 0 1"/>
-    <limit effort="1000.0" lower="-0.025" upper="0.025" velocity="0.5"/>
+    <limit effort="1000.0" lower="-0.02" upper="0.02" velocity="0.5"/>
     <origin rpy="0 0 0" xyz="0 0 0.1"/>
     <parent link="${prefix}body_box_link"/>
     <child link="${prefix}handle_link"/>
