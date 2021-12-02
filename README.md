@@ -1,4 +1,15 @@
-## run
+## install application
+
+Download repository and checkout binary branch
+`git clone https://github.com/RobotnikAutomation/hrrecycler_component_sorting -b binary --recurse-submodules` 
+
+Install binaries 
+`cd src/hrrecycler_component_sorting\debs`
+`sudo dpkg -i ros-melodic-*`
+
+Compile repository 
+`catkin build`
+## run application
 
 To launch simulation + perception + navigation + localization:
 
