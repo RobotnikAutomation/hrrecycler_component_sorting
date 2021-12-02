@@ -25,9 +25,6 @@
 [submodule "rcomponent"]
 	path = utils/rcomponent
 	url = https://github.com/RobotnikAutomation/rcomponent
-[submodule "robotnik_navigation"]
-	path = navigation/robotnik_navigation
-	url = https://github.com/RobotnikAutomation/robotnik_navigation
 [submodule "robotnik_gazebo_models"]
 	path = sim/robotnik_gazebo_models
 	url = https://github.com/RobotnikAutomation/robotnik_gazebo_models
