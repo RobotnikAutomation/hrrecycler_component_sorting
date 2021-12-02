@@ -447,6 +447,7 @@ void ComponentSorting::preemptCB()
   //result_.success = false;
   //result_.message = "Goal has been cancelled, stopping execution.";
   // set the action state to preempted
+  move_group_->stop();
   pickup_from_as_->setPreempted();
   place_on_as_->setPreempted();
   init_holder_as_->setPreempted();
