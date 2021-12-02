@@ -3,6 +3,7 @@
   
   <include file="$(find component_sorting_simple_sim)/launch/simulation.launch"/>
   <include file="$(find component_sorting_simple_sim)/launch/table.launch"/>
+  <include file="$(find component_sorting_simple_sim)/launch/boxes_table.launch"/>
   <include file="$(find component_sorting_bringup)/launch/navigation/navigation_complete.launch"/>
   <include file="$(find component_sorting_bringup)/launch/localization/localization_complete.launch"/>
   <include file="$(find component_sorting_bringup)/launch/perception/perception_complete.launch"/>
