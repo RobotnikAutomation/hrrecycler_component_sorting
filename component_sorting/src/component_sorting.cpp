@@ -313,6 +313,7 @@ void ComponentSorting::standbyState()
 
   }else{
     ROS_WARN("Could not move to home position");
+    switchToState(robotnik_msgs::State::FAILURE_STATE);
   }
 
 }
