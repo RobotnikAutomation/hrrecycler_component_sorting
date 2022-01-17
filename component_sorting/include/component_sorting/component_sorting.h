@@ -21,6 +21,7 @@
 #include <component_sorting_msgs/PickupFromAction.h>
 #include <component_sorting_msgs/PlaceOnAction.h>
 #include <component_sorting_msgs/InitHolderAction.h>
+#include <component_sorting_msgs/MoveToAction.h>
 
 #include <string>
 #include <iostream>
@@ -69,9 +70,6 @@ protected:
   std::shared_ptr<tf2_ros::Buffer> tf2_buffer_;
 
   // MoveIt stuff
-  void pick_chain_movement(std::string pick_position);
-  void place_chain_movement(std::string place_position);
-  void scan(std::string scanning_position);
   bool create_planning_scene();
   void gripper_on();
   void gripper_off();
@@ -85,28 +83,39 @@ protected:
   collision_detection::AllowedCollisionMatrix acm_;
   moveit_msgs::PlanningScene planning_scene_msg;
 
+  warehouse_ros::DatabaseConnection::Ptr conn_;
 
   std::vector< std::string > objects_in_roi; //CHANGE
   
   std::vector<Object_Builder> parsed_objects;
   std::vector<moveit_msgs::CollisionObject> moveit_objects;
 
+  // Action servers
   std::string action_;
   actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>::GoalConstPtr pickup_from_goal_;
   actionlib::SimpleActionServer<component_sorting_msgs::PlaceOnAction>::GoalConstPtr place_on_goal_;
   actionlib::SimpleActionServer<component_sorting_msgs::InitHolderAction>::GoalConstPtr init_holder_goal_;
+  actionlib::SimpleActionServer<component_sorting_msgs::MoveToAction>::GoalConstPtr move_to_goal_;
   std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>> pickup_from_as_;
   std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::PlaceOnAction>> place_on_as_;
   std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::InitHolderAction>> init_holder_as_;
+  std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::MoveToAction>> move_to_as_;
 
+  // Action msgs
   component_sorting_msgs::PlaceOnFeedback place_feedback_;
   component_sorting_msgs::PlaceOnResult place_result_;
   component_sorting_msgs::PickupFromFeedback pick_feedback_;
   component_sorting_msgs::PickupFromResult pick_result_;
   component_sorting_msgs::InitHolderFeedback init_holder_feedback_;
   component_sorting_msgs::InitHolderResult init_holder_result_;
+  component_sorting_msgs::MoveToFeedback move_to_feedback_;
+  component_sorting_msgs::MoveToResult move_to_result_;
 
-  warehouse_ros::DatabaseConnection::Ptr conn_;
+  // Action functions
+  void pick_chain_movement(std::string pick_position);
+  void place_chain_movement(std::string place_position);
+  void move_to(std::string move_to_position);
+  void scan(std::string scanning_position);
 
   std::vector<geometry_msgs::Pose> waypoints;
   geometry_msgs::Pose current_cartesian_pose;

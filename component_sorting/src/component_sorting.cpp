@@ -114,6 +114,10 @@ int ComponentSorting::rosSetup()
       new actionlib::SimpleActionServer<component_sorting_msgs::InitHolderAction>(pnh_, "init_holder", autostart));
   init_holder_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this, std::string("init_holder")));
   init_holder_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
+  move_to_as_.reset(
+      new actionlib::SimpleActionServer<component_sorting_msgs::MoveToAction>(pnh_, "move_to", autostart));
+  move_to_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this, std::string("move_to")));
+  move_to_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
 
   conn_ = moveit_warehouse::loadDatabase();
   conn_->setParams(host, port);
@@ -216,6 +220,8 @@ int ComponentSorting::setup()
   RCOMPONENT_INFO_STREAM("Started server: place on");
   init_holder_as_->start();
   RCOMPONENT_INFO_STREAM("Started server: init holder");
+  move_to_as_->start();
+  RCOMPONENT_INFO_STREAM("Started server: move to");
 
   // Read and store parameter: approach_poses from parameter server
   bool required = true;
@@ -321,7 +327,7 @@ void ComponentSorting::standbyState()
 void ComponentSorting::readyState()
 { 
 
-  if (pickup_from_as_->isActive() == false && place_on_as_->isActive() == false && init_holder_as_->isActive() == false)
+  if (pickup_from_as_->isActive() == false && place_on_as_->isActive() == false && init_holder_as_->isActive() == false && move_to_as_->isActive() == false)
   {
     ROS_INFO_THROTTLE(3, "I do not have a goal");
     return;
@@ -427,6 +433,24 @@ void ComponentSorting::readyState()
     }
     
   }   
+
+  if(move_to_as_->isActive() == true){ 
+
+    // Get desired goal and set as target
+    std::string move_to_position = move_to_goal_->to;
+    //Check if position exists
+    if(find(positions_to_use.begin(), positions_to_use.end(), move_to_position) != end(positions_to_use)){
+      move_to(move_to_position);
+    }else {
+      ROS_WARN("Position %s does not exist", move_to_position.c_str());
+            
+      move_to_result_.success = false;
+      move_to_result_.message = "Position does not exist";
+      move_to_as_->setAborted(move_to_result_);
+      return;
+    }
+    
+  } 
 }
 
 void ComponentSorting::goalCB(const std::string& action)
@@ -438,7 +462,9 @@ void ComponentSorting::goalCB(const std::string& action)
   if (action_ == "place_on"){
     place_on_goal_ = place_on_as_->acceptNewGoal();}
   if (action_ == "init_holder"){
-    init_holder_goal_ = init_holder_as_->acceptNewGoal();}  
+    init_holder_goal_ = init_holder_as_->acceptNewGoal();} 
+  if (action_ == "move_to"){
+    move_to_goal_ = move_to_as_->acceptNewGoal();}     
     
 }
 
@@ -452,6 +478,7 @@ void ComponentSorting::preemptCB()
   pickup_from_as_->setPreempted();
   place_on_as_->setPreempted();
   init_holder_as_->setPreempted();
+  move_to_as_->setPreempted();
 }
 
 void ComponentSorting::tfListener(std::string scanning_position){
@@ -513,6 +540,49 @@ void ComponentSorting::scan(std::string scanning_position)
     if(success_execute){
       tfListener(scanning_position);
     }
+  }
+}
+
+void ComponentSorting::move_to(std::string move_to_position)
+{ 
+  //Extract position pose:
+  geometry_msgs::PoseStamped approach_position = approach_poses_.at(move_to_position).getPose();
+  // Set pre-position goal
+  move_group_->setPoseTarget(approach_position);
+  // Plan to pre-position goal
+  success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  // If plan is successful execute trajectory
+  if(success_plan){
+    move_to_feedback_.state.clear();
+    move_to_feedback_.state = "Plan to desired position computed";
+    move_to_as_->publishFeedback(move_to_feedback_);
+
+    //Check if goal is active and move to pre-position goal
+    if (!move_to_as_->isActive()) return;
+    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+    //Check if execute is successful
+    if(success_execute){
+      move_to_feedback_.state.clear();
+      move_to_feedback_.state = "Moved end-effector to desired position";
+      move_to_as_->publishFeedback(move_to_feedback_);
+
+      move_to_result_.success = true;
+      move_to_result_.message = "Move end-effector to desired position action: SUCCESSFUL";
+      move_to_as_->setSucceeded(move_to_result_);
+      return;
+    }else{
+      move_to_result_.success = false;
+      move_to_result_.message = "Could not move end-effector to desired position";
+      move_to_as_->setAborted(move_to_result_);
+      return;
+    }
+          
+  }else{
+    move_to_result_.success = false;
+    move_to_result_.message = "Could not plan to desired position";
+    move_to_as_->setAborted(move_to_result_);
+    return;
   }
 }
 
