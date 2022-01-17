@@ -27,6 +27,7 @@ set(ACT_FILES
 PickupFrom.action
 PlaceOn.action
 InitHolder.action
+MoveTo.action
 )
 
 add_action_files(DIRECTORY action FILES ${ACT_FILES})
