@@ -183,9 +183,10 @@ int ComponentSorting::rosShutdown()
 int ComponentSorting::setup()
 {
   
-  // Move group vel
+  // Set move_group's velocity scaling factor 
   move_group_->setMaxVelocityScalingFactor(scale_vel_);
-  // Checks if has been initialized
+  
+  // Checks if rcompnent has been correctly initialized
   int setup_result;
 
   setup_result = rcomponent::RComponent::setup();
@@ -194,26 +195,7 @@ int ComponentSorting::setup()
     return setup_result;
   }
 
-  // in case we contact MoveIt through actionlib
-  // ros::Duration timeout = ros::Duration(5);
-  // pickup_ac_->waitForServer(timeout);
-  // if (pickup_ac_->isServerConnected() == false)
-  // {
-  //   RCOMPONENT_ERROR_STREAM("Cannot connect to pick up client: pickup");
-  //   return rcomponent::ERROR;
-  // }
-  // place_ac_->waitForServer(timeout);
-  // if (place_ac_->isServerConnected() == false)
-  // {
-  //   RCOMPONENT_ERROR_STREAM("Cannot connect to pick up client: place");
-  //   return rcomponent::ERROR;
-  // }
-
-  // pickup_as_->start();
-  // RCOMPONENT_INFO_STREAM("Started server: pickup");
-  // place_as_->start();
-  // RCOMPONENT_INFO_STREAM("Started server: place");
-
+  // Start action servers
   pickup_from_as_->start();
   RCOMPONENT_INFO_STREAM("Started server: pickup from");
   place_on_as_->start();
@@ -223,59 +205,44 @@ int ComponentSorting::setup()
   move_to_as_->start();
   RCOMPONENT_INFO_STREAM("Started server: move to");
 
-  // Read and store parameter: approach_poses from parameter server
+  // Read and store positions to use available poses from parameter server
   bool required = true;
   readParam(pnh_, "positions_to_use", positions_to_use, positions_to_use, required); 
 
-  ros::NodeHandle pnh_approach_ = ros::NodeHandle(pnh_ , "approach_poses");
-  ros::NodeHandle pnh_place_ = ros::NodeHandle(pnh_ , "place_poses");
-  ros::NodeHandle pnh_pick_ = ros::NodeHandle(pnh_ , "pick_poses");
-  ros::NodeHandle pnh_pre_pick_ = ros::NodeHandle(pnh_ , "pre_pick_poses");
-  ros::NodeHandle pnh_pre_place_ = ros::NodeHandle(pnh_ , "pre_place_poses");
-/*   readParam(pnh_approach_, "poses_to_use", approach_poses_names, approach_poses_names, required);  */
-
   // Create class Pose Builder objects
   for (auto const & position: positions_to_use)
-  {
-    if(pnh_approach_.hasParam(position)){
-      approach_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_approach_ , position))));
-    }else{
-      ROS_ERROR("Approach pose has to be filled in for %s position", position.c_str());
-      switchToState(robotnik_msgs::State::FAILURE_STATE);
-      return -1;
-    }
-
-    if(pnh_place_.hasParam(position)){
-      place_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_place_ , position))));
-    }else{
-      ROS_ERROR("Place pose has to be filled in for %s position", position.c_str());
-      switchToState(robotnik_msgs::State::FAILURE_STATE);
-      return -1;
-    }
-
-    if(pnh_pick_.hasParam(position)){
-      pick_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_pick_ , position))));
-    }else{
-      ROS_ERROR("Pick pose has to be filled in for %s position", position.c_str());
-      switchToState(robotnik_msgs::State::FAILURE_STATE);
-      return -1;
-    }    
-
-    if(pnh_pre_pick_.hasParam(position)){
-      pre_pick_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_pre_pick_ , position)))); 
-    }else{
-      ROS_ERROR("Pre_pick pose has to be filled in for %s position", position.c_str());
-      switchToState(robotnik_msgs::State::FAILURE_STATE);
-      return -1;
-    }    
+  { 
+    ros::NodeHandle pnh_position_ = ros::NodeHandle(pnh_ , position);
     
-    if(pnh_pre_place_.hasParam(position)){
-      pre_place_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_pre_place_ , position))));
+    if(pnh_position_.hasParam("approach_pose")){
+      approach_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_position_ , "approach_pose"))));
     }else{
-      ROS_ERROR("Pre_place pose has to be filled in for %s position", position.c_str());
-      switchToState(robotnik_msgs::State::FAILURE_STATE);
-      return -1;
-    }  
+      ROS_WARN("Position %s does not define an approach pose. Please fill in an appropiate pose in yaml file if required", position.c_str());
+    }
+
+    if(pnh_position_.hasParam("pre_place_pose")){
+      pre_place_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_position_ , "pre_place_pose"))));
+    }else{
+      ROS_WARN("Position %s does not define a pre-place pose. Please fill in an appropiate pose in yaml file if required", position.c_str());
+    }
+
+    if(pnh_position_.hasParam("place_pose")){
+      place_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_position_ , "place_pose"))));
+    }else{
+      ROS_WARN("Position %s does not define a place pose. Please fill in an appropiate pose in yaml file if required", position.c_str());
+    }
+
+    if(pnh_position_.hasParam("pre_pick_pose")){
+      pre_pick_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_position_ , "pre_pick_pose"))));
+    }else{
+      ROS_WARN("Position %s does not define a pre-pick pose. Please fill in an appropiate pose in yaml file if required", position.c_str());
+    }
+
+    if(pnh_position_.hasParam("pick_pose")){
+      pick_poses_.insert(make_pair(position, Pose_Builder(ros::NodeHandle(pnh_position_ , "pick_pose"))));
+    }else{
+      ROS_WARN("Position %s does not define a pick pose. Please fill in an appropiate pose in yaml file if required", position.c_str());
+    }
 
   }
 
