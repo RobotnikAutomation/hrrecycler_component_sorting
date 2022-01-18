@@ -512,8 +512,20 @@ void ComponentSorting::scan(std::string scanning_position)
 
 void ComponentSorting::move_to(std::string move_to_position)
 { 
-  //Extract position pose:
-  geometry_msgs::PoseStamped approach_position = approach_poses_.at(move_to_position).getPose();
+  // Initialize required poses
+  geometry_msgs::PoseStamped approach_position;
+
+  // Extract poses from available lists:
+  try{
+    approach_position = approach_poses_.at(move_to_position).getPose();
+  }catch (const std::out_of_range& e){
+    move_to_result_.success = false;
+    move_to_result_.message = "Cannot perform move_to action, please make sure all required poses (approach) are defined for the selected move to position";
+    move_to_as_->setAborted(move_to_result_);
+    ROS_WARN(move_to_result_.message.c_str());
+    return;
+  } 
+  
   // Set pre-position goal
   move_group_->setPoseTarget(approach_position);
   // Plan to pre-position goal
@@ -555,10 +567,23 @@ void ComponentSorting::move_to(std::string move_to_position)
 
 void ComponentSorting::pick_chain_movement(std::string pick_position)
 {  
-  //Extract position poses:
-  geometry_msgs::PoseStamped approach_position = approach_poses_.at(pick_position).getPose();
-  geometry_msgs::PoseStamped pre_position = pre_pick_poses_.at(pick_position).getPose();
-  geometry_msgs::PoseStamped position = pick_poses_.at(pick_position).getPose();
+  // Initialize required poses
+    geometry_msgs::PoseStamped approach_position;
+    geometry_msgs::PoseStamped pre_position;
+    geometry_msgs::PoseStamped position;
+
+  // Extract required poses from available lists
+  try{
+    approach_position = approach_poses_.at(pick_position).getPose();
+    pre_position = pre_pick_poses_.at(pick_position).getPose();
+    position = pick_poses_.at(pick_position).getPose();
+  }catch (const std::out_of_range& e){
+    pick_result_.success = false;
+    pick_result_.message = "Cannot perform pickup_from action, please make sure all required poses (approach, pre-pick and pick) are defined for the selected pick from position";
+    pickup_from_as_->setAborted(pick_result_);
+    ROS_WARN(pick_result_.message.c_str());
+    return;
+  } 
  
 /*   visual_tools_->deleteAllMarkers();
   visual_tools_->trigger(); */
@@ -824,9 +849,21 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
 
 void ComponentSorting::place_chain_movement(std::string place_position)
 { 
-  //EXtract place_position poses
-  geometry_msgs::PoseStamped pre_position = pre_place_poses_.at(place_position).getPose();
-  geometry_msgs::PoseStamped position = place_poses_.at(place_position).getPose();
+  // Initialize required poses
+    geometry_msgs::PoseStamped pre_position;
+    geometry_msgs::PoseStamped position; 
+
+  // Search required poses from available ones
+  try{
+    pre_position = pre_place_poses_.at(place_position).getPose();
+    position = place_poses_.at(place_position).getPose();
+  }catch (const std::out_of_range& e){
+    place_result_.success = false;
+    place_result_.message = "Cannot perform place_on action, please make sure all required poses (pre-place and place) are defined for the selected place in position";
+    place_on_as_->setAborted(place_result_);
+    ROS_WARN(place_result_.message.c_str());
+    return;
+  } 
 
   //Correct frame to latched 
   //pre_position.header.frame_id = pre_position.header.frame_id + "_latched";
