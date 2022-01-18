@@ -264,7 +264,7 @@ void ComponentSorting::standbyState()
   // Move to home position without selected constraints
   move_group_->detachObject();  
   move_group_->clearPathConstraints();
-  move_group_->setNamedTarget("home_position");
+  move_group_->setNamedTarget("home");
   success_move = (move_group_->move() == moveit::planning_interface::MoveItErrorCode::SUCCESS);
 
   if(success_move){
@@ -405,18 +405,8 @@ void ComponentSorting::readyState()
 
     // Get desired goal and set as target
     std::string move_to_position = move_to_goal_->to;
-    //Check if position exists
-    if(find(positions_to_use.begin(), positions_to_use.end(), move_to_position) != end(positions_to_use)){
-      move_to(move_to_position);
-    }else {
-      ROS_WARN("Position %s does not exist", move_to_position.c_str());
-            
-      move_to_result_.success = false;
-      move_to_result_.message = "Position does not exist";
-      move_to_as_->setAborted(move_to_result_);
-      return;
-    }
-    
+    // Call move_to function
+    move_to(move_to_position);
   } 
 }
 
@@ -512,22 +502,37 @@ void ComponentSorting::scan(std::string scanning_position)
 
 void ComponentSorting::move_to(std::string move_to_position)
 { 
-  // Initialize required poses
-  geometry_msgs::PoseStamped approach_position;
+  // Look ir position is defined in poses yaml file 
+  if(find(positions_to_use.begin(), positions_to_use.end(), move_to_position) != end(positions_to_use)){
 
-  // Extract poses from available lists:
-  try{
-    approach_position = approach_poses_.at(move_to_position).getPose();
-  }catch (const std::out_of_range& e){
-    move_to_result_.success = false;
-    move_to_result_.message = "Cannot perform move_to action, please make sure all required poses (approach) are defined for the selected move to position";
-    move_to_as_->setAborted(move_to_result_);
-    ROS_WARN(move_to_result_.message.c_str());
-    return;
-  } 
-  
-  // Set pre-position goal
-  move_group_->setPoseTarget(approach_position);
+    // Initialize required poses
+    geometry_msgs::PoseStamped approach_position;
+
+    // Extract poses from available lists:
+    try{
+      approach_position = approach_poses_.at(move_to_position).getPose();
+    }catch (const std::out_of_range& e){
+      move_to_result_.success = false;
+      move_to_result_.message = "Cannot perform move_to action, please make sure all required poses (approach) are defined for the selected move to position";
+      move_to_as_->setAborted(move_to_result_);
+      ROS_ERROR(move_to_result_.message.c_str());
+      return;
+    } 
+
+    // Set pre-position goal
+    move_group_->setPoseTarget(approach_position);
+
+  }else {
+    // Look if position is defined in srdf
+    if(!move_group_->setNamedTarget(move_to_position)){
+      move_to_result_.success = false;
+      move_to_result_.message = "Position does not exist, it is not defined in poses yaml or srdf.";
+      move_to_as_->setAborted(move_to_result_);
+      ROS_ERROR(move_to_result_.message.c_str());
+      return;
+    }
+  }
+
   // Plan to pre-position goal
   success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
   // If plan is successful execute trajectory
