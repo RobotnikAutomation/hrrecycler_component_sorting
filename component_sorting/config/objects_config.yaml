@@ -1,3 +1,23 @@
+objects:
+  - holder_robot_right
+  - holder_robot_left
+  - holder_robot_center
+  - holder_table_right
+  - holder_table_left
+  - holder_table_center
+  - box_right
+  - box_left
+  - box_center
+  - handle_right
+  - handle_left
+  - handle_center 
+  - table
+  - safety_box
+  - safety_box_handle
+  #- box_demo
+  #- handle_demo
+  #- holder_table_demo
+  
 holder_table_demo:
   frame_id: robot_base_footprint
   pose: [[1.015,0.0,0.845],[0.0,0.0,0.0]] # xyz, rpy
@@ -47,17 +67,62 @@ box_center:
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_base.stl"
 
-box_right:
-  frame_id: table_right_holder_link
-  pose: [[0.0,0.0,0.01],[0.0,0.0,0.0]] # xyz, rpy
-  geometry:
-    mesh: "package://component_sorting_description/meshes/box/box_base.stl"
+#box_right:
+#  frame_id: table_right_holder_link
+#  pose: [[0.0,0.0,0.01],[0.0,0.0,0.0]] # xyz, rpy
+#  geometry:
+#    mesh: "package://component_sorting_description/meshes/box/box_base.stl"
+
+#box_left:
+#  frame_id: table_left_holder_link
+#  pose: [[0.0,0.0,0.01],[0.0,0.0,0.0]] # xyz, rpy
+#  geometry:
+#    mesh: "package://component_sorting_description/meshes/box/box_base.stl"
 
 box_left:
   frame_id: table_left_holder_link
-  pose: [[0.0,0.0,0.01],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
-    mesh: "package://component_sorting_description/meshes/box/box_base.stl"
+    box:
+      height: 0.11
+      width: 0.19
+      length: 0.29
+  pose: [[0.0,0.0,0.065],[0.0,0.0,0.0]] # xyz, rpy
+
+#box_center:
+#  frame_id: table_center_holder_link
+#  geometry:
+#    box:
+#      height: 0.11
+#      width: 0.19
+#      length: 0.29
+#  pose: [[0.0,0.0,0.065],[0.0,0.0,0.0]] # xyz, rpy
+
+box_right:
+  frame_id: table_right_holder_link
+  geometry:
+    box:
+      height: 0.11
+      width: 0.19
+      length: 0.29
+  pose: [[0.0,0.0,0.065],[0.0,0.0,0.0]] # xyz, rpy
+
+safety_box:
+  frame_id: robot_center_holder_link
+  geometry:
+    box:
+      height: 0.11
+      width: 0.68
+      length: 0.30
+  pose: [[0.0,0.0,0.065],[0.0,0.0,0.0]] # xyz, rpy  
+
+safety_box_handle:
+  frame_id: robot_center_holder_link
+  geometry:
+    box:
+      height: 0.12
+      width: 0.68
+      length: 0.12
+  pose: [[0.0,0.0,0.18],[0.0,0.0,0.0]] # xyz, rpy  
 
 handle_center:
   frame_id: table_center_holder_link
@@ -106,21 +171,3 @@ holder_table_demo:
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
 
-objects:
-  - holder_robot_right
-  - holder_robot_left
-  - holder_robot_center
-  - holder_table_right
-  - holder_table_left
-  - holder_table_center
-  - box_right
-  - box_left
-  - box_center
-  - handle_right
-  - handle_left
-  - handle_center 
-  - table
-  #- box_demo
-  #- handle_demo
-  #- holder_table_demo
- 
