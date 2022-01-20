@@ -362,10 +362,10 @@ void ComponentSorting::readyState()
     if(find(positions_to_use.begin(), positions_to_use.end(),pick_position) != end(positions_to_use)){
       pick_chain_movement(pick_position);
     }else {
-      ROS_WARN("Position %s does not exist", pick_position.c_str());
+      ROS_WARN("Position %s does not exist in poses config yaml", pick_position.c_str());
             
       pick_result_.success = false;
-      pick_result_.message = "Position does not exist";
+      pick_result_.message = "Position does not exist in poses config yaml";
       pickup_from_as_->setAborted(pick_result_);
       return;
     }
@@ -378,7 +378,7 @@ void ComponentSorting::readyState()
 
     //Check if position exists
     if(find(positions_to_use.begin(), positions_to_use.end(),place_position) != end(positions_to_use)){
-      //Check if place position is initialized
+      //Check if place position is initialized CAMBIAR
       //if( place_poses_.at(place_position).isInit()){
       if( true){
         place_chain_movement(place_position);
@@ -391,10 +391,10 @@ void ComponentSorting::readyState()
         return;
       }
     }else {
-      ROS_WARN("Position %s does not exist", place_position.c_str());
+      ROS_WARN("Position %s does not exist in poses config yaml", place_position.c_str());
 
       place_result_.success = false;
-      place_result_.message = "Position does not exist";
+      place_result_.message = "Position does not exist in poses config yaml";
       place_on_as_->setAborted(place_result_);
       return;
     }
@@ -855,11 +855,13 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
 void ComponentSorting::place_chain_movement(std::string place_position)
 { 
   // Initialize required poses
+    geometry_msgs::PoseStamped approach_position;
     geometry_msgs::PoseStamped pre_position;
     geometry_msgs::PoseStamped position; 
 
   // Search required poses from available ones
   try{
+    approach_position = approach_poses_.at(place_position).getPose();
     pre_position = pre_place_poses_.at(place_position).getPose();
     position = place_poses_.at(place_position).getPose();
   }catch (const std::out_of_range& e){
@@ -869,6 +871,7 @@ void ComponentSorting::place_chain_movement(std::string place_position)
     ROS_WARN(place_result_.message.c_str());
     return;
   } 
+
 
   //Correct frame to latched 
   //pre_position.header.frame_id = pre_position.header.frame_id + "_latched";
@@ -891,8 +894,60 @@ void ComponentSorting::place_chain_movement(std::string place_position)
     return;
   }
 
+  move_group_->setPoseTarget(approach_position);
+  // Plan to pre-position goal
+  success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+ 
+/*   visual_tools_->publishTrajectoryLine(plan.trajectory_, joint_model_group);
+  visual_tools_->trigger(); */
+  //If plan is successful execute trajectory
+  if(success_plan){
+    place_feedback_.state.clear();
+    place_feedback_.state = "Plan to desired pre-position computed";
+    place_on_as_->publishFeedback(place_feedback_);
+
+    //Check if goal is active and move to pre-position goal
+    if (!place_on_as_->isActive()) return;
+    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+    //ros::Duration(1).sleep();
+
+    //Check if execute is successful
+    if(success_execute){
+      place_feedback_.state.clear();
+      place_feedback_.state = "Moved to desired pre-position";
+      place_on_as_->publishFeedback(place_feedback_);
+    }else{
+      place_result_.success = false;
+      place_result_.message = "Could not move to desired pre-position";
+      place_on_as_->setAborted(place_result_);
+      return;
+    }
+          
+  }else{
+    place_result_.success = false;
+    place_result_.message = "Could not plan to desired pre-position";
+    place_on_as_->setAborted(place_result_);
+    return;
+  }
+
 /*   visual_tools_->deleteAllMarkers();
   visual_tools_->trigger(); */
+
+  //Allow contact between attached box and holder
+  acm_ = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
+  acm_.setEntry("holder_" + place_position, identified_box, true);
+  acm_.setEntry(place_position + "_holder_link", identified_box, true);
+  acm_.setEntry("holder_" + place_position, identified_handle, true);
+
+  acm_.setEntry("safety_box_handle", identified_handle, true);
+  acm_.setEntry("safety_box_handle", identified_box, true);
+  acm_.setEntry("safety_box", identified_handle, true);
+  acm_.setEntry("safety_box", identified_box, true);
+  
+  acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
+  acm_.print(std::cout);
+  planning_scene_msg.is_diff = true;
+  planning_scene_interface_->applyPlanningScene(planning_scene_msg);
 
   // Set pre-position goal
   move_group_->setPoseTarget(pre_position);
@@ -932,15 +987,8 @@ void ComponentSorting::place_chain_movement(std::string place_position)
   }
 
   
-  //Allow contact between attached box and holder
-  acm_ = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
-  acm_.setEntry("holder_" + place_position, identified_box, true);
-  acm_.setEntry(place_position + "_holder_link", identified_box, true);
-  acm_.setEntry("holder_" + place_position, identified_handle, true);
-  acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
-  acm_.print(std::cout);
-  planning_scene_msg.is_diff = true;
-  planning_scene_interface_->applyPlanningScene(planning_scene_msg);
+
+  //POSIBILIDAD AÑADIR AQUÍ LO DE QUITAR COLISIONES
 
   //Plan to position goal 
 
@@ -979,6 +1027,12 @@ void ComponentSorting::place_chain_movement(std::string place_position)
       acm_.removeEntry("holder_" + place_position, identified_box);
       acm_.removeEntry(place_position + "_holder_link", identified_box);
       acm_.removeEntry("holder_" + place_position, identified_handle);
+
+      acm_.removeEntry("safety_box_handle", identified_handle);
+      acm_.removeEntry("safety_box_handle", identified_box);
+      acm_.removeEntry("safety_box", identified_handle);
+      acm_.removeEntry("safety_box", identified_box);
+  
       acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
       planning_scene_msg.is_diff = true;
       planning_scene_interface_->applyPlanningScene(planning_scene_msg);
@@ -992,6 +1046,12 @@ void ComponentSorting::place_chain_movement(std::string place_position)
     acm_.removeEntry("holder_" + place_position, identified_box);
     acm_.removeEntry("holder_" + place_position, identified_handle);
     acm_.removeEntry(place_position + "_holder_link", identified_box);
+
+    acm_.removeEntry("safety_box_handle", identified_handle);
+    acm_.removeEntry("safety_box_handle", identified_box);
+    acm_.removeEntry("safety_box", identified_handle);
+    acm_.removeEntry("safety_box", identified_box);
+
     acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
     planning_scene_msg.is_diff = true;
     planning_scene_interface_->applyPlanningScene(planning_scene_msg);
@@ -1020,6 +1080,12 @@ void ComponentSorting::place_chain_movement(std::string place_position)
   acm_.removeEntry("holder_" + place_position, identified_box);
   acm_.removeEntry("holder_" + place_position, identified_handle);
   acm_.removeEntry(place_position + "_holder_link", identified_box);
+
+  acm_.removeEntry("safety_box_handle", identified_handle);
+  acm_.removeEntry("safety_box_handle", identified_box);
+  acm_.removeEntry("safety_box", identified_handle);
+  acm_.removeEntry("safety_box", identified_box);
+
   acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
   planning_scene_msg.is_diff = true;
   planning_scene_interface_->applyPlanningScene(planning_scene_msg);
