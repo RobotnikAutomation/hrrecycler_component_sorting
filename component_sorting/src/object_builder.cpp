@@ -9,10 +9,12 @@ Object_Builder::Object_Builder(ros::NodeHandle pnh, std::string id)
     pnh_.getParam("frame_id", frame_id_); 
     pnh_.getParam("pose", pose_); 
     pnh_.getParam("geometry", geometry_); 
+    pnh_.getParam("spawn", spawn_); 
 
     // Fill in moveit collision object parameters
     collision_object_.id = id_;
     collision_object_.header.frame_id = frame_id_;
+
 
     // Process parameter pose
 
@@ -95,4 +97,12 @@ Object_Builder::~Object_Builder(){
 
 moveit_msgs::CollisionObject Object_Builder::getObject(){
     return collision_object_;
+}
+
+bool Object_Builder::getSpawn(){
+    return spawn_;
+}
+
+std::string Object_Builder::getID(){
+    return id_;
 }

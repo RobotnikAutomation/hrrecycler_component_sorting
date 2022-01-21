@@ -23,6 +23,10 @@ class Object_Builder
 
     moveit_msgs::CollisionObject getObject();
 
+    bool getSpawn();
+
+    std::string getID();
+
 
   private:
 
@@ -30,6 +34,7 @@ class Object_Builder
 
     ros::NodeHandle pnh_; // object paramenter node handle
     std::string id_; // Object id
+    bool spawn_;
     std::string frame_id_; // Frame used for object relative positioning
     XmlRpc::XmlRpcValue geometry_; // Stores object geometry parameter
     XmlRpc::XmlRpcValue pose_; // Stores object pose parameter
