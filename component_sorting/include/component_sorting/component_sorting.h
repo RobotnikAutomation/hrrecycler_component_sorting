@@ -88,7 +88,8 @@ protected:
   std::vector< std::string > objects_in_roi; //CHANGE
   
   std::vector<Object_Builder> parsed_objects;
-  std::vector<moveit_msgs::CollisionObject> moveit_objects;
+  std::vector<moveit_msgs::CollisionObject> moveit_objects; // CHANGE
+  map<std::string, Object_Builder> parsed_objects_;
 
   // Action servers
   std::string action_;

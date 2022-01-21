@@ -1239,29 +1239,32 @@ bool ComponentSorting::create_planning_scene()
   // Create class Object_Builder objects
   for (auto const & object_name: object_names)
   {
-    parsed_objects.push_back(Object_Builder(ros::NodeHandle(pnh_ , object_name), object_name));
+    //parsed_objects.push_back(Object_Builder(ros::NodeHandle(pnh_ , object_name), object_name));
+    parsed_objects_.insert(make_pair(object_name, Object_Builder(ros::NodeHandle(pnh_ , object_name), object_name)));  
   }
 
   //Object_builder objects into Moveit's collision objects
 
 
-  for (auto & parsed_object: parsed_objects)
+  for (auto & [id, parsed_object] : parsed_objects_)
   { 
-    moveit_msgs::CollisionObject collision_object;
-    collision_object = parsed_object.getObject();
+    if(parsed_object.getSpawn()){
+      moveit_msgs::CollisionObject collision_object;
+      collision_object = parsed_object.getObject();
 
-   try{
-      transform_stamped = tfBuffer.lookupTransform("robot_base_link",collision_object.header.frame_id,ros::Time(0),ros::Duration(1.0));
+    try{
+        transform_stamped = tfBuffer.lookupTransform("robot_base_link",collision_object.header.frame_id,ros::Time(0),ros::Duration(1.0));
+      }
+      catch(tf2::TransformException ex){
+        ROS_ERROR("Error when adding %s object to desired frame. Lookup Transform error: %s",collision_object.id.c_str(), ex.what());
+        switchToState(robotnik_msgs::State::FAILURE_STATE);
+        return false;
+      }
+
+
+      collision_object.operation = collision_object.ADD;
+      moveit_objects.push_back(collision_object);
     }
-    catch(tf2::TransformException ex){
-      ROS_ERROR("Error when adding %s object to desired frame. Lookup Transform error: %s",collision_object.id.c_str(), ex.what());
-      switchToState(robotnik_msgs::State::FAILURE_STATE);
-      return false;
-    }
-
-
-    collision_object.operation = collision_object.ADD;
-    moveit_objects.push_back(collision_object);
   }
 
   // Add collision objects into the world

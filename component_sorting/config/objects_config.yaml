@@ -14,47 +14,55 @@ objects:
   - table
   - safety_box
   - safety_box_handle
+  
   #- box_demo
   #- handle_demo
   #- holder_table_demo
   
 holder_table_demo:
+  spawn: true
   frame_id: robot_base_footprint
   pose: [[1.015,0.0,0.845],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
 
 holder_table_right:
+  spawn: true
   frame_id: table_right_holder_link
   pose: [[0.0,0.0,-0.01],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
 
 holder_table_left:
+  spawn: true
   frame_id: table_left_holder_link
   pose: [[0.0,0.0,-0.01],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
 
 holder_table_center:
+  spawn: true
   frame_id: table_center_holder_link
   pose: [[0.0,0.0,0.0],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
 
 holder_robot_right:
+  spawn: true
   frame_id: robot_right_holder_link
   pose: [[0.0,0.0,0.0],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
 
 holder_robot_left:
+  spawn: true
   frame_id: robot_left_holder_link
   pose: [[0.0,0.0,0.0],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_holder.stl"
 
 holder_robot_center:
+  spawn: true
   frame_id: robot_center_holder_link
   pose: [[0.0,0.0,0.0],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
@@ -62,24 +70,28 @@ holder_robot_center:
 
 
 box_center:
+  spawn: false
   frame_id: table_center_holder_link
   pose: [[0.0,0.0,0.01],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_base.stl"
 
 #box_right:
+#  spawn: true
 #  frame_id: table_right_holder_link
 #  pose: [[0.0,0.0,0.01],[0.0,0.0,0.0]] # xyz, rpy
 #  geometry:
 #    mesh: "package://component_sorting_description/meshes/box/box_base.stl"
 
 #box_left:
+#  spawn: true 
 #  frame_id: table_left_holder_link
 #  pose: [[0.0,0.0,0.01],[0.0,0.0,0.0]] # xyz, rpy
 #  geometry:
 #    mesh: "package://component_sorting_description/meshes/box/box_base.stl"
 
 box_left:
+  spawn: true
   frame_id: table_left_holder_link
   geometry:
     box:
@@ -89,6 +101,7 @@ box_left:
   pose: [[0.0,0.0,0.065],[0.0,0.0,0.0]] # xyz, rpy
 
 #box_center:
+#  spawn: true
 #  frame_id: table_center_holder_link
 #  geometry:
 #    box:
@@ -98,6 +111,7 @@ box_left:
 #  pose: [[0.0,0.0,0.065],[0.0,0.0,0.0]] # xyz, rpy
 
 box_right:
+  spawn: true
   frame_id: table_right_holder_link
   geometry:
     box:
@@ -107,6 +121,7 @@ box_right:
   pose: [[0.0,0.0,0.065],[0.0,0.0,0.0]] # xyz, rpy
 
 safety_box:
+  spawn: true
   frame_id: robot_center_holder_link
   geometry:
     box:
@@ -116,6 +131,7 @@ safety_box:
   pose: [[0.0,0.0,0.065],[0.0,0.0,0.0]] # xyz, rpy  
 
 safety_box_handle:
+  spawn: true
   frame_id: robot_center_holder_link
   geometry:
     box:
@@ -125,24 +141,28 @@ safety_box_handle:
   pose: [[0.0,0.0,0.18],[0.0,0.0,0.0]] # xyz, rpy  
 
 handle_center:
+  spawn: true
   frame_id: table_center_holder_link
   pose: [[0.0,0.0,0.08],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/handle.stl"
 
 handle_right:
+  spawn: true
   frame_id: table_right_holder_link
   pose: [[0.0,0.0,0.08],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/handle.stl"
 
 handle_left:
+  spawn: true
   frame_id: table_left_holder_link
   pose: [[0.0,0.0,0.08],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/handle.stl"
 
 table:
+  spawn: true
   frame_id: robot_base_footprint
   geometry:
     box:
@@ -154,18 +174,21 @@ table:
   pose: [[0.865,0.0,0.425],[0.0,0.0,0.0]] # xyz, rpy
 
 box_demo:
+  spawn: true
   frame_id: robot_base_footprint
   pose: [[0.710,0.0,0.86],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/box_base.stl"
 
 handle_demo:
+  spawn: true
   frame_id: robot_base_footprint
   pose: [[0.710,0.0,0.92],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
     mesh: "package://component_sorting_description/meshes/box/handle.stl"
 
 holder_table_demo:
+  spawn: true
   frame_id: robot_base_footprint
   pose: [[0.71,0.0,0.85],[0.0,0.0,0.0]] # xyz, rpy
   geometry:
