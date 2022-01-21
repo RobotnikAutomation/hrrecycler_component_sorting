@@ -3,6 +3,8 @@
 
 #include <ros/ros.h>
 
+#include <std_srvs/Empty.h>
+
 #include <rcomponent/rcomponent.h>
 
 #include <actionlib/server/simple_action_server.h>
@@ -87,9 +89,11 @@ protected:
 
   std::vector< std::string > objects_in_roi; //CHANGE
   
-  std::vector<Object_Builder> parsed_objects;
+  //std::vector<Object_Builder> parsed_objects;
   std::vector<moveit_msgs::CollisionObject> moveit_objects; // CHANGE
   map<std::string, Object_Builder> parsed_objects_;
+
+  moveit_msgs::CollisionObject box_, handle_;
 
   // Action servers
   std::string action_;
@@ -162,6 +166,7 @@ protected:
   ros::ServiceClient gripper_client;
   ros::ServiceClient gazebo_link_attacher_client;
   ros::ServiceClient gazebo_link_detacher_client;
+  ros::ServiceClient octomap_client;
 
   //double dock_dist_table = 0.115;
 

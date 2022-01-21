@@ -149,6 +149,8 @@ int ComponentSorting::rosSetup()
   gazebo_link_attacher_client = nh_.serviceClient<gazebo_ros_link_attacher::Attach>("/link_attacher_node/attach");
   gazebo_link_detacher_client = nh_.serviceClient<gazebo_ros_link_attacher::Attach>("/link_attacher_node/detach");
 
+  // Octomap service 
+  octomap_client = nh_.serviceClient<std_srvs::Empty>("/clear_octomap");
 
   //UNCOMMENT FOR VISUALIZATION
 /*   visual_tools_.reset(new moveit_visual_tools::MoveItVisualTools("robot_base_footprint","/move_group/display_grasp_markers"));
@@ -573,9 +575,7 @@ void ComponentSorting::move_to(std::string move_to_position)
 void ComponentSorting::pick_chain_movement(std::string pick_position)
 {  
   // Initialize required poses
-    geometry_msgs::PoseStamped approach_position;
-    geometry_msgs::PoseStamped pre_position;
-    geometry_msgs::PoseStamped position;
+    geometry_msgs::PoseStamped approach_position, pre_position, position;
 
   // Extract required poses from available lists
   try{
@@ -589,7 +589,31 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     ROS_WARN(pick_result_.message.c_str());
     return;
   } 
- 
+
+  // Add box to identified frame
+  try{
+    box_ = parsed_objects_.at("box").getObject();
+    handle_ = parsed_objects_.at("handle").getObject();
+  }catch (const std::out_of_range& e){
+    pick_result_.success = false;
+    pick_result_.message = "Cannot perform pickup_from action, please define box and handle objects in yaml file.";
+    pickup_from_as_->setAborted(pick_result_);
+    ROS_WARN(pick_result_.message.c_str());
+    return;
+  }     
+
+  box_.operation = box_.ADD;
+  handle_.operation = handle_.ADD;
+
+  std::vector<moveit_msgs::CollisionObject> add_collision_objects_;
+  add_collision_objects_.push_back(box_);
+  add_collision_objects_.push_back(handle_);
+  planning_scene_interface_->applyCollisionObjects(add_collision_objects_);
+
+  std_srvs::Empty octomap_msg;
+  octomap_client.call(octomap_msg);
+
+
 /*   visual_tools_->deleteAllMarkers();
   visual_tools_->trigger(); */
   // Set pre-position goal
@@ -1105,6 +1129,7 @@ void ComponentSorting::place_chain_movement(std::string place_position)
    ros::Duration(0.5).sleep();
   };
 
+
   // Check if goal is active and Plan to target goal
   if (!place_on_as_->isActive()) return;
   ROS_INFO_THROTTLE(3, "About to plan");
@@ -1129,6 +1154,16 @@ void ComponentSorting::place_chain_movement(std::string place_position)
   planning_scene_msg.is_diff = true;
   planning_scene_interface_->applyPlanningScene(planning_scene_msg);
 
+
+  box_.operation = box_.REMOVE;
+  handle_.operation = handle_.REMOVE;
+
+  std::vector<moveit_msgs::CollisionObject> add_collision_objects_;
+  add_collision_objects_.push_back(box_);
+  add_collision_objects_.push_back(handle_);
+  planning_scene_interface_->applyCollisionObjects(add_collision_objects_);
+  //planning_scene_interface_->removeCollisionObjects	({"box", "handle"});
+
   //If plan is successful execute trajectory
   if(success_cartesian_plan >= allowed_fraction_success){
     place_feedback_.state.clear();
@@ -1148,7 +1183,7 @@ void ComponentSorting::place_chain_movement(std::string place_position)
       place_on_as_->publishFeedback(place_feedback_);
 
       place_result_.success = true;
-      place_result_.message = "Pick-up from desired position SUCCESSFUL";
+      place_result_.message = "Place-on from desired position SUCCESSFUL";
       place_on_as_->setSucceeded(place_result_);
       return;
     }else{
@@ -1162,8 +1197,16 @@ void ComponentSorting::place_chain_movement(std::string place_position)
     place_result_.message = "Could not plan back to pre-position";
     place_on_as_->setAborted(place_result_);
     return;
-  }
+  } 
 
+/*   box_.operation = box_.REMOVE;
+  handle_.operation = handle_.REMOVE;
+
+  std::vector<moveit_msgs::CollisionObject> add_collision_objects_;
+  add_collision_objects_.push_back(box_);
+  add_collision_objects_.push_back(handle_);
+ //planning_scene_interface_->applyCollisionObjects(add_collision_objects_);
+  planning_scene_interface_->removeCollisionObjects	({"box", "handle"}); */
 }
 
 void ComponentSorting::gripper_on(){
