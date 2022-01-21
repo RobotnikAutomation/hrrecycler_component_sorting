@@ -1,23 +1,72 @@
 objects:
-  - holder_robot_right
-  - holder_robot_left
-  - holder_robot_center
-  - holder_table_right
-  - holder_table_left
-  - holder_table_center
-  - box_right
-  - box_left
-  - box_center
-  - handle_right
-  - handle_left
-  - handle_center 
+#  - holder_robot_right
+#  - holder_robot_left
+#  - holder_robot_center
+#  - holder_table_right
+#  - holder_table_left
+#  - holder_table_center
+#  - box_right
+#  - box_left
+#  - box_center
+#  - handle_right
+#  - handle_left
+#  - handle_center 
   - table
   - safety_box
   - safety_box_handle
-  
-  #- box_demo
-  #- handle_demo
-  #- holder_table_demo
+  - box
+  - handle 
+
+safety_box:
+  spawn: true
+  frame_id: robot_center_holder_link
+  geometry:
+    box:
+      height: 0.11
+      width: 0.69
+      length: 0.31
+  pose: [[0.0,0.0,0.065],[0.0,0.0,0.0]] # xyz, rpy  
+
+safety_box_handle:
+  spawn: true
+  frame_id: robot_center_holder_link
+  geometry:
+    box:
+      height: 0.12
+      width: 0.69
+      length: 0.12
+  pose: [[0.0,0.0,0.18],[0.0,0.0,0.0]] # xyz, rpy  
+
+table:
+  spawn: true
+  frame_id: robot_base_footprint
+  geometry:
+    box:
+      height: 0.85
+      width: 0.63
+      length: 0.63
+    qr:
+      height: 0.365
+  pose: [[0.865,0.0,0.425],[0.0,0.0,0.0]] # xyz, rpy
+
+box:
+  spawn: false
+  frame_id: box_grab_qr
+  geometry:
+    box:
+      height: 0.11
+      width: 0.19
+      length: 0.29
+  pose: [[0.0,0.0,-0.171],[0.0,0.0,-1.570]] # xyz, rpy
+
+handle:
+  spawn: false
+  frame_id: box_grab_qr
+  pose: [[0.0,0.0,-0.156],[0.0,0.0,-1.570]] # xyz, rpy
+  geometry:
+    mesh: "package://component_sorting_description/meshes/box/handle.stl"  
+
+
   
 holder_table_demo:
   spawn: true
@@ -120,26 +169,6 @@ box_right:
       length: 0.29
   pose: [[0.0,0.0,0.065],[0.0,0.0,0.0]] # xyz, rpy
 
-safety_box:
-  spawn: true
-  frame_id: robot_center_holder_link
-  geometry:
-    box:
-      height: 0.11
-      width: 0.68
-      length: 0.30
-  pose: [[0.0,0.0,0.065],[0.0,0.0,0.0]] # xyz, rpy  
-
-safety_box_handle:
-  spawn: true
-  frame_id: robot_center_holder_link
-  geometry:
-    box:
-      height: 0.12
-      width: 0.68
-      length: 0.12
-  pose: [[0.0,0.0,0.18],[0.0,0.0,0.0]] # xyz, rpy  
-
 handle_center:
   spawn: true
   frame_id: table_center_holder_link
@@ -161,17 +190,6 @@ handle_left:
   geometry:
     mesh: "package://component_sorting_description/meshes/box/handle.stl"
 
-table:
-  spawn: true
-  frame_id: robot_base_footprint
-  geometry:
-    box:
-      height: 0.85
-      width: 0.63
-      length: 0.63
-    qr:
-      height: 0.365
-  pose: [[0.865,0.0,0.425],[0.0,0.0,0.0]] # xyz, rpy
 
 box_demo:
   spawn: true
