@@ -140,6 +140,8 @@ protected:
   int pin_1_;
   int pin_2_;
 
+  std::string end_effector_link_, robot_link_;
+
   double scale_vel_;
 
   const moveit::core::JointModelGroup* joint_model_group;
