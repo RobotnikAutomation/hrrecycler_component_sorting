@@ -40,7 +40,7 @@
   <!-- Spawn table into gazebo -->
   <include file="$(find component_sorting_simple_sim)/launch/table.launch"/>
 
-  <!-- Spawn model into gazebo -->
+  <!-- Spawn robot model into gazebo -->
   <node name="urdf_spawner_robot_model" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
       args="-x $(arg x_init_pose) -y $(arg y_init_pose) -z $(arg z_init_pose) 
             -J $(arg robot_id)_arm_elbow_joint -2
@@ -49,8 +49,7 @@
             -urdf -param robot_description -model $(arg robot_id)
             -unpause " />
 
-
-    
+  <!-- Launch robot controllers --> 
   <include file="$(find rbkairos_control)/launch/rbkairos_control.launch" >
       <arg name="robot_id" value="$(arg robot_id)"/>
       <arg name="prefix" value="$(arg prefix)"/>
@@ -61,5 +60,6 @@
       <arg name="sim_gripper_control" value="$(arg launch_gripper_control)"/>
       <arg name="gripper_controllers" value="$(arg gripper_controllers)"/>
   </include>
+
 
 </launch>
