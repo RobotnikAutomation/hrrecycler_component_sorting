@@ -40,12 +40,12 @@
           <mesh filename="package://component_sorting_description/meshes/box/box_holder.stl"/>
         </geometry>
       </visual>
-      <!--collision>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
+      <collision>
+        <origin rpy="0 0 ${-3.14159/2}" xyz="0 0 -0.005"/>
         <geometry>
-          <mesh filename="package://component_sorting_description/meshes/box/box_holder.stl"/>
+          <mesh filename="package://component_sorting_description/meshes/box/holder_bumper.stl"/>
         </geometry>
-      </collision-->  
+      </collision>
     </link>
 
     <joint name="${prefix}holder_oriented_joint" type="fixed">
@@ -67,7 +67,7 @@
     <link name="${prefix}holder_approach"/>
 
     <joint name="${prefix}grab_joint" type="fixed">
-      <origin rpy="0 0 0" xyz="0 0 -0.5"/>
+      <origin rpy="0 0 0" xyz="0 0 -0.236"/>
       <parent link="${prefix}holder_oriented_link"/>
       <child link="${prefix}grab_link"/>
     </joint>
@@ -79,8 +79,10 @@
       <origin xyz="0 0 0" rpy="0 0 ${-3.14159/2}"/>
     </xacro:ar_tag>
  -->
-<!-- Collision bumper -->
-        <joint name="${prefix}holder_right_joint" type="fixed">
+
+
+
+  <!--   <joint name="${prefix}holder_right_joint" type="fixed">
       <origin rpy="0 0 0" xyz="0 -0.10 0.005"/>
       <parent link="${prefix}holder_base_link"/>
       <child link="${prefix}holder_right_link"/>
@@ -183,7 +185,7 @@
       </geometry>
     </collision>
     </link>
-
+ -->
 
     <gazebo reference="${prefix}holder_link">
       <visual>  
