@@ -2,6 +2,10 @@
 group_name: arm
 move_group_timeout: 10 
 
+#Robot setup
+end_effector_link: robot_vgc10_vgc10_link
+robot_link: robot_base_footprint
+
 #MoveIt warehouse parameters 
 host: "localhost"
 port: 33829
