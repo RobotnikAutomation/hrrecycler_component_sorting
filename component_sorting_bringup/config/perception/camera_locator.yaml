@@ -21,7 +21,7 @@ markers:
     exact_name: table_qr
     size: 0.12
     #parent_frame: table_base_link
-    filter_tag: robot_noisy_
+    filter_tag: noisy_
   
 
 
