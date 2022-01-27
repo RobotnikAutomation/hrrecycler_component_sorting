@@ -28,6 +28,7 @@ PickupFrom.action
 PlaceOn.action
 InitHolder.action
 MoveTo.action
+MoveToPose.action
 )
 
 add_action_files(DIRECTORY action FILES ${ACT_FILES})

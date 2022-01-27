@@ -1,0 +1,14 @@
+# An action for moving the end-effector to a pose
+
+# The name of the location from where to move to
+geometry_msgs/PoseStamped pose
+---
+# If move to was succesful
+bool success
+
+# Some informational message
+string message
+---
+
+# The internal state that the move to action currently is in
+string state
