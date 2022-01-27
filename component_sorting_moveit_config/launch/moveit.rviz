@@ -4,14 +4,10 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /Global Options1
         - /Status1
-        - /MotionPlanning1
         - /MotionPlanning1/Scene Geometry1
         - /MotionPlanning1/Scene Robot1
-        - /MotionPlanning1/Planning Request1
-        - /MotionPlanning1/Planning Metrics1
-        - /MotionPlanning1/Planned Path1
+        - /TF1
         - /TF1/Frames1
       Splitter Ratio: 0.8148893117904663
     Tree Height: 164
@@ -226,48 +222,19 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          robot_center_holder_ar_tag_base_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          robot_center_holder_ar_tag_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           robot_center_holder_base_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          robot_center_holder_bottom_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          robot_center_holder_left_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           robot_center_holder_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
+            Value: true
           robot_center_holder_oriented_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          robot_center_holder_right_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          robot_center_holder_top_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           robot_front_laser_base_link:
             Alpha: 1
             Show Axes: false
@@ -346,48 +313,19 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          robot_left_holder_ar_tag_base_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          robot_left_holder_ar_tag_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           robot_left_holder_base_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          robot_left_holder_bottom_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          robot_left_holder_left_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           robot_left_holder_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
+            Value: true
           robot_left_holder_oriented_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          robot_left_holder_right_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          robot_left_holder_top_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           robot_rear_laser_base_link:
             Alpha: 1
             Show Axes: false
@@ -410,48 +348,19 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          robot_right_holder_ar_tag_base_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          robot_right_holder_ar_tag_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           robot_right_holder_base_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          robot_right_holder_bottom_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          robot_right_holder_left_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           robot_right_holder_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
+            Value: true
           robot_right_holder_oriented_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          robot_right_holder_right_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          robot_right_holder_top_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           robot_vgc10_vacuum_cup_1_link:
             Alpha: 1
             Show Axes: false
@@ -520,7 +429,7 @@ Visualization Manager:
         Interactive Marker Size: 0
         Joint Violation Color: 255; 0; 255
         Planning Group: arm
-        Query Goal State: false
+        Query Goal State: true
         Query Start State: false
         Show Workspace: false
         Start State Alpha: 1
@@ -676,48 +585,19 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          robot_center_holder_ar_tag_base_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          robot_center_holder_ar_tag_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           robot_center_holder_base_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          robot_center_holder_bottom_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          robot_center_holder_left_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           robot_center_holder_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
+            Value: true
           robot_center_holder_oriented_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          robot_center_holder_right_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          robot_center_holder_top_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           robot_front_laser_base_link:
             Alpha: 1
             Show Axes: false
@@ -796,48 +676,19 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          robot_left_holder_ar_tag_base_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          robot_left_holder_ar_tag_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           robot_left_holder_base_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          robot_left_holder_bottom_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          robot_left_holder_left_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           robot_left_holder_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
+            Value: true
           robot_left_holder_oriented_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          robot_left_holder_right_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          robot_left_holder_top_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           robot_rear_laser_base_link:
             Alpha: 1
             Show Axes: false
@@ -860,48 +711,19 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          robot_right_holder_ar_tag_base_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          robot_right_holder_ar_tag_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           robot_right_holder_base_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          robot_right_holder_bottom_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          robot_right_holder_left_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           robot_right_holder_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
+            Value: true
           robot_right_holder_oriented_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          robot_right_holder_right_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          robot_right_holder_top_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           robot_vgc10_vacuum_cup_1_link:
             Alpha: 1
             Show Axes: false
@@ -959,7 +781,13 @@ Visualization Manager:
         All Enabled: false
         base_link_gt:
           Value: false
+        box_grab_qr:
+          Value: true
         laser_gt:
+          Value: false
+        noisy_box_grab_qr:
+          Value: false
+        noisy_table_qr:
           Value: false
         odom:
           Value: false
@@ -988,7 +816,7 @@ Visualization Manager:
         robot_arm_shoulder_link:
           Value: false
         robot_arm_tool0:
-          Value: false
+          Value: true
         robot_arm_upper_arm_link:
           Value: false
         robot_arm_wrist_1_link:
@@ -1021,23 +849,11 @@ Visualization Manager:
           Value: false
         robot_center_holder_approach:
           Value: false
-        robot_center_holder_ar_tag_base_link:
-          Value: false
-        robot_center_holder_ar_tag_link:
-          Value: false
         robot_center_holder_base_link:
-          Value: false
-        robot_center_holder_bottom_link:
-          Value: false
-        robot_center_holder_left_link:
           Value: false
         robot_center_holder_link:
           Value: false
         robot_center_holder_oriented_link:
-          Value: false
-        robot_center_holder_right_link:
-          Value: false
-        robot_center_holder_top_link:
           Value: false
         robot_front_laser_base_link:
           Value: false
@@ -1075,23 +891,11 @@ Visualization Manager:
           Value: false
         robot_left_holder_approach:
           Value: false
-        robot_left_holder_ar_tag_base_link:
-          Value: false
-        robot_left_holder_ar_tag_link:
-          Value: false
         robot_left_holder_base_link:
-          Value: false
-        robot_left_holder_bottom_link:
-          Value: false
-        robot_left_holder_left_link:
           Value: false
         robot_left_holder_link:
           Value: false
         robot_left_holder_oriented_link:
-          Value: false
-        robot_left_holder_right_link:
-          Value: false
-        robot_left_holder_top_link:
           Value: false
         robot_map:
           Value: false
@@ -1107,23 +911,11 @@ Visualization Manager:
           Value: false
         robot_right_holder_approach:
           Value: false
-        robot_right_holder_ar_tag_base_link:
-          Value: false
-        robot_right_holder_ar_tag_link:
-          Value: false
         robot_right_holder_base_link:
-          Value: false
-        robot_right_holder_bottom_link:
-          Value: false
-        robot_right_holder_left_link:
           Value: false
         robot_right_holder_link:
           Value: false
         robot_right_holder_oriented_link:
-          Value: false
-        robot_right_holder_right_link:
-          Value: false
-        robot_right_holder_top_link:
           Value: false
         robot_vgc10_vacuum_cup_1_link:
           Value: false
@@ -1136,13 +928,13 @@ Visualization Manager:
         robot_vgc10_vgc10_link:
           Value: false
         table_base_link_gt:
-          Value: true
+          Value: false
         table_center_holder_link:
           Value: false
         table_center_holder_oriented_link:
           Value: false
         table_docking:
-          Value: false
+          Value: true
         table_left_holder_link:
           Value: false
         table_left_holder_oriented_link:
@@ -1161,6 +953,12 @@ Visualization Manager:
       Tree:
         robot_map:
           robot_odom:
+            box_grab_qr:
+              {}
+            noisy_box_grab_qr:
+              {}
+            noisy_table_qr:
+              {}
             robot_base_footprint:
               robot_base_link:
                 robot_arm_base_link:
@@ -1210,23 +1008,12 @@ Visualization Manager:
                 robot_base_logo_right:
                   {}
                 robot_center_holder_base_link:
-                  robot_center_holder_bottom_link:
-                    {}
-                  robot_center_holder_left_link:
-                    {}
                   robot_center_holder_link:
-                    robot_center_holder_ar_tag_base_link:
-                      robot_center_holder_ar_tag_link:
-                        {}
                     robot_center_holder_oriented_link:
                       robot_center_grab_link:
                         {}
                       robot_center_holder_approach:
                         {}
-                  robot_center_holder_right_link:
-                    {}
-                  robot_center_holder_top_link:
-                    {}
                 robot_front_laser_base_link:
                   robot_front_laser_link:
                     {}
@@ -1253,46 +1040,24 @@ Visualization Manager:
                 robot_imu_link:
                   {}
                 robot_left_holder_base_link:
-                  robot_left_holder_bottom_link:
-                    {}
-                  robot_left_holder_left_link:
-                    {}
                   robot_left_holder_link:
-                    robot_left_holder_ar_tag_base_link:
-                      robot_left_holder_ar_tag_link:
-                        {}
                     robot_left_holder_oriented_link:
                       robot_left_grab_link:
                         {}
                       robot_left_holder_approach:
                         {}
-                  robot_left_holder_right_link:
-                    {}
-                  robot_left_holder_top_link:
-                    {}
                 robot_rear_laser_base_link:
                   robot_rear_laser_link:
                     {}
                 robot_rear_laser_support_link:
                   {}
                 robot_right_holder_base_link:
-                  robot_right_holder_bottom_link:
-                    {}
-                  robot_right_holder_left_link:
-                    {}
                   robot_right_holder_link:
-                    robot_right_holder_ar_tag_base_link:
-                      robot_right_holder_ar_tag_link:
-                        {}
                     robot_right_holder_oriented_link:
                       robot_right_grab_link:
                         {}
                       robot_right_holder_approach:
                         {}
-                  robot_right_holder_right_link:
-                    {}
-                  robot_right_holder_top_link:
-                    {}
               table_center_holder_link:
                 {}
               table_center_holder_oriented_link:
@@ -1304,6 +1069,9 @@ Visualization Manager:
               table_right_holder_link:
                 {}
               table_right_holder_oriented_link:
+                {}
+            table_qr:
+              table_docking:
                 {}
           table_base_link_gt:
             {}
@@ -1337,25 +1105,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 9.227472305297852
+      Distance: 4.189384460449219
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 1.67873215675354
-        Y: 0.6420018672943115
-        Z: -0.2628324031829834
+        X: 1.5552914142608643
+        Y: 0.06337561458349228
+        Z: 0.8012062907218933
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.4953981637954712
+      Pitch: 0.5653976798057556
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.668586730957031
+      Yaw: 4.656764030456543
     Saved: ~
 Window Geometry:
   Displays:
@@ -1367,7 +1135,7 @@ Window Geometry:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000400000000000001f30000037efc020000000bfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d0000012f000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670100000172000002490000017d00fffffffb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016000000010000010f0000037efc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073010000003d0000037e000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007800000003efc0100000002fb0000000800540069006d0065010000000000000780000002eb00fffffffb0000000800540069006d00650100000000000004500000000000000000000004720000037e00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000400000000000002650000037efc020000000bfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d0000012f000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670100000172000002490000017d00fffffffb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016000000010000010f0000037efc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073010000003d0000037e000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007800000003efc0100000002fb0000000800540069006d0065010000000000000780000002eb00fffffffb0000000800540069006d00650100000000000004500000000000000000000004000000037e00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -1377,5 +1145,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1920
-  X: 3840
+  X: 0
   Y: 0
