@@ -117,6 +117,10 @@ int ComponentSorting::rosSetup()
       new actionlib::SimpleActionServer<component_sorting_msgs::MoveToAction>(pnh_, "move_to", autostart));
   move_to_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this, std::string("move_to")));
   move_to_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
+  move_to_pose_as_.reset(
+      new actionlib::SimpleActionServer<component_sorting_msgs::MoveToPoseAction>(pnh_, "move_to_pose", autostart));
+  move_to_pose_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this, std::string("move_to_pose")));
+  move_to_pose_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
 
   // Connect to moveit's warehouse mongo db database
   conn_ = moveit_warehouse::loadDatabase();
@@ -255,6 +259,8 @@ void ComponentSorting::standbyState()
     RCOMPONENT_INFO_STREAM("Started server: place on");
     move_to_as_->start();
     RCOMPONENT_INFO_STREAM("Started server: move to");
+    move_to_pose_as_->start();
+    RCOMPONENT_INFO_STREAM("Started server: move to pose");
 
     ROS_INFO("Moved to home position, ready to take commands");
 
@@ -270,7 +276,7 @@ void ComponentSorting::standbyState()
 void ComponentSorting::readyState()
 { 
 
-  if (pickup_from_as_->isActive() == false && place_on_as_->isActive() == false && move_to_as_->isActive() == false)
+  if (pickup_from_as_->isActive() == false && place_on_as_->isActive() == false && move_to_as_->isActive() == false && move_to_pose_as_->isActive() == false)
   {
     ROS_INFO_THROTTLE(3, "I do not have a goal");
     return;
@@ -321,13 +327,20 @@ void ComponentSorting::readyState()
     // Call move_to function
     move_to(move_to_position);
   } 
+
+  if(move_to_pose_as_->isActive() == true){ 
+    // Get desired goal and set as target
+    geometry_msgs::PoseStamped pose = move_to_pose_goal_->pose;
+    // Call move_to_pose function
+    move_to_pose(pose);
+  } 
 }
 
 void ComponentSorting::goalCB(const std::string& action)
 {
   RCOMPONENT_INFO_STREAM("I have received an action to: " << action);
   action_ = action;
-  if(pickup_from_as_->isActive() || place_on_as_->isActive() || move_to_as_->isActive()){
+  if(pickup_from_as_->isActive() || place_on_as_->isActive() || move_to_as_->isActive() || move_to_pose_as_->isActive()){
     ROS_INFO("Cannot process %s action, another action is active", action.c_str());
     return;
   }
@@ -342,7 +355,11 @@ void ComponentSorting::goalCB(const std::string& action)
   if (action_ == "move_to"){
     move_to_goal_ = move_to_as_->acceptNewGoal();
     move_to_as_->isPreemptRequested();
-  }     
+  }    
+  if (action_ == "move_to_pose"){
+    move_to_pose_goal_ = move_to_pose_as_->acceptNewGoal();
+    move_to_pose_as_->isPreemptRequested();
+  }   
 }
 
 void ComponentSorting::preemptCB()
@@ -352,8 +369,49 @@ void ComponentSorting::preemptCB()
   pickup_from_as_->setPreempted();
   place_on_as_->setPreempted();
   move_to_as_->setPreempted();
+  move_to_pose_as_->setPreempted();
 }
 
+void ComponentSorting::move_to_pose(geometry_msgs::PoseStamped pose){
+  
+  // Set pre-position goal
+  move_group_->setPoseTarget(pose);
+  // Plan to pre-position goal
+  success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  // If plan is successful execute trajectory
+  if(success_plan){
+    move_to_pose_feedback_.state.clear();
+    move_to_pose_feedback_.state = "Plan to desired position computed";
+    move_to_pose_as_->publishFeedback(move_to_pose_feedback_);
+
+    //Check if goal is active and move to pre-position goal
+    if (!move_to_pose_as_->isActive()) return;
+    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+    //Check if execute is successful
+    if(success_execute){
+      move_to_pose_feedback_.state.clear();
+      move_to_pose_feedback_.state = "Moved end-effector to desired pose";
+      move_to_pose_as_->publishFeedback(move_to_pose_feedback_);
+
+      move_to_pose_result_.success = true;
+      move_to_pose_result_.message = "Move end-effector to desired pose action: SUCCESSFUL";
+      move_to_pose_as_->setSucceeded(move_to_pose_result_);
+      return;
+    }else{
+      move_to_pose_result_.success = false;
+      move_to_pose_result_.message = "Could not move end-effector to desired pose";
+      move_to_pose_as_->setAborted(move_to_pose_result_);
+      return;
+    }
+          
+  }else{
+    move_to_pose_result_.success = false;
+    move_to_pose_result_.message = "Could not plan to desired pose";
+    move_to_pose_as_->setAborted(move_to_pose_result_);
+    return;
+  }
+}
 
 void ComponentSorting::move_to(std::string move_to_position)
 { 

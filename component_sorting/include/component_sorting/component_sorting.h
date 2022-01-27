@@ -24,6 +24,7 @@
 #include <component_sorting_msgs/PlaceOnAction.h>
 #include <component_sorting_msgs/InitHolderAction.h>
 #include <component_sorting_msgs/MoveToAction.h>
+#include <component_sorting_msgs/MoveToPoseAction.h>
 
 #include <string>
 #include <iostream>
@@ -101,10 +102,12 @@ protected:
   actionlib::SimpleActionServer<component_sorting_msgs::PlaceOnAction>::GoalConstPtr place_on_goal_;
   actionlib::SimpleActionServer<component_sorting_msgs::InitHolderAction>::GoalConstPtr init_holder_goal_;
   actionlib::SimpleActionServer<component_sorting_msgs::MoveToAction>::GoalConstPtr move_to_goal_;
+  actionlib::SimpleActionServer<component_sorting_msgs::MoveToPoseAction>::GoalConstPtr move_to_pose_goal_;  
   std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::PickupFromAction>> pickup_from_as_;
   std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::PlaceOnAction>> place_on_as_;
   std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::InitHolderAction>> init_holder_as_;
   std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::MoveToAction>> move_to_as_;
+  std::shared_ptr<actionlib::SimpleActionServer<component_sorting_msgs::MoveToPoseAction>> move_to_pose_as_;
 
   // Action msgs
   component_sorting_msgs::PlaceOnFeedback place_feedback_;
@@ -115,11 +118,14 @@ protected:
   component_sorting_msgs::InitHolderResult init_holder_result_;
   component_sorting_msgs::MoveToFeedback move_to_feedback_;
   component_sorting_msgs::MoveToResult move_to_result_;
+  component_sorting_msgs::MoveToPoseFeedback move_to_pose_feedback_;
+  component_sorting_msgs::MoveToPoseResult move_to_pose_result_;
 
   // Action functions
   void pick_chain_movement(std::string pick_position);
   void place_chain_movement(std::string place_position);
   void move_to(std::string move_to_position);
+  void move_to_pose(geometry_msgs::PoseStamped pose);
   void scan(std::string scanning_position);
 
   std::vector<geometry_msgs::Pose> waypoints;
