@@ -1,13 +1,16 @@
 ## Install application
 
-Download repository and checkout binary_task_planner branch
+Download repository and checkout binary_task_planner branch:
+
 `git clone https://github.com/RobotnikAutomation/hrrecycler_component_sorting -b binary_task_planner --recurse-submodules` 
 
-Install binaries 
+Install binaries:
+
 `cd src/hrrecycler_component_sorting\debs`
 `sudo dpkg -i ros-melodic-*`
 
-Compile repository 
+Compile repository:
+
 `catkin build`
 ## Run application
 
