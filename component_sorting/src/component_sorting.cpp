@@ -373,9 +373,19 @@ void ComponentSorting::preemptCB()
 }
 
 void ComponentSorting::move_to_pose(geometry_msgs::PoseStamped pose){
+  // Check whether goal frame id exists
+  try{
+    transform_stamped = tfBuffer.lookupTransform(robot_link_,pose.header.frame_id,ros::Time::now(),ros::Duration(2.0));
+  }
+  catch(tf2::TransformException ex){
+    move_to_pose_result_.success = false;
+    move_to_pose_result_.message = "Cannot retrieve updated goal frame id";
+    move_to_pose_as_->setAborted(move_to_pose_result_);
+    return;
+  }
   
   // Set pre-position goal
-  move_group_->setPoseTarget(pose);
+  move_group_->setJointValueTarget(pose);
   // Plan to pre-position goal
   success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
   // If plan is successful execute trajectory
