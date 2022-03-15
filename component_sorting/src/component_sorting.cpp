@@ -244,10 +244,11 @@ int ComponentSorting::setup()
 void ComponentSorting::standbyState()
 {
   // Move to home position without selected constraints
-  move_group_->detachObject();  
+  //move_group_->detachObject();  
   move_group_->clearPathConstraints();
-  move_group_->setNamedTarget("home");
-  success_move = (move_group_->move() == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  //move_group_->setNamedTarget("home");
+  //success_move = (move_group_->move() == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  success_move=true;
 
   if(success_move){
     // Select constraint and check whether it exists
@@ -272,7 +273,7 @@ void ComponentSorting::standbyState()
     move_to_pose_as_->start();
     RCOMPONENT_INFO_STREAM("Started server: move to pose");
 
-    ROS_INFO("Moved to home position, ready to take commands");
+    //ROS_INFO("Moved to home position, ready to take commands");
 
     switchToState(robotnik_msgs::State::READY_STATE);
 
@@ -442,11 +443,23 @@ bool ComponentSorting::set_constraint_cb(component_sorting_msgs::SetConstraint::
 void ComponentSorting::move_to_pose(geometry_msgs::PoseStamped pose){
   
   // Set pre-position goal
-  move_group_->setPoseTarget(pose);
+  // Check whether goal frame id exists
+  try{
+    transform_stamped = tfBuffer.lookupTransform(robot_link_,pose.header.frame_id,ros::Time::now(),ros::Duration(2.0));
+  }
+  catch(tf2::TransformException ex){
+    move_to_pose_result_.success = false;
+    move_to_pose_result_.message = "Cannot retrieve updated goal frame id";
+    move_to_pose_as_->setAborted(move_to_pose_result_);
+    return;
+  }
+  
+  // Set pre-position goal
+  bool pose_check = move_group_->setJointValueTarget(pose);
   // Plan to pre-position goal
   success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
   // If plan is successful execute trajectory
-  if(success_plan){
+  if(success_plan && pose_check){
     move_to_pose_feedback_.state.clear();
     move_to_pose_feedback_.state = "Plan to desired position computed";
     move_to_pose_as_->publishFeedback(move_to_pose_feedback_);
@@ -650,8 +663,10 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   current_cartesian_pose = move_group_->getCurrentPose().pose;
 
   objects_in_roi.clear();
-  objects_in_roi = planning_scene_interface_->getKnownObjectNamesInROI(current_cartesian_pose.position.x - box.length/2, current_cartesian_pose.position.y - box.width/2 ,0, current_cartesian_pose.position.x 
-  + box.length/2, current_cartesian_pose.position.y + box.width/2 , 3, false );
+  //objects_in_roi = planning_scene_interface_->getKnownObjectNamesInROI(current_cartesian_pose.position.x - box.length/2, current_cartesian_pose.position.y - box.width/2 ,0, current_cartesian_pose.position.x 
+ // + box.length/2, current_cartesian_pose.position.y + box.width/2 , 3, false );
+
+ objects_in_roi = planning_scene_interface_->getKnownObjectNames();
 
   for(int i=0; i < objects_in_roi.size(); i++){
    if(objects_in_roi[i].compare(0,6,"handle")==0){
@@ -669,9 +684,10 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     return;
   }
 
-  //Allow contact between end effector and handle
+  //Allow contact between end effector and handle and handle safety box
   acm_ = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
   acm_.setEntry(end_effector_link_, identified_handle, true);
+  acm_.setEntry(end_effector_link_, "safety_box_handle", true);
   acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
   planning_scene_msg.is_diff = true;
   planning_scene_interface_->applyPlanningScene(planning_scene_msg);
@@ -792,6 +808,7 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   //Restore collision checking between box to attach and holder
   acm_ = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
   acm_.setEntry(pick_position + "_holder_link", identified_box, false);
+  acm_.setEntry(end_effector_link_, "safety_box_handle", false);
   acm_.setEntry("safety_box_handle", identified_handle, false);
   acm_.setEntry("safety_box_handle", identified_box, false);
   acm_.setEntry("safety_box", identified_handle, false);
