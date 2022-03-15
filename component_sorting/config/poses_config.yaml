@@ -3,6 +3,7 @@ positions_to_use:
   - robot_center
   - robot_right
   - table
+  - detection
 
 
 robot_left:
@@ -51,8 +52,8 @@ robot_right:
     frame_id: robot_right_holder_oriented_link
     pose: [[0.0, 0.0, -0.423],[0.0, 0.0, 0.0]]
   pre_pick_pose:
-    frame_id: robot_right_holder_oriented_link
-    pose: [[0.0, 0.0, -0.70],[0.0, 0.0, 0.0]]
+    frame_id: robot_right_holder_oriented_pose
+    link: [[0.0, 0.0, -0.70],[0.0, 0.0, 0.0]]
   pick_pose:
     frame_id: robot_right_grab_link
     pose: [[0.0, 0.0, -0.148],[0.0, 0.0, 0.0]]
@@ -69,10 +70,16 @@ table:
     pose: [[0.0, 0.0, -0.423],[0.0, 0.0, 0.0]]
   pre_pick_pose:
     frame_id: box_grab_qr
-    pose: [[0.0, 0.0, -0.260],[0.0, 0.0, 0.0]]
+    pose: [[0.0, 0.0, -0.20],[0.0, 0.0, 0.0]]
   pick_pose:
     frame_id: box_grab_qr
     pose: [[0.0, 0.0, -0.148],[0.0, 0.0, 0.0]]
+
+detection:
+  approach_pose:
+    frame_id: robot_base_footprint
+    pose: [[0.379, 0.035, 1.179],[-2.145, 0.0, -1.478]] # xyz, rpy
+
    
 
 

@@ -1,6 +1,6 @@
 #Move_group node parameters 
 group_name: arm
-move_group_timeout: 10 
+move_group_timeout: 500 
 
 #Robot setup
 end_effector_link: robot_vgc10_vgc10_link
@@ -22,9 +22,9 @@ box: #Used to locate boxes in the Region of Interest
 box_handle_displacement: 0.04 #Used to recreate box/handle behaviour during transport in MoveIt
 
 #MoveIt constraint
-moveit_constraint: "elbow_up" #Motion planning constraint to be used
+moveit_constraint: "" #Motion planning constraint to be used
 
-simulation: true 
+simulation: false 
 
 #Gripper IO
 multi_pin: false
@@ -32,5 +32,8 @@ pin_1: 4
 pin_2: 4
 
 #Moveit velocity
-scale_vel: 0.5
+scale_vel: 0.1
+scale_acc: 0.5
 
+#Watchdog of the box detection 
+box_tf_watchdog: 6.0

@@ -12,6 +12,8 @@ objects:
 #  - handle_left
 #  - handle_center 
   - table
+  - table_1
+  - table_2
   - safety_box
   - safety_box_handle
   - box
@@ -38,7 +40,7 @@ safety_box_handle:
   pose: [[0.0,0.0,0.18],[0.0,0.0,0.0]] # xyz, rpy  
 
 table:
-  spawn: true
+  spawn: false
   frame_id: robot_base_footprint
   geometry:
     box:
@@ -48,6 +50,26 @@ table:
     qr:
       height: 0.365
   pose: [[0.865,0.0,0.425],[0.0,0.0,0.0]] # xyz, rpy
+
+table_1:
+  spawn: false
+  frame_id: robot_base_footprint
+  geometry:
+    box:
+      height: 0.85
+      width: 0.63
+      length: 0.63
+  pose: [[0.865,0.0,0.425],[0.0,0.0,0.0]] # xyz, rpy
+
+table_2:
+  spawn: false
+  frame_id: robot_base_footprint
+  geometry:
+    box:
+      height: 0.81
+      width: 0.63
+      length: 0.63
+  pose: [[0.865,0.0,0.405],[0.0,0.0,0.0]] # xyz, rpy
 
 box:
   spawn: false
