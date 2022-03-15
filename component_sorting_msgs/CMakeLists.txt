@@ -19,9 +19,10 @@ find_package(catkin REQUIRED COMPONENTS message_generation ${MSG_DEPS})
 #SomeMessage.msg
 #)
 #
-#set(SRV_FILES
-#SomeService.srv
-#)
+set(SRV_FILES
+SpawnTable.srv
+SetConstraint.srv
+)
 
 set(ACT_FILES
 PickupFrom.action
@@ -33,7 +34,7 @@ MoveToPose.action
 
 add_action_files(DIRECTORY action FILES ${ACT_FILES})
 #add_message_files(DIRECTORY msg FILES ${MSG_FILES})
-#add_service_files(DIRECTORY srv FILES ${SRV_FILES})
+add_service_files(DIRECTORY srv FILES ${SRV_FILES})
 
 generate_messages(DEPENDENCIES ${MSG_DEPS})
 
