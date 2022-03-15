@@ -707,6 +707,7 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   acm_ = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
   acm_.setEntry(end_effector_link_, identified_handle, true);
   acm_.setEntry(end_effector_link_, "safety_box_handle", true);
+  acm_.setEntry(identified_box, identified_handle, true);
   acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
   planning_scene_msg.is_diff = true;
   planning_scene_interface_->applyPlanningScene(planning_scene_msg);
@@ -961,6 +962,7 @@ void ComponentSorting::place_chain_movement(std::string place_position)
   acm_.setEntry("safety_box_handle", identified_box, true);
   acm_.setEntry("safety_box", identified_handle, true);
   acm_.setEntry("safety_box", identified_box, true);
+  acm_.setEntry(identified_box, identified_handle, true);
   acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
   //acm_.print(std::cout);
   planning_scene_msg.is_diff = true;
