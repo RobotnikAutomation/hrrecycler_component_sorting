@@ -604,7 +604,7 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     transform_stamped = tfBuffer.lookupTransform(robot_link_,box_.header.frame_id,ros::Time::now(),ros::Duration(box_tf_watchdog_));
   }
   catch(tf2::TransformException ex){
-    ROS_ERROR("Did not receive updated detected box frame.");
+    ROS_ERROR("Did not receive updated detected box frame. %s -> %s, %s",robot_link_.c_str(), box_.header.frame_id.c_str(),  ex.what());
     pick_result_.success = false;
     pick_result_.message = "Cannot perform pickup_from action, did not receive an updated detected box frame.";
     pickup_from_as_->setAborted(pick_result_);
@@ -621,6 +621,25 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   // Clear octomap
   std_srvs::Empty octomap_msg;
   octomap_client.call(octomap_msg);
+
+  move_group_->setNamedTarget(pick_position);
+
+  // Plan to joint pre-position goal
+  success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  // If plan is successful execute trajectory
+  if(success_plan){
+    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  }  
+
+  if(pick_position == "table"){
+    move_group_->setNamedTarget(pick_position + "_final");
+    // Plan to joint pre-position goal
+    success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+    // If plan is successful execute trajectory
+    if(success_plan){
+      success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+    } 
+  }
 
   // Set pre-pick pose as goal and compute plan
   move_group_->setPoseTarget(pre_pick_pose);
@@ -691,6 +710,8 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
   planning_scene_msg.is_diff = true;
   planning_scene_interface_->applyPlanningScene(planning_scene_msg);
+
+  octomap_client.call(octomap_msg);
 
   // Move to pick pose
   move_group_->setPoseTarget(pick_pose);
@@ -856,6 +877,16 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
 
 void ComponentSorting::place_chain_movement(std::string place_position)
 { 
+  // Select move_parallel constraint
+  move_group_->setPathConstraints("move_parallel");
+  current_constraint = move_group_->getPathConstraints();
+
+  if(current_constraint.name != "move_parallel"){
+    place_result_.success = false;
+    place_result_.message = "Moveit move_parallel constraint not available in database";
+    place_on_as_->setAborted(place_result_);
+  }
+
   // Initialize required poses
     geometry_msgs::PoseStamped pre_place_pose;
     geometry_msgs::PoseStamped place_pose; 
@@ -1022,8 +1053,8 @@ void ComponentSorting::place_chain_movement(std::string place_position)
   };
 
   // Restore selected constraint instead of move_parallel
-  move_group_->setPathConstraints(moveit_constraint);
-
+  //move_group_->setPathConstraints(moveit_constraint);
+  move_group_->clearPathConstraints();
   // Check if goal is active and Plan to target goal
   if (!place_on_as_->isActive()) return;
 
