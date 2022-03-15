@@ -67,7 +67,7 @@
     <link name="${prefix}holder_approach"/>
 
     <joint name="${prefix}grab_joint" type="fixed">
-      <origin rpy="0 0 0" xyz="0 0 -0.236"/>
+      <origin rpy="0 0 0" xyz="0 0 -0.23"/>
       <parent link="${prefix}holder_oriented_link"/>
       <child link="${prefix}grab_link"/>
     </joint>

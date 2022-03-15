@@ -75,8 +75,8 @@
   <xacro:property name="front_rgbd_camera_offset_z" value="0.25062"/>
 
   <xacro:property name="arm_rgbd_camera_offset_x" value="0.0"/>
-  <xacro:property name="arm_rgbd_camera_offset_y" value="-0.0876"/>
-  <xacro:property name="arm_rgbd_camera_offset_z" value="0.0475"/>
+  <xacro:property name="arm_rgbd_camera_offset_y" value="-0.095"/>
+  <xacro:property name="arm_rgbd_camera_offset_z" value="0.075"/>
 
   <xacro:property name="gps_offset_x" value="-0.365"/>
   <xacro:property name="gps_offset_y" value="-0.167"/>
@@ -170,8 +170,16 @@
       <origin xyz="${front_rgbd_camera_offset_x} ${front_rgbd_camera_offset_y} ${front_rgbd_camera_offset_z}" rpy="0 0 0"/>
     </xacro:sensor_intel_d435>
 
-    <xacro:sensor_orbbec_astra_embedded_s prefix="${prefix}arm_rgbd_camera" parent="${prefix}arm_tool0" prefix_topic="arm_rgbd_camera">
+    <joint name="$(arg prefix)small_camera_rotation" type="fixed">
       <origin xyz="${arm_rgbd_camera_offset_x} ${arm_rgbd_camera_offset_y} ${arm_rgbd_camera_offset_z}" rpy="0 ${-PI/2} ${PI/2}"/>
+      <parent link="$(arg prefix)arm_tool0" />
+      <child link="$(arg prefix)rotated_arm_camera" />
+    </joint>
+
+    <link name="$(arg prefix)rotated_arm_camera"/>
+
+    <xacro:sensor_orbbec_astra_embedded_s prefix="${prefix}arm_camera" parent="${prefix}rotated_arm_camera" prefix_topic="arm_rgbd_camera">
+      <origin xyz="0 -0.02 0.01" rpy="0 0 ${2*PI/180}"/>
     </xacro:sensor_orbbec_astra_embedded_s>  
 
     <joint name="$(arg prefix)arm_camera_support" type="fixed">
