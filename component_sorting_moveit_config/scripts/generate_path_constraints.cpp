@@ -89,8 +89,8 @@ int main(int argc, char** argv)
   orientation.link_name = "robot_arm_tool0";
   orientation.orientation.x = 1;
   orientation.orientation.w = 0;
-  orientation.absolute_x_axis_tolerance = 1.57;
-  orientation.absolute_y_axis_tolerance = 1.57;
+  orientation.absolute_x_axis_tolerance = 0.4;
+  orientation.absolute_y_axis_tolerance = 0.4;
   orientation.absolute_z_axis_tolerance = 6.28318531;
   orientation.weight = 100;
   constraints.orientation_constraints.push_back(orientation);
@@ -117,8 +117,8 @@ int main(int argc, char** argv)
   orientation.link_name = "robot_arm_tool0";
   orientation.orientation.x = 1;
   orientation.orientation.w = 0;
-  orientation.absolute_x_axis_tolerance = 1;
-  orientation.absolute_y_axis_tolerance = 1;
+  orientation.absolute_x_axis_tolerance = 1.57;
+  orientation.absolute_y_axis_tolerance = 1.57;
   orientation.absolute_z_axis_tolerance = 6.28318531;
   orientation.weight = 100;
   constraints.orientation_constraints.push_back(orientation);
