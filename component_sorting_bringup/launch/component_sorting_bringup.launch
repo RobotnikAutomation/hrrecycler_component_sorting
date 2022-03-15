@@ -1,11 +1,9 @@
 <?xml version="1.0"?>
 <launch>
   
-  <include file="$(find component_sorting_simple_sim)/launch/simulation.launch"/>
-  <!-- <include file="$(find component_sorting_simple_sim)/launch/table.launch"/> -->
-  <include file="$(find component_sorting_bringup)/launch/navigation/navigation_complete.launch"/>
-  <include file="$(find component_sorting_bringup)/launch/localization/localization_complete.launch"/>
-  <include file="$(find component_sorting_bringup)/launch/perception/perception_complete.launch"/>
-  <node pkg="tf2_ros" type="static_transform_publisher" name="table_docking_publisher" args="0.0, 0.0, -0.2, 1.5708, -1.5708, 0.0, table_qr table_docking"/>
+ <group ns="robot" >
+  <include file="$(find component_sorting_moveit_config)/launch/component_sorting_moveit_config.launch"/>
+  <include file="$(find component_sorting)/launch/component_sorting.launch"/>
+ </group>
 
 </launch>
