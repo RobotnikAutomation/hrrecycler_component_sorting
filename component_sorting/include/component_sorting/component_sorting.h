@@ -25,6 +25,8 @@
 #include <component_sorting_msgs/InitHolderAction.h>
 #include <component_sorting_msgs/MoveToAction.h>
 #include <component_sorting_msgs/MoveToPoseAction.h>
+#include <component_sorting_msgs/SpawnTable.h>
+#include <component_sorting_msgs/SetConstraint.h>
 
 #include <string>
 #include <iostream>
@@ -128,6 +130,11 @@ protected:
   void move_to_pose(geometry_msgs::PoseStamped pose);
   void scan(std::string scanning_position);
 
+  // Services
+  ros::ServiceServer spawn_table;
+  ros::ServiceServer set_constraint;
+  bool set_constraint_cb(component_sorting_msgs::SetConstraint::Request &req, component_sorting_msgs::SetConstraint::Response &res);
+  bool spawn_table_cb(component_sorting_msgs::SpawnTable::Request &req, component_sorting_msgs::SpawnTable::Response &res);
   std::vector<geometry_msgs::Pose> waypoints;
   geometry_msgs::Pose current_cartesian_pose;
   geometry_msgs::Pose waypoint_cartesian_pose;
@@ -135,6 +142,8 @@ protected:
   moveit::planning_interface::MoveGroupInterface::Plan cartesian_plan;
   const double jump_threshold = 0.0;
   const double eef_step = 0.01;
+
+  double box_tf_watchdog_;
 
   double success_cartesian_plan;
   double allowed_fraction_success = 0.80;
@@ -149,6 +158,8 @@ protected:
   std::string end_effector_link_, robot_link_;
 
   double scale_vel_;
+  double scale_acc_;
+
 
   const moveit::core::JointModelGroup* joint_model_group;
   robot_state::RobotStatePtr robot_state_;

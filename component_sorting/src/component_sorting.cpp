@@ -127,6 +127,10 @@ int ComponentSorting::rosSetup()
   move_to_pose_as_->registerGoalCallback(boost::bind(&ComponentSorting::goalCB, this, std::string("move_to_pose")));
   move_to_pose_as_->registerPreemptCallback(boost::bind(&ComponentSorting::preemptCB, this));
 
+  // Service
+  spawn_table = pnh_.advertiseService("spawn_table", &ComponentSorting::spawn_table_cb,this);
+  set_constraint = pnh_.advertiseService("set_constraint", &ComponentSorting::set_constraint_cb,this);
+
   // Connect to moveit's warehouse mongo db database
   conn_ = moveit_warehouse::loadDatabase();
   conn_->setParams(host, port);
@@ -377,6 +381,63 @@ void ComponentSorting::preemptCB()
   move_to_as_->setPreempted();
   move_to_pose_as_->setPreempted();
 }
+
+bool ComponentSorting::spawn_table_cb(component_sorting_msgs::SpawnTable::Request &req, component_sorting_msgs::SpawnTable::Response &res)
+{
+  std::vector<moveit_msgs::CollisionObject> add_collision_objects_;
+  moveit_msgs::CollisionObject table_1 = parsed_objects_.at("table_1").getObject();
+  moveit_msgs::CollisionObject table_2 = parsed_objects_.at("table_2").getObject();
+
+  if (req.table == "table_1"){
+    table_1.operation = table_1.ADD;
+    table_2.operation = table_2.REMOVE;
+  }
+  else if(req.table == "table_2"){
+    table_2.operation = table_2.ADD;
+    table_1.operation = table_1.REMOVE;
+  }
+  else{
+  ROS_ERROR("%s can not be spawned, it is not defined in the YAML", req.table.c_str());
+  res.result = false;
+  return 0;
+  }
+  res.result = true;
+  add_collision_objects_.push_back(table_1);
+  add_collision_objects_.push_back(table_2);
+
+  planning_scene_interface_->applyCollisionObjects(add_collision_objects_);
+
+  return 1;
+}
+
+bool ComponentSorting::set_constraint_cb(component_sorting_msgs::SetConstraint::Request &req, component_sorting_msgs::SetConstraint::Response &res)
+{
+  //Set constraint
+  current_constraint = move_group_->getPathConstraints();
+
+  if(current_constraint.name == "move_parallel")
+  {
+    ROS_ERROR("Move_parallel constraint currently in use, cannot change constraint");
+    res.result = false;
+    return 0;
+  }
+
+  bool check_constraint;
+  if(req.constraint.empty())
+  {
+    move_group_->clearPathConstraints();
+    check_constraint = true;
+  }
+  else
+  {
+    check_constraint = move_group_->setPathConstraints(req.constraint);
+  }
+
+  res.result = check_constraint;
+  return check_constraint;
+}
+
+
 
 void ComponentSorting::move_to_pose(geometry_msgs::PoseStamped pose){
   
