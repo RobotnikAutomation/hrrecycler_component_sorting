@@ -52,7 +52,7 @@ robot_right:
     frame_id: robot_right_holder_oriented_link
     pose: [[0.0, 0.0, -0.423],[0.0, 0.0, 0.0]]
   pre_pick_pose:
-    frame_id: robot_right_holder_oriented_pose
+    frame_id: robot_right_holder_oriented_link
     link: [[0.0, 0.0, -0.70],[0.0, 0.0, 0.0]]
   pick_pose:
     frame_id: robot_right_grab_link
@@ -70,7 +70,7 @@ table:
     pose: [[0.0, 0.0, -0.423],[0.0, 0.0, 0.0]]
   pre_pick_pose:
     frame_id: box_grab_qr
-    pose: [[0.0, 0.0, -0.20],[0.0, 0.0, 0.0]]
+    pose: [[0.0, 0.0, -0.22],[0.0, 0.0, 0.0]]
   pick_pose:
     frame_id: box_grab_qr
     pose: [[0.0, 0.0, -0.148],[0.0, 0.0, 0.0]]
