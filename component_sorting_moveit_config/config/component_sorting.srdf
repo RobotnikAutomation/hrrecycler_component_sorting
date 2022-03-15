@@ -17,19 +17,19 @@
     </group>
     <!--GROUP STATES: Purpose: Define a named state for a particular group, in terms of joint values. This is useful to define states like 'folded arms'-->
     <group_state name="home" group="arm">
-        <joint name="robot_arm_elbow_joint" value="1.9294" />
+        <!--joint name="robot_arm_elbow_joint" value="1.9294" />
         <joint name="robot_arm_shoulder_lift_joint" value="-1.0431" />
         <joint name="robot_arm_shoulder_pan_joint" value="1.2887" />
         <joint name="robot_arm_wrist_1_joint" value="2.052" />
         <joint name="robot_arm_wrist_2_joint" value="-1.2" />
-        <joint name="robot_arm_wrist_3_joint" value="0.0923" />
-        <!--
+        <joint name="robot_arm_wrist_3_joint" value="0.0923" /-->
+      
         <joint name="robot_arm_elbow_joint" value="2.52015" />
         <joint name="robot_arm_shoulder_lift_joint" value="-2.14039" />
         <joint name="robot_arm_shoulder_pan_joint" value="-1.5664" />
         <joint name="robot_arm_wrist_1_joint" value="-1.95002" />
         <joint name="robot_arm_wrist_2_joint" value="-1.56999" />
-        <joint name="robot_arm_wrist_3_joint" value="0" />-->
+        <joint name="robot_arm_wrist_3_joint" value="0" />
     </group_state>
 
     <group_state name="detection_test" group="arm">
@@ -39,6 +39,49 @@
         <joint name="robot_arm_wrist_1_joint" value="2.052" />
         <joint name="robot_arm_wrist_2_joint" value="0.8928" />
         <joint name="robot_arm_wrist_3_joint" value="0.0923" />
+    </group_state>
+
+    <group_state name="table" group="arm">
+        <joint name="robot_arm_elbow_joint" value="1.6" />
+        <joint name="robot_arm_shoulder_lift_joint" value="-2.01" />
+        <joint name="robot_arm_shoulder_pan_joint" value="1.29" />
+        <joint name="robot_arm_wrist_1_joint" value="1.3" />
+        <joint name="robot_arm_wrist_2_joint" value="-1.51" />
+        <joint name="robot_arm_wrist_3_joint" value="-0.015" />
+    </group_state>
+
+    <group_state name="table_final" group="arm">
+        <joint name="robot_arm_elbow_joint" value="1.098" />
+        <joint name="robot_arm_shoulder_lift_joint" value="-1.32" />
+        <joint name="robot_arm_shoulder_pan_joint" value="2.87" />
+        <joint name="robot_arm_wrist_1_joint" value="-1.34" />
+        <joint name="robot_arm_wrist_2_joint" value="-1.56" />
+        <joint name="robot_arm_wrist_3_joint" value="-0.21" />
+    </group_state>
+
+    <group_state name="robot_center" group="arm">
+        <joint name="robot_arm_elbow_joint" value="-1.2758" />
+        <joint name="robot_arm_shoulder_lift_joint" value="-1.19206" />
+        <joint name="robot_arm_shoulder_pan_joint" value="-2.64990" />
+        <joint name="robot_arm_wrist_1_joint" value="-2.24537" />
+        <joint name="robot_arm_wrist_2_joint" value="1.57020" />
+        <joint name="robot_arm_wrist_3_joint" value="0.49100" />
+    </group_state>
+    <group_state name="robot_right" group="arm">
+        <joint name="robot_arm_elbow_joint" value="1.16681" />
+        <joint name="robot_arm_shoulder_lift_joint" value="-1.7717" />
+        <joint name="robot_arm_shoulder_pan_joint" value="0.302801" />
+        <joint name="robot_arm_wrist_1_joint" value="-0.9655" />
+        <joint name="robot_arm_wrist_2_joint" value="-1.57016" />
+        <joint name="robot_arm_wrist_3_joint" value="0.3020" />
+    </group_state>
+    <group_state name="robot_left" group="arm">
+        <joint name="robot_arm_elbow_joint" value="1.167511" />
+        <joint name="robot_arm_shoulder_lift_joint" value="-1.77208" />
+        <joint name="robot_arm_shoulder_pan_joint" value="-1.0551" />
+        <joint name="robot_arm_wrist_1_joint" value="-0.96729" />
+        <joint name="robot_arm_wrist_2_joint" value="-1.57091" />
+        <joint name="robot_arm_wrist_3_joint" value="-1.05480" />
     </group_state>
 
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
