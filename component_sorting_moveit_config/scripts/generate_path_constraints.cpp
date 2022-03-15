@@ -89,8 +89,8 @@ int main(int argc, char** argv)
   orientation.link_name = "robot_arm_tool0";
   orientation.orientation.x = 1;
   orientation.orientation.w = 0;
-  orientation.absolute_x_axis_tolerance = 0.4;
-  orientation.absolute_y_axis_tolerance = 0.4;
+  orientation.absolute_x_axis_tolerance = 1.57;
+  orientation.absolute_y_axis_tolerance = 1.57;
   orientation.absolute_z_axis_tolerance = 6.28318531;
   orientation.weight = 100;
   constraints.orientation_constraints.push_back(orientation);
@@ -100,13 +100,13 @@ int main(int argc, char** argv)
   joint.tolerance_below = 0.20;
   joint.tolerance_above = 3.1415;
   joint.weight = 100;
-  constraints.joint_constraints.push_back(joint);
+//  constraints.joint_constraints.push_back(joint);
   joint.joint_name = "robot_arm_shoulder_lift_joint";
   joint.position = -1.6057;
   joint.tolerance_below = 0.6981; //0.78
   joint.tolerance_above = 0.6981; //0.78
   joint.weight = 100;
-  constraints.joint_constraints.push_back(joint);
+//  constraints.joint_constraints.push_back(joint);
   constraints_storage_->addConstraints(constraints, robot, group);
 
 
@@ -131,8 +131,8 @@ int main(int argc, char** argv)
   constraints.joint_constraints.push_back(joint);
   joint.joint_name = "robot_arm_shoulder_lift_joint";
   joint.position = -1.6057;
-  joint.tolerance_below = 0.6981; //0.78
-  joint.tolerance_above = 0.6981; //0.78
+  joint.tolerance_below = 1.22; //0.78
+  joint.tolerance_above = 0.7; //0.78
   joint.weight = 100;
   constraints.joint_constraints.push_back(joint);
   constraints_storage_->addConstraints(constraints, robot, group);
