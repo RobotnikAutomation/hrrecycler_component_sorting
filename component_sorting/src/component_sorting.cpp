@@ -54,12 +54,17 @@ void ComponentSorting::rosReadParams()
   scale_vel_ = 1;
   readParam(pnh_, "scale_vel", scale_vel_, scale_vel_, required);
 
+  scale_acc_ = 1;
+  readParam(pnh_, "scale_acc", scale_acc_, scale_acc_, required);
+
   end_effector_link_ = "robot_vgc10_vgc10_link";
   readParam(pnh_, "end_effector_link", end_effector_link_, end_effector_link_, required);
 
   robot_link_ = "robot_base_footprint";
   readParam(pnh_, "robot_link", robot_link_, robot_link_, required);
 
+  box_tf_watchdog_ = 5.0;
+  readParam(pnh_, "box_tf_watchdog", box_tf_watchdog_, box_tf_watchdog_, not_required);
 }
 
 int ComponentSorting::rosSetup()
@@ -172,7 +177,8 @@ int ComponentSorting::setup()
   
   // Set move_group's velocity scaling factor 
   move_group_->setMaxVelocityScalingFactor(scale_vel_);
-  
+  move_group_->setMaxAccelerationScalingFactor(scale_acc_);
+
   // Checks if rcompnent has been correctly initialized
   int setup_result;
 
@@ -521,7 +527,7 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
 
   // Check whether frame identified by box visual detection algorithm is updated
   try{
-    transform_stamped = tfBuffer.lookupTransform(robot_link_,box_.header.frame_id,ros::Time::now(),ros::Duration(2.0));
+    transform_stamped = tfBuffer.lookupTransform(robot_link_,box_.header.frame_id,ros::Time::now(),ros::Duration(box_tf_watchdog_));
   }
   catch(tf2::TransformException ex){
     ROS_ERROR("Did not receive updated detected box frame.");
