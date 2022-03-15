@@ -3,7 +3,7 @@
 
   <!-- By default, we are not in debug mode -->
   <arg name="debug" default="false" />
-  <arg name="sim" default="true" />
+  <arg name="sim" default="false" />
   <arg name="pipeline" default="ompl" />
   <arg unless="$(arg sim)" name="arm_joint_topic" value="/robot/arm/joint_states" />
   <arg if="$(arg sim)" name="arm_joint_topic" value="/joint_states" />
