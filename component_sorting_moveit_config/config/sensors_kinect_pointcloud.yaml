@@ -1,6 +1,6 @@
 sensors:
   - sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater
-    point_cloud_topic: /arm_rgbd_camera/depth/points
+    point_cloud_topic: /robot/arm_camera/depth/points
     max_range: 3.0
     point_subsample: 1
     padding_offset: 0.02
