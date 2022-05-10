@@ -102,11 +102,11 @@ int ComponentSorting::rosSetup()
   planning_scene_monitor_.reset(new planning_scene_monitor::PlanningSceneMonitor("robot_description"));      
 
   // Update the planning scene monitor with the current state
-  bool success = planning_scene_monitor_->requestPlanningSceneState("/get_planning_scene");
+  bool success = planning_scene_monitor_->requestPlanningSceneState("get_planning_scene");
   ROS_INFO_STREAM("Request planning scene " << (success ? "succeeded." : "failed."));
 
   // Keep up to date with new changes
-  planning_scene_monitor_->startSceneMonitor("/move_group/monitored_planning_scene");
+  planning_scene_monitor_->startSceneMonitor("move_group/monitored_planning_scene");
 
   // Reset manipulation application action servers
   bool autostart = false;
