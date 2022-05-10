@@ -508,7 +508,7 @@ void ComponentSorting::move_to(std::string move_to_position)
       move_to_result_.success = false;
       move_to_result_.message = "Cannot perform move_to action, please make sure all required poses (approach) are defined for the selected move to position";
       move_to_as_->setAborted(move_to_result_);
-      ROS_ERROR(move_to_result_.message.c_str());
+      ROS_ERROR_STREAM(move_to_result_.message.c_str());
       return;
     } 
 
@@ -521,7 +521,7 @@ void ComponentSorting::move_to(std::string move_to_position)
       move_to_result_.success = false;
       move_to_result_.message = "Position does not exist, it is not defined in poses yaml or srdf.";
       move_to_as_->setAborted(move_to_result_);
-      ROS_ERROR(move_to_result_.message.c_str());
+      ROS_ERROR_STREAM(move_to_result_.message.c_str());
       return;
     }
   }
@@ -576,7 +576,7 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     pick_result_.success = false;
     pick_result_.message = "Cannot perform pickup_from action, please make sure all required poses (pre-pick and pick) are defined for the selected position";
     pickup_from_as_->setAborted(pick_result_);
-    ROS_WARN(pick_result_.message.c_str());
+    ROS_WARN_STREAM(pick_result_.message.c_str());
     return;
   } 
 
@@ -588,7 +588,7 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     pick_result_.success = false;
     pick_result_.message = "Cannot perform pickup_from action, please define box and handle objects in yaml file.";
     pickup_from_as_->setAborted(pick_result_);
-    ROS_WARN(pick_result_.message.c_str());
+    ROS_WARN_STREAM(pick_result_.message.c_str());
     return;
   }     
 
@@ -608,7 +608,7 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     pick_result_.success = false;
     pick_result_.message = "Cannot perform pickup_from action, did not receive an updated detected box frame.";
     pickup_from_as_->setAborted(pick_result_);
-    ROS_WARN(pick_result_.message.c_str());
+    ROS_WARN_STREAM(pick_result_.message.c_str());
     return;
   }
 
@@ -699,7 +699,7 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     pick_result_.success = false;
     pick_result_.message = "There is no moveit collision box and handle to attach.";
     pickup_from_as_->setAborted(pick_result_);
-    ROS_WARN(pick_result_.message.c_str());
+    ROS_WARN_STREAM(pick_result_.message.c_str());
     return;
   }
 
@@ -900,7 +900,7 @@ void ComponentSorting::place_chain_movement(std::string place_position)
     place_result_.success = false;
     place_result_.message = "Cannot perform place_on action, please make sure all required poses (pre-place and place) are defined for the selected place in position";
     place_on_as_->setAborted(place_result_);
-    ROS_WARN(place_result_.message.c_str());
+    ROS_WARN_STREAM(place_result_.message.c_str());
     return;
   } 
 
