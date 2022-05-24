@@ -1,0 +1,95 @@
+objects:
+  - table
+  - box_1
+  - box_2
+  - box_3
+  - box
+  - crate_1
+  - crate_2
+
+box:
+  spawn: true
+  static: false
+  frame_id: robot_map
+  pose: [[1.75,0,0.5],[0,0,0]] # xyz, rpy
+  geometry:
+    box:
+      width: 0.15
+      length: 0.25 
+      height: 0.10
+  layout:
+    x: 1
+    y: 1
+    z: 3    
+
+box_1:
+  spawn: false
+  static: false
+  frame_id: robot_map
+  pose: [[0.0,0,-0.10],[0,0,0]] # xyz, rpy
+  geometry:
+    box:
+      width: 0.15
+      length: 0.25 
+      height: 0.10
+
+box_2:
+  spawn: false
+  static: false
+  frame_id: box_2_grab_qr
+  pose: [[0.0,0,-0.10],[0,0,0]] # xyz, rpy
+  geometry:
+    box:
+      width: 0.15
+      length: 0.25 
+      height: 0.10
+
+box_3:
+  spawn: false
+  static: false
+  frame_id: box_3_grab_qr
+  pose: [[0.0,0,-0.10],[0,0,0]] # xyz, rpy
+  geometry:
+    box:
+      width: 0.15
+      length: 0.25 
+      height: 0.10
+
+
+table:
+  spawn: true
+  static: true
+  frame_id: robot_map # moveit frame id
+  geometry:
+    box:
+      height: 0.50
+      width: 1.5
+      length: 1
+  pose: [[2,0,0.0],[0.0,0.0,0.0]] # xyz, rpy to  
+
+crate_1:
+  spawn: true
+  static: false
+  frame_id: robot_map # moveit frame id
+  geometry:
+    mesh: 
+      path: "package://component_sorting_description/meshes/crate.stl"
+      size:
+        length: 0.62
+        width: 0.42
+        height: 0.16
+  pose: [[1.80,0.35,0.50],[0,0,0]] # xyz, rpy to  moveit's frame_id 
+
+crate_2:
+  spawn: true
+  static: false
+  frame_id: robot_map # moveit frame id
+  geometry:
+    mesh: 
+      path: "package://component_sorting_description/meshes/crate.stl"
+      size:
+        length: 0.62
+        width: 0.42
+        height: 0.16
+  pose: [[1.80,-0.35,0.50],[0,0,0]] # xyz, rpy to  moveit's frame_id 
+  

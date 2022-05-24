@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+    <node name="component_sorting_manipulation_app" pkg="component_sorting_manipulation" type="manipulation_app_node" output="screen" clear_params="true">
+        <rosparam command="load" file="$(find component_sorting_manipulation)/config/objects_config.yaml" />
+        <rosparam command="load" file="$(find component_sorting_manipulation)/config/robot_config.yaml" />
+    </node>
+</launch>
