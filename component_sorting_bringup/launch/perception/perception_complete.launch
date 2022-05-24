@@ -44,7 +44,7 @@
       <param name="filtered_source_frame" type="string" value="$(arg prefix)odom" />
       <param name="filtered_target_frame" type="string" value="" />
       <!-- as now we are getting the position using the laser, we don't need to rotate the transform -->
-      <rosparam param="apply_transform">[0.0, 0.0, 0.0, 3.1416, 0.0, 0.0]</rosparam> 
+      <rosparam param="apply_transform">[0.0, 0.0, 0.0, 0.0, 0.0, 1.5708]</rosparam> 
       <param name="two_d_mode" type="bool" value="false" />
     </node>
     
