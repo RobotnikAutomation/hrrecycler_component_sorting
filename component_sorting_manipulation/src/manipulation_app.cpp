@@ -223,8 +223,8 @@ void ManipulationApp::readyState()
 
   if(thread_active_flag_ == true && action_finished_flag_ == true)
   {
-/*     place_object_thread_.join(); */
-/*     pick_object_thread_.join(); */
+    place_object_thread_.join();
+    pick_object_thread_.join(); 
     thread_active_flag_ = false;
     action_finished_flag_ = false;
   }
@@ -262,7 +262,15 @@ void ManipulationApp::placeObject(const std::string& object, const std::string& 
   rel_pose.orientation.y = 0.707;
 
   // Move relative to crate
-  scene_manager_->moveRelativeTo(surface, rel_pose);
+  if(!scene_manager_->moveRelativeTo(surface, rel_pose))
+  {
+    place_object_result_.success = false;
+    place_object_result_.message = "Cannot move to object's place pre-position";
+    if (!place_object_as_->isActive()) return;
+    place_object_as_->setAborted(place_object_result_);
+    thread_active_flag_ = false;
+    return;
+  }
 
   if (!place_object_as_->isActive()) return;
 
@@ -294,7 +302,15 @@ void ManipulationApp::placeObject(const std::string& object, const std::string& 
   ros::Duration(1).sleep();
 
   // Move relative to crate
-  scene_manager_->moveRelativeTo(surface, rel_pose);
+  if(!scene_manager_->moveRelativeTo(surface, rel_pose))
+  {
+    place_object_result_.success = false;
+    place_object_result_.message = "Cannot move back to object's place pre-position";
+    if (!place_object_as_->isActive()) return;
+    place_object_as_->setAborted(place_object_result_);
+    thread_active_flag_ = false;
+    return;
+  }
   
   if (!place_object_as_->isActive()) return;
 
@@ -334,6 +350,7 @@ void ManipulationApp::pickObject(const std::string& object)
       pick_object_result_.success = false;
       pick_object_result_.message = "Could not move to table look position";
       pick_object_as_->setAborted(pick_object_result_);
+      thread_active_flag_ = false;
       return;
     }  
   }else{
@@ -341,6 +358,7 @@ void ManipulationApp::pickObject(const std::string& object)
     pick_object_result_.success = false;
     pick_object_result_.message = "Could not plan to table look position";
     pick_object_as_->setAborted(pick_object_result_);
+    thread_active_flag_ = false;
     return;
   } 
 
@@ -356,7 +374,15 @@ void ManipulationApp::pickObject(const std::string& object)
   rel_pose.orientation.y = 0.707;
 
   // Move relative to crate
-  scene_manager_->moveRelativeTo(object, rel_pose);
+  if(!scene_manager_->moveRelativeTo(object, rel_pose))
+  {
+    pick_object_result_.success = false;
+    pick_object_result_.message = "Cannot move to object's pick pre-position";
+    if (!pick_object_as_->isActive()) return;
+    pick_object_as_->setAborted(pick_object_result_);
+    thread_active_flag_ = false;
+    return;
+  }
 
   if (!pick_object_as_->isActive()) return;
 
@@ -364,7 +390,15 @@ void ManipulationApp::pickObject(const std::string& object)
   rel_pose.position.z = 0.2;
 
   // Move relative to crate
-  scene_manager_->moveRelativeTo(object, rel_pose);
+  if(!scene_manager_->moveRelativeTo(object, rel_pose))
+  {
+    pick_object_result_.success = false;
+    pick_object_result_.message = "Cannot move to object's pick position";
+    if (!pick_object_as_->isActive()) return;
+    pick_object_as_->setAborted(pick_object_result_);
+    thread_active_flag_ = false;
+    return;
+  }
 
   if (!pick_object_as_->isActive()) return;
 
@@ -398,7 +432,16 @@ void ManipulationApp::pickObject(const std::string& object)
   rel_pose.position.z = 0.4;
 
   // Move relative to crate
-  scene_manager_->moveRelativeTo(object, rel_pose);
+  if(!scene_manager_->moveRelativeTo(object, rel_pose))
+  {
+    pick_object_result_.success = false;
+    pick_object_result_.message = "Cannot move back to object's pick pre-position";
+    if (!pick_object_as_->isActive()) return;
+    pick_object_as_->setAborted(pick_object_result_);
+    thread_active_flag_ = false;
+    return;
+  }
+
   if (!pick_object_as_->isActive()) return;
 
   // Restore collision

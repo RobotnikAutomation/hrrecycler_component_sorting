@@ -25,7 +25,7 @@ box:
 box_1:
   spawn: false
   static: false
-  frame_id: robot_map
+  frame_id: box_1_grab_qr
   pose: [[0.0,0,-0.10],[0,0,0]] # xyz, rpy
   geometry:
     box:
