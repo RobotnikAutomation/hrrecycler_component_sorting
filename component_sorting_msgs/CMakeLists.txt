@@ -6,29 +6,13 @@ set(MSG_DEPS
   actionlib_msgs
   geometry_msgs
 )
-#  sensor_msgs
-#  geometry_msgs
-#  trajectory_msgs
-#  shape_msgs
-#  object_recognition_msgs
-#  octomap_msgs)
 
 find_package(catkin REQUIRED COMPONENTS message_generation ${MSG_DEPS})
 
-#set(MSG_FILES
-#SomeMessage.msg
-#)
-#
-#set(SRV_FILES
-#SomeService.srv
-#)
 
 set(ACT_FILES
-PickupFrom.action
-PlaceOn.action
-InitHolder.action
-MoveTo.action
-MoveToPose.action
+PickObject.action
+PlaceObject.action
 )
 
 add_action_files(DIRECTORY action FILES ${ACT_FILES})
