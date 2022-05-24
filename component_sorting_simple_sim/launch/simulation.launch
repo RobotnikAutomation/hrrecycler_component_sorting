@@ -26,7 +26,7 @@
     
   <!-- Launch gazebo -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-      <arg name="world_name" value="$(find gazebo_ros_link_attacher)/worlds/test_attacher.world"/>
+      <arg name="world_name" value="$(find component_sorting_simple_sim)/world/ros_dev.world"/>
       <arg name="debug" value="$(arg debug)" />
       <arg name="paused" value="$(arg paused)" />
       <arg name="headless" value="$(arg headless)"/>
@@ -37,8 +37,6 @@
     <arg name="ros_planar_move_plugin" value="$(arg ros_planar_move_plugin)"/>
   </include>
 
-  <!-- Spawn table into gazebo -->
-  <include file="$(find component_sorting_simple_sim)/launch/table.launch"/>
 
   <!-- Spawn robot model into gazebo -->
   <node name="urdf_spawner_robot_model" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<package>
+<package format="2">
   <name>component_sorting_simple_sim</name>
-  <version>0.0.0</version>
+  <version>0.1.0</version>
   <description>The component_sorting_simple_sim package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
@@ -41,10 +41,24 @@
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
 
+  <exec_depend>gazebo_ros</exec_depend>
+
+  <test_depend>roslaunch</test_depend>
+
+  <depend>roscpp</depend>
+  <depend>gazebo_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>tf</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
-    <!-- Other tools can request additional information be placed here -->
-
+    <architecture_independent/>
+    <!-- gazebo_ros_paths_plugin automatically adds these to
+    GAZEBO_PLUGIN_PATH and GAZEBO_MODEL_PATH when you do this export inside
+    the package.xml file. You can than use URIs of type model://my_package/stuff. -->
+    <gazebo_ros                                                                 
+        gazebo_plugin_path="${prefix}/lib"
+        gazebo_model_path="${prefix}/.."
+        gazebo_media_path="${prefix}" /> 
   </export>
 </package>

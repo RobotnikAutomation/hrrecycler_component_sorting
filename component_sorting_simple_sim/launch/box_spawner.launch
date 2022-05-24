@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- Convert box xacro and put on parameter server -->
+    <arg name="box_urdf_file" default="$(find xacro)/xacro '$(find component_sorting_description)/urdf/package.urdf.xacro'  
+    prefix:=box_ tag_id:=marker7_6cm --inorder" />
+    <param name="box_description" command="$(arg box_urdf_file)" />
+
+
+    <!-- Launch box spawner node -->
+    <node name="box_spawner_node" pkg="component_sorting_simple_sim" type="box_spawner_node" output="screen" clear_params="true">
+        <rosparam command="load" file="$(find component_sorting_description)/config/layout.yaml" />
+    </node>
+
+</launch>
