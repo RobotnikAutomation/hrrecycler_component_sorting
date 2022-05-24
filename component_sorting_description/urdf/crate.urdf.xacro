@@ -1,0 +1,68 @@
+<?xml version="1.0" ?>
+<robot name="crate" xmlns:xacro="http://wiki.ros.org/xacro">
+
+  <xacro:include filename="$(find component_sorting_description)/urdf/inertia.urdf.xacro" />
+  <xacro:property name="PI" value="3.1415926535897931"/>
+
+
+  <!-- Crate config-->
+  <xacro:arg name="prefix" default="crate_"/>
+  <xacro:property name="prefix" value="$(arg prefix)" />
+
+ 
+  <link name="${prefix}base_link">
+    <inertial>
+      <mass value="10" />
+      <origin xyz="0 0 ${0.14/2}" rpy="0 0 0" />
+      <solid_cuboid_inertia m="10" h="${0.40}" d="${0.14}" w="${0.60}"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 ${0.14/2}" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://component_sorting_description/meshes/crate.stl"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${0.14/2}"/>
+      <geometry>
+        <mesh filename="package://component_sorting_description/meshes/crate.stl"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <gazebo>
+    <static>false</static>
+    <allow_auto_disable>true</allow_auto_disable>
+  </gazebo>
+
+  <gazebo reference="${prefix}base_link">
+    <material>Gazebo/Blue</material>
+    <collision>
+      <max_contacts>5</max_contacts>
+      <surface>
+          <friction>
+              <ode>
+              <mu>100</mu>
+              <mu2>50</mu2>
+              </ode>
+          </friction>
+          <contact>
+              <collide_without_contact>0</collide_without_contact>
+              <collide_without_contact_bitmask>1</collide_without_contact_bitmask>
+              <collide_bitmask>1</collide_bitmask>
+              <ode>
+                  <soft_cfm>0</soft_cfm>
+                  <soft_erp>0.2</soft_erp>
+                  <kp>1e+13</kp>
+                  <kd>1</kd>
+                  <max_vel>0.00</max_vel>
+                  <min_depth>0.001</min_depth>
+              </ode>
+          </contact>
+      </surface>
+    </collision>
+  </gazebo>
+
+
+
+</robot>

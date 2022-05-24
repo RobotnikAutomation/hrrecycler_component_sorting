@@ -15,52 +15,10 @@
     <xacro:property name="PI" value="3.1415926535897931"/>
 
     <xacro:include filename="$(find component_sorting_description)/robots/rbkairos_ur5_plus.urdf.xacro" />
-    <!-- <xacro:include filename="$(find rbkairos_description)/robots/versions/rbkairos_ur5_vgc10.urdf.xacro" /> -->
 
-    <!-- Import  component sortting application parameters  -->
-    <xacro:property name="objects_config_yaml_file" value="$(find component_sorting)/config/objects_config.yaml" />
-    <xacro:property name="objects_config" value="${load_yaml(objects_config_yaml_file)}"/>  
-
-    <xacro:arg name="table_length" default="0.63"/>
-    <xacro:property name="table_length" value="${objects_config['table']['geometry']['box']['length']}" />
-
-    <xacro:arg name="table_width" default="0.63"/>
-    <xacro:property name="table_width" value="${objects_config['table']['geometry']['box']['width']}" />
-
-    <xacro:arg name="table_height" default="0.75"/>
-    <xacro:property name="table_height" value="${objects_config['table']['geometry']['box']['height']}" />
-
-
-    <!-- Import  holder  -->
-	  <xacro:include filename="$(find component_sorting_description)/urdf/box/holder.urdf.xacro" />
-   
   
     <xacro:include filename="$(find component_sorting_description)/urdf/inertia.urdf.xacro" />
 
-    <!-- Holder parameters -->
-    <xacro:property name="center_holder_offset_x" value="-0.2025"/>
-    <xacro:property name="center_holder_offset_y" value="0.0"/>
-    <xacro:property name="center_holder_offset_z" value="0.564"/> 
-
-    <xacro:property name="left_holder_offset_x" value="-0.2025"/> <!-- -0.195 -->
-    <xacro:property name="left_holder_offset_y" value="0.228"/> <!-- 0.225 -->
-    <xacro:property name="left_holder_offset_z" value="0.564"/>
-
-    <xacro:property name="right_holder_offset_x" value="-0.2025"/>
-    <xacro:property name="right_holder_offset_y" value="-0.228"/>
-    <xacro:property name="right_holder_offset_z" value="0.564"/>
-
-    <xacro:property name="center_table_holder_offset_x" value="0.71"/>
-    <xacro:property name="center_table_holder_offset_y" value="0.0"/>
-    <xacro:property name="center_table_holder_offset_z" value="${table_height}"/> 
-
-    <xacro:property name="left_table_holder_offset_x" value="0.71"/>
-    <xacro:property name="left_table_holder_offset_y" value="0.228"/>
-    <xacro:property name="left_table_holder_offset_z" value="${table_height}"/>
-
-    <xacro:property name="right_table_holder_offset_x" value="0.71"/>
-    <xacro:property name="right_table_holder_offset_y" value="-0.228"/>
-    <xacro:property name="right_table_holder_offset_z" value="${table_height}"/>
   
     <xacro:arg name="ros_planar_move_plugin" default="false"/>
 
@@ -69,77 +27,8 @@
     <xacro:if value="$(arg ros_planar_move_plugin)">
       <xacro:omni_steering prefix="$(arg prefix)" publish_tf="true"/>
     </xacro:if>
-
-    <!-- ROBOT HOLDERS -->
-     <xacro:holder prefix="${prefix}center_" parent="${prefix}base_link" tag_id="marker5_12cm">
-        <origin xyz="${center_holder_offset_x} ${center_holder_offset_y} ${center_holder_offset_z}" rpy="0 0 3.14159"/>
-    </xacro:holder>
-
-    <xacro:holder prefix="${prefix}left_" parent="${prefix}base_link" tag_id="marker6_12cm">
-        <origin xyz="${left_holder_offset_x} ${left_holder_offset_y} ${left_holder_offset_z}" rpy="0 0 3.14159"/>
-    </xacro:holder>
-
-    <xacro:holder prefix="${prefix}right_" parent="${prefix}base_link" tag_id="marker4_12cm" >
-        <origin xyz="${right_holder_offset_x} ${right_holder_offset_y} ${right_holder_offset_z}" rpy="0 0 3.14159"/>
-    </xacro:holder> 
-
-    <!--TABLE HOLDER STATIC POSITIONS -->
-
-    <joint name="table_center_holder_joint" type="fixed">
-      <origin rpy="0 0 0" xyz="${center_table_holder_offset_x} ${center_table_holder_offset_y} ${center_table_holder_offset_z}"/>
-      <parent link="${prefix}base_footprint"/>
-      <child link="table_center_holder_link"/>
-    </joint>
-
-    <link name="table_center_holder_link">
-    </link>
-
-    <joint name="table_right_holder_joint" type="fixed">
-      <origin rpy="0 0 0" xyz="${right_table_holder_offset_x} ${right_table_holder_offset_y} ${right_table_holder_offset_z}"/>
-      <parent link="${prefix}base_footprint"/>
-      <child link="table_right_holder_link"/>
-    </joint>
-
-    <link name="table_right_holder_link">
-    </link>
-
-    <joint name="table_left_holder_joint" type="fixed">
-      <origin rpy="0 0 0" xyz="${left_table_holder_offset_x} ${left_table_holder_offset_y} ${left_table_holder_offset_z}"/>
-      <parent link="${prefix}base_footprint"/>
-      <child link="table_left_holder_link"/>
-    </joint>
-
-    <link name="table_left_holder_link">
-    </link>
-
-    <!--TABLE HOLDER ORIENTED STATIC POSITIONS -->
     
-    <joint name="table_center_holder_oriented_joint" type="fixed">
-      <origin rpy="${-3.14159} 0 ${-3.14159/2}" xyz="${center_table_holder_offset_x} ${center_table_holder_offset_y} ${center_table_holder_offset_z}"/>
-      <parent link="${prefix}base_footprint"/>
-      <child link="table_center_holder_oriented_link"/>
-    </joint>
 
-    <link name="table_center_holder_oriented_link">
-    </link>
 
-    <joint name="table_right_holder_oriented_joint" type="fixed">
-      <origin rpy="${-3.14159} 0 ${-3.14159/2}" xyz="${right_table_holder_offset_x} ${right_table_holder_offset_y} ${right_table_holder_offset_z}"/>
-      <parent link="${prefix}base_footprint"/>
-      <child link="table_right_holder_oriented_link"/>
-    </joint>
-
-    <link name="table_right_holder_oriented_link">
-    </link>
-
-    <joint name="table_left_holder_oriented_joint" type="fixed">
-      <origin rpy="${-3.14159} 0 ${-3.14159/2}" xyz="${left_table_holder_offset_x} ${left_table_holder_offset_y} ${left_table_holder_offset_z}"/>
-      <parent link="${prefix}base_footprint"/>
-      <child link="table_left_holder_oriented_link"/>
-    </joint>
-
-    <link name="table_left_holder_oriented_link">
-    </link>
-    
 
 </robot>

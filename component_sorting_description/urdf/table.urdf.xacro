@@ -10,11 +10,8 @@
   <xacro:property name="prefix" value="$(arg prefix)" />
   
 
-  <xacro:property name="objects_config_yaml_file" value="$(find component_sorting)/config/objects_config.yaml" />
+  <xacro:property name="objects_config_yaml_file" value="$(find component_sorting_description)/config/layout.yaml" />
   <xacro:property name="objects_config" value="${load_yaml(objects_config_yaml_file)}"/>
-
-  <xacro:property name="component_sorting_yaml_file" value="$(find component_sorting)/config/component_sorting.yaml" />
-  <xacro:property name="component_sorting" value="${load_yaml(component_sorting_yaml_file)}"/>
 
   <xacro:arg name="table_length" default="0.63"/>
   <xacro:property name="table_length" value="${objects_config['table']['geometry']['box']['length']}" />
@@ -24,12 +21,6 @@
 
   <xacro:arg name="table_height" default="0.75"/>
   <xacro:property name="table_height" value="${objects_config['table']['geometry']['box']['height']}" />
-
-  <xacro:arg name="holder_width" default="0.228"/>
-  <xacro:property name="holder_width" value="${component_sorting['holder']['width']}" />
-
-  <xacro:arg name="holder_length" default="0.30"/>
-  <xacro:property name="holder_length" value="${component_sorting['holder']['length']}" />
 
   <xacro:arg name="qr_height" default="0.375"/>
   <xacro:property name="qr_height" value="${objects_config['table']['geometry']['qr']['height']}" />
@@ -106,20 +97,6 @@
   <xacro:property name="right_holder_offset_x" value="${(holder_length-table_length)/2}"/>
   <xacro:property name="right_holder_offset_y" value="${-holder_width}"/>
   <xacro:property name="right_holder_offset_z" value="${table_height}"/>
-
-
-    <!-- HOLDERS -->
-<!--   <xacro:holder prefix="${prefix}center_" parent="${prefix}base_link" tag_id="marker2_12cm" >
-      <origin xyz="${center_holder_offset_x} ${center_holder_offset_y} ${center_holder_offset_z}" rpy="0 0 0"/>
-  </xacro:holder>
-
-  <xacro:holder prefix="${prefix}left_" parent="${prefix}base_link" tag_id="marker3_12cm" >
-      <origin xyz="${left_holder_offset_x} ${left_holder_offset_y} ${left_holder_offset_z}" rpy="0 0 0"/>
-  </xacro:holder>
-
-  <xacro:holder prefix="${prefix}right_" parent="${prefix}base_link" tag_id="marker1_12cm" >
-      <origin xyz="${right_holder_offset_x} ${right_holder_offset_y} ${right_holder_offset_z}" rpy="0 0 0"/>
-  </xacro:holder> -->
 
   <gazebo reference="${prefix}base_link">
     <material>Gazebo/White</material>
