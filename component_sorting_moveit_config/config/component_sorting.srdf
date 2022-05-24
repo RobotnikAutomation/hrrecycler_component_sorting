@@ -24,6 +24,22 @@
         <joint name="robot_arm_wrist_2_joint" value="-1.56999" />
         <joint name="robot_arm_wrist_3_joint" value="0" />
     </group_state>
+<!--     <group_state name="table_look" group="arm">
+        <joint name="robot_arm_elbow_joint" value="-1.946154" />
+        <joint name="robot_arm_shoulder_lift_joint" value="-1.22056" />
+        <joint name="robot_arm_shoulder_pan_joint" value="0.23255" />
+        <joint name="robot_arm_wrist_1_joint" value="-1.320327" />
+        <joint name="robot_arm_wrist_2_joint" value="1.51697" />
+        <joint name="robot_arm_wrist_3_joint" value="0.231054" />
+    </group_state> -->
+    <group_state name="table_look" group="arm">
+        <joint name="robot_arm_elbow_joint" value="-1.56037" />
+        <joint name="robot_arm_shoulder_lift_joint" value="-1.19527" />
+        <joint name="robot_arm_shoulder_pan_joint" value="0.26031" />
+        <joint name="robot_arm_wrist_1_joint" value="-1.73306" />
+        <joint name="robot_arm_wrist_2_joint" value="1.5108659" />
+        <joint name="robot_arm_wrist_3_joint" value="0.258066" />
+    </group_state>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="gripper_eef" parent_link="robot_arm_tool0" group="gripper" parent_group="arm" />
     <!--VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference (considered fixed with respect to the robot)-->
