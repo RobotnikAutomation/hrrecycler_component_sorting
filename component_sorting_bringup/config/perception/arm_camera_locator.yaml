@@ -18,46 +18,22 @@ marker_size: 0.12
 markers:
 
   - id_type: single
-    id: 7
-    exact_name: box_grab_qr
+    id: 9
+    exact_name: box_1_grab_qr
     size: 0.06
     filter_tag: noisy_
 
+  - id_type: single
+    id: 8
+    exact_name: box_2_grab_qr
+    size: 0.06
+    filter_tag: noisy_    
   
   - id_type: single
-    id: 1
-    exact_name: table_right_holder_qr
-    size: 0.12
-    filter_tag: noisy_
+    id: 7
+    exact_name: box_3_grab_qr
+    size: 0.06
+    filter_tag: noisy_    
   
-  - id_type: single
-    id: 2
-    exact_name: table_center_holder_qr
-    size: 0.12
-    filter_tag: noisy_
-  
-  - id_type: single
-    id: 3
-    exact_name: table_left_holder_qr
-    size: 0.12
-    filter_tag: noisy_
-  
-  - id_type: single
-    id: 4
-    exact_name: robot_right_holder_qr
-    size: 0.12
-    filter_tag: noisy_
-  
-  - id_type: single
-    id: 5
-    exact_name: robot_center_holder_qr
-    size: 0.12
-    filter_tag: noisy_
-
-  - id_type: single
-    id: 6
-    exact_name: robot_left_holder_qr
-    size: 0.12
-    filter_tag: noisy_
 
 
