@@ -43,9 +43,3 @@
 [submodule "sim/gazebo_ros_pkgs"]
 	path = sim/gazebo_ros_pkgs
 	url = https://github.com/RobotnikAutomation/gazebo_ros_pkgs
-[submodule "manipulation/scene_manager"]
-	path = manipulation/scene_manager
-	url = git@github.com:RobotnikAutomation/scene_manager.git
-[submodule "manipulation/scene_manager_msgs"]
-	path = manipulation/scene_manager_msgs
-	url = git@github.com:RobotnikAutomation/scene_manager_msgs.git
