@@ -21,8 +21,26 @@ hardware_interface:
 joint_state_controller:
   type: joint_state_controller/JointStateController
   publish_rate: 50
+#controller_list:
+#  - name: arm/pos_traj_controller
+#    action_ns: follow_joint_trajectory
+#    default: True
+#    type: FollowJointTrajectory
+#    joints:
+#      - robot_arm_shoulder_pan_joint
+#      - robot_arm_shoulder_lift_joint
+#      - robot_arm_elbow_joint
+#      - robot_arm_wrist_1_joint
+#      - robot_arm_wrist_2_joint
+#      - robot_arm_wrist_3_joint
+#  - name: gripper_controller
+#    action_ns: follow_joint_trajectory
+#    default: True
+#    type: FollowJointTrajectory
+#    joints:
+#      []
 controller_list:
-  - name: arm/pos_traj_controller
+  - name: arm/scaled_pos_traj_controller
     action_ns: follow_joint_trajectory
     default: True
     type: FollowJointTrajectory
@@ -33,9 +51,4 @@ controller_list:
       - robot_arm_wrist_1_joint
       - robot_arm_wrist_2_joint
       - robot_arm_wrist_3_joint
-#  - name: gripper_controller
-#    action_ns: follow_joint_trajectory
-#    default: True
-#    type: FollowJointTrajectory
-#    joints:
-#      []
+
