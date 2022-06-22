@@ -273,6 +273,8 @@ void ComponentSorting::standbyState()
     move_to_pose_as_->start();
     RCOMPONENT_INFO_STREAM("Started server: move to pose");
 
+    // Start the state monitor
+    move_group_->startStateMonitor();
     //ROS_INFO("Moved to home position, ready to take commands");
 
     switchToState(robotnik_msgs::State::READY_STATE);
@@ -653,8 +655,8 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   // Fill in collision object frame id
   object_.header.frame_id = pick_pose.header.frame_id;
 
-  ROS_INFO_STREAM("OBJECT POSE: " << object_.primitive_poses[0]);
-  ROS_INFO_STREAM("OBJECT FRAME: " << object_.header.frame_id);
+  //ROS_INFO_STREAM("OBJECT POSE: " << object_.primitive_poses[0]);
+  //ROS_INFO_STREAM("OBJECT FRAME: " << object_.header.frame_id);
 
   // Check whether frame identified by box visual detection algorithm is updated
   try{
@@ -748,6 +750,10 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     return;
   }
 
+  // Store pre-position goal
+  geometry_msgs::PoseStamped stored_pre_pick_pose_= move_group_->getCurrentPose();
+  //ROS_ERROR_STREAM("End effector pose: " << stored_pre_pick_pose_);
+  
   // Check if goal is active 
   if (!pickup_from_as_->isActive()) return;
   
@@ -802,7 +808,7 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   acm_.setEntry(end_effector_link_, "safety_box_handle", true);
   acm_.setEntry(identified_box, identified_handle, true);
   acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
-  ROS_WARN_STREAM("planning_scene: " << planning_scene_msg);
+  //ROS_WARN_STREAM("planning_scene: " << planning_scene_msg);
   planning_scene_msg.is_diff = true;  
   planning_scene_interface_->applyPlanningScene(planning_scene_msg);
   ROS_INFO_STREAM("Apply planning scene");
@@ -937,9 +943,10 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
 
 
   // Move back to pre-pick pose
-  move_group_->setPoseReferenceFrame(pre_pick_pose.header.frame_id);
+  move_group_->setPoseReferenceFrame(stored_pre_pick_pose_.header.frame_id);
   waypoints.clear();
-  waypoint_cartesian_pose = pre_pick_pose.pose;
+  waypoint_cartesian_pose = stored_pre_pick_pose_.pose;
+  //ROS_INFO_STREAM("STORED PRE PICK POSE: " << stored_pre_pick_pose_);
   waypoints.push_back(waypoint_cartesian_pose);  
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
