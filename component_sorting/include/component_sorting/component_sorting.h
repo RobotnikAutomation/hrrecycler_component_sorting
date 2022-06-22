@@ -76,8 +76,8 @@ protected:
 
   // MoveIt stuff
   bool create_planning_scene();
-  void gripper_on();
-  void gripper_off();
+  void gripper_on(const std::vector<int>& pins);
+  void gripper_off(const std::vector<int>& pins);
 
   std::string group_name_;
   ros::WallDuration move_group_timeout_;
@@ -96,7 +96,7 @@ protected:
   std::vector<moveit_msgs::CollisionObject> moveit_objects; // CHANGE
   map<std::string, Object_Builder> parsed_objects_;
 
-  moveit_msgs::CollisionObject box_, handle_;
+  moveit_msgs::CollisionObject box_, handle_, object_;
 
   // Action servers
   std::string action_;
@@ -146,7 +146,7 @@ protected:
   double box_tf_watchdog_;
 
   double success_cartesian_plan;
-  double allowed_fraction_success = 0.80;
+  double allowed_fraction_success = 0.0;
   bool success_plan;
   bool success_move;
   bool success_execute;

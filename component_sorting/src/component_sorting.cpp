@@ -457,7 +457,12 @@ void ComponentSorting::move_to_pose(geometry_msgs::PoseStamped pose){
   // Set pre-position goal
   bool pose_check = move_group_->setJointValueTarget(pose);
   // Plan to pre-position goal
+  for (int i = 0; i < 5; i++)
+  { 
+	  ROS_INFO("Try to plan %d", i);
   success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  if (success_plan == true) break;
+  }
   // If plan is successful execute trajectory
   if(success_plan && pose_check){
     move_to_pose_feedback_.state.clear();
@@ -527,7 +532,12 @@ void ComponentSorting::move_to(std::string move_to_position)
   }
 
   // Plan to pre-position goal
+  for (int i = 0; i < 5; i++)
+  { 
+	  ROS_INFO("Try to plan %d", i);
   success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  if (success_plan == true) break;
+  }
   // If plan is successful execute trajectory
   if(success_plan){
     move_to_feedback_.state.clear();
@@ -567,6 +577,10 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
 {  
   // Initialize poses required to perform pickup from action
   geometry_msgs::PoseStamped pre_pick_pose, pick_pose;
+  
+  // Initialize vector of collision objects
+  std::vector<moveit_msgs::CollisionObject> add_collision_objects_;
+
 
   // Extract required poses from available lists
   try{
@@ -580,31 +594,74 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     return;
   } 
 
-  // Process box and handle collision objects
-  try{
-    box_ = parsed_objects_.at("box").getObject();
-    handle_ = parsed_objects_.at("handle").getObject();
-  }catch (const std::out_of_range& e){
-    pick_result_.success = false;
-    pick_result_.message = "Cannot perform pickup_from action, please define box and handle objects in yaml file.";
-    pickup_from_as_->setAborted(pick_result_);
-    ROS_WARN(pick_result_.message.c_str());
-    return;
-  }     
+  if(pick_position == "psu")
+  {
+   // Process psu collision object
+   try{
+      object_ = parsed_objects_.at("psu").getObject();
+    }
+    catch (const std::out_of_range& e){
+      pick_result_.success = false;
+      pick_result_.message = "Cannot perform pickup_from action, please define psu object in yaml file.";
+      pickup_from_as_->setAborted(pick_result_);
+      ROS_WARN(pick_result_.message.c_str());
+      return;
+    }    
+  }
 
-  box_.operation = box_.ADD;
-  handle_.operation = handle_.ADD;
+  else if(pick_position == "cooler")
+  {
+    // Process cooler collision object
+   try{
+      object_ = parsed_objects_.at("cooler").getObject();
+    }
+    catch (const std::out_of_range& e){
+      pick_result_.success = false;
+      pick_result_.message = "Cannot perform pickup_from action, please define cooler object in yaml file.";
+      pickup_from_as_->setAborted(pick_result_);
+      ROS_WARN(pick_result_.message.c_str());
+      return;
+    }    
+  }
 
-  // Fill in box and handle collision object frame id
-  box_.header.frame_id = pick_pose.header.frame_id;
-  handle_.header.frame_id = pick_pose.header.frame_id;
+  else 
+  {  
+   // Process box and handle collision objects
+   try{
+      object_ = parsed_objects_.at("box").getObject();
+      handle_ = parsed_objects_.at("handle").getObject();
+    }
+    catch (const std::out_of_range& e){
+      pick_result_.success = false;
+      pick_result_.message = "Cannot perform pickup_from action, please define box and handle objects in yaml file.";
+      pickup_from_as_->setAborted(pick_result_);
+      ROS_WARN(pick_result_.message.c_str());
+      return;
+    }     
+
+    handle_.operation = handle_.ADD;
+
+    // Fill in handle collision object frame id
+    handle_.header.frame_id = pick_pose.header.frame_id;
+
+    // Add box and handle to frame identified by box visual detection algorithm
+    add_collision_objects_.push_back(handle_);
+  }
+
+  object_.operation = object_.ADD;
+
+  // Fill in collision object frame id
+  object_.header.frame_id = pick_pose.header.frame_id;
+
+  ROS_INFO_STREAM("OBJECT POSE: " << object_.primitive_poses[0]);
+  ROS_INFO_STREAM("OBJECT FRAME: " << object_.header.frame_id);
 
   // Check whether frame identified by box visual detection algorithm is updated
   try{
-    transform_stamped = tfBuffer.lookupTransform(robot_link_,box_.header.frame_id,ros::Time::now(),ros::Duration(box_tf_watchdog_));
+    transform_stamped = tfBuffer.lookupTransform(robot_link_,object_.header.frame_id,ros::Time::now(),ros::Duration(box_tf_watchdog_));
   }
   catch(tf2::TransformException ex){
-    ROS_ERROR("Did not receive updated detected box frame. %s -> %s, %s",robot_link_.c_str(), box_.header.frame_id.c_str(),  ex.what());
+    ROS_ERROR("Did not receive updated detected box frame. %s -> %s, %s",robot_link_.c_str(), object_.header.frame_id.c_str(),  ex.what());
     pick_result_.success = false;
     pick_result_.message = "Cannot perform pickup_from action, did not receive an updated detected box frame.";
     pickup_from_as_->setAborted(pick_result_);
@@ -612,38 +669,54 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     return;
   }
 
-  // Add box and handle to frame identified by box visual detection algorithm
-  std::vector<moveit_msgs::CollisionObject> add_collision_objects_;
-  add_collision_objects_.push_back(box_);
-  add_collision_objects_.push_back(handle_);
+  // Add object to frame identified by visual detection algorithm
+  add_collision_objects_.push_back(object_);
+
   planning_scene_interface_->applyCollisionObjects(add_collision_objects_);
 
   // Clear octomap
   std_srvs::Empty octomap_msg;
   octomap_client.call(octomap_msg);
 
-  move_group_->setNamedTarget(pick_position);
-
-  // Plan to joint pre-position goal
-  success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-  // If plan is successful execute trajectory
-  if(success_plan){
-    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-  }  
-
   if(pick_position == "table"){
-    move_group_->setNamedTarget(pick_position + "_final");
+    move_group_->setNamedTarget(pick_position + "_intermediate");
     // Plan to joint pre-position goal
+  for (int i = 0; i < 5; i++)
+  { 
+	  ROS_INFO("Try to plan %d", i);
     success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  if (success_plan == true) break;
+  }
     // If plan is successful execute trajectory
     if(success_plan){
       success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
     } 
   }
+  
+  // Set joint pre-position goal
+  move_group_->setNamedTarget(pick_position);
+
+  // Plan to joint pre-position goal
+  for (int i = 0; i < 5; i++)
+  { 
+	  ROS_INFO("Try to plan %d", i);
+  success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  if (success_plan == true) break;
+  }
+  // If plan is successful execute trajectory
+  if(success_plan){
+    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  }  
+
 
   // Set pre-pick pose as goal and compute plan
   move_group_->setPoseTarget(pre_pick_pose);
+  for (int i = 0; i < 5; i++)
+  { 
+	  ROS_INFO("Try to plan %d", i);
   success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  if (success_plan == true) break;
+  }
  
   //If plan is successful execute trajectory
   if(success_plan){
@@ -687,15 +760,35 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
 
  objects_in_roi = planning_scene_interface_->getKnownObjectNames();
 
-  for(int i=0; i < objects_in_roi.size(); i++){
-   if(objects_in_roi[i].compare(0,6,"handle")==0){
-     identified_handle = objects_in_roi[i];
-   }else if (objects_in_roi[i].compare(0,3,"box")==0) {
-      identified_box = objects_in_roi[i];
-   }else {}
+
+  if(pick_position =="psu")
+  {
+    identified_handle = "psu";
+  }
+  else if(pick_position =="cooler")
+  {
+    identified_handle = "cooler";
+  }
+  else
+  {
+    for(int i=0; i < objects_in_roi.size(); i++)
+    {
+      if(objects_in_roi[i].compare(0,6,"handle")==0)
+      {
+        identified_handle = objects_in_roi[i];
+      }
+      else if (objects_in_roi[i].compare(0,3,"box")==0) 
+      {
+        identified_box = objects_in_roi[i];
+      }
+      else
+      {
+
+      }
+    }
   }
 
-  if(identified_handle.empty() || identified_box.empty()){
+  if(identified_handle.empty() && identified_box.empty()){
     pick_result_.success = false;
     pick_result_.message = "There is no moveit collision box and handle to attach.";
     pickup_from_as_->setAborted(pick_result_);
@@ -709,14 +802,22 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   acm_.setEntry(end_effector_link_, "safety_box_handle", true);
   acm_.setEntry(identified_box, identified_handle, true);
   acm_.getMessage(planning_scene_msg.allowed_collision_matrix);
-  planning_scene_msg.is_diff = true;
+  ROS_WARN_STREAM("planning_scene: " << planning_scene_msg);
+  planning_scene_msg.is_diff = true;  
   planning_scene_interface_->applyPlanningScene(planning_scene_msg);
+  ROS_INFO_STREAM("Apply planning scene");
 
   octomap_client.call(octomap_msg);
 
+
   // Move to pick pose
   move_group_->setPoseTarget(pick_pose);
-  success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  for (int i = 0; i < 5; i++)
+  { 
+	  ROS_INFO("Try to plan %d", i);
+    success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+    if (success_plan == true) break;
+  }
 
   //If plan is successful execute trajectory
   if(success_plan){
@@ -758,7 +859,7 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   }
 
   //Attach moveit collision object identified as handle
-  if(move_group_->attachObject(identified_handle)){
+  if(move_group_->attachObject(identified_handle, end_effector_link_)){
     pick_feedback_.state.clear();
     pick_feedback_.state = "Handle attached to end effector";
     pickup_from_as_->publishFeedback(pick_feedback_);
@@ -779,14 +880,30 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     gazebo_link_attacher_client.call(gazebo_link_attacher_msg);
   }else{
     //Activate gripper
-    gripper_on();
+    if(pick_position == "psu")
+    {
+      gripper_on({pin_2_});
+    }
+
+    else if(pick_position == "cooler")
+    {
+      gripper_on({pin_1_});
+    } 
+
+    else
+    {
+      gripper_on({pin_1_, pin_2_});
+    } 
+    
     ros::Duration(0.5).sleep();
   }
+
 
   //Allow contact between attached box and holder
   acm_ = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
   acm_.setEntry(pick_position + "_holder_link", identified_box, true);
   acm_.setEntry("safety_box_handle", identified_handle, true);
+  acm_.setEntry(end_effector_link_, identified_handle, true);
   acm_.setEntry("safety_box_handle", identified_box, true);
   acm_.setEntry("safety_box", identified_handle, true);
   acm_.setEntry("safety_box", identified_box, true);
@@ -807,7 +924,7 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   move_group_->execute(cartesian_plan);
 
   //Attach moveit collision object identified as box
-  if(move_group_->attachObject(identified_box)){
+  if(move_group_->attachObject(identified_box, end_effector_link_)){
     pick_feedback_.state.clear();
     pick_feedback_.state = "Box attached to end effector";
     pickup_from_as_->publishFeedback(pick_feedback_);
@@ -920,10 +1037,145 @@ void ComponentSorting::place_chain_movement(std::string place_position)
     return;
   }
 
+  if (false){ // added by marc
+
+	  ROS_INFO("MOVE A JOINT");
+	  ROS_INFO("MOVE A JOINT");
+	  ROS_INFO("MOVE A JOINT");
+	  ROS_INFO("MOVE A JOINT");
+	  ROS_INFO("MOVE A JOINT");
+	  ROS_INFO("MOVE A JOINT");
+	  ROS_INFO("MOVE A JOINT");
+	  ROS_INFO("MOVE A JOINT");
+	  ROS_INFO("MOVE A JOINT");
+	  ROS_INFO("MOVE A JOINT");
+	  ROS_INFO("MOVE A JOINT");
+	  ROS_INFO("MOVE A JOINT");
+	  ROS_INFO("MOVE A JOINT");
+	  ROS_INFO("MOVE A JOINT");
+	  ROS_INFO("MOVE A JOINT");
+	  std::map< std::string, double > joint_values ;
+	  joint_values.insert(std::pair<std::string, double>(
+	  "robot_arm_elbow_joint",
+// 1.0979717413531702
+-1.0297062397003174
+				  ));
+	  joint_values.insert(std::pair<std::string, double>(
+		  "robot_arm_shoulder_lift_joint",
+//	-1.3200935584357758
+-1.5637161520174523
+				  ));
+	  joint_values.insert(std::pair<std::string, double>(
+		  "robot_arm_shoulder_pan_joint",
+//	2.8699848651885986
+-1.3296435515033167
+				  ));
+	  joint_values.insert(std::pair<std::string, double>(
+		  "robot_arm_wrist_1_joint",
+//	-1.3399437230876465
+-2.1195694408812464
+				  ));
+	  joint_values.insert(std::pair<std::string, double>(
+		  "robot_arm_wrist_2_joint", 
+//	-1.559995476399557
+1.5704485177993774
+				  ));
+	  joint_values.insert(std::pair<std::string, double>(
+		  "robot_arm_wrist_3_joint",
+//	-0.21000510851015264
+0.31408989429473877
+				  ));
+
+
+
+             // Set pre-position goal and compute plan
+             move_group_->setJointValueTarget(joint_values);
+  for (int i = 0; i < 5; i++)
+  { 
+	  ROS_INFO("Try to plan %d", i);
+             success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  if (success_plan == true) break;
+  }
+           
+             //If plan is successful execute trajectory
+             if(success_plan){
+               place_feedback_.state.clear();
+               place_feedback_.state = "Plan to desired pre-position computed";
+               place_on_as_->publishFeedback(place_feedback_);
+           
+               //Check if goal is active and move to target goal
+               if (!place_on_as_->isActive()) return;
+               success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+               ros::Duration(1).sleep();
+           
+               //Check if execute is successful
+               if(success_execute){
+                 ROS_INFO_THROTTLE(3, "Moved!");
+                 place_feedback_.state.clear();
+                 place_feedback_.state = "Moved to desired pre-position";
+                 place_on_as_->publishFeedback(place_feedback_);
+               }else{
+                 place_result_.success = false;
+                 place_result_.message = "Could not move to desired pre-position";
+                 place_on_as_->setAborted(place_result_);
+                 return;
+               }
+                     
+             }else{
+               place_result_.success = false;
+               place_result_.message = "Could not plan to desired pre-position";
+               place_on_as_->setAborted(place_result_);
+               return;
+             }
+
+
+ ROS_INFO("Ha ido bien"); 
+ ROS_INFO("Ha ido bien"); 
+ ROS_INFO("Ha ido bien"); 
+ ROS_INFO("Ha ido bien"); 
+ ROS_INFO("Ha ido bien"); 
+ ROS_INFO("Ha ido bien"); 
+ ROS_INFO("Ha ido bien"); 
+ ROS_INFO("Ha ido bien"); 
+ ROS_INFO("Ha ido bien"); 
+ ROS_INFO("Ha ido bien"); 
+ ROS_INFO("Ha ido bien"); 
+ ROS_INFO("Ha ido bien"); 
+ ROS_INFO("Ha ido bien"); 
+ ROS_INFO("Ha ido bien"); 
+ ROS_INFO("Ha ido bien"); 
+ ROS_INFO("Ha ido bien"); 
+ ROS_INFO("Ha ido bien"); 
+  }
+  
+  
+  
+  
+    
+  // Set joint pre-position goal
+  move_group_->setNamedTarget(place_position);
+
+  // Plan to joint pre-position goal
+  for (int i = 0; i < 5; i++)
+  { 
+	  ROS_INFO("Try to plan %d", i);
+  success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  if (success_plan == true) break;
+  }
+  // If plan is successful execute trajectory
+  if(success_plan){
+    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+  } 
+  
+  
   // Set pre-position goal and compute plan
   move_group_->setPoseTarget(pre_place_pose);
+  for (int i = 0; i < 5; i++)
+  { 
+	  ROS_INFO("Try to plan %d", i);
   success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-
+  if (success_plan == true) break;
+  }
   //If plan is successful execute trajectory
   if(success_plan){
     place_feedback_.state.clear();
@@ -1050,24 +1302,32 @@ void ComponentSorting::place_chain_movement(std::string place_position)
    gazebo_link_detacher_client.call(gazebo_link_attacher_msg);
   }else{
     //Deactivate gripper
-    gripper_off();
+    if(place_position == "psu")
+    {
+      gripper_off({pin_2_});
+    }
+
+    else if(place_position == "cooler")
+    {
+      gripper_off({pin_1_});
+    } 
+
+    else
+    {
+      gripper_off({pin_1_, pin_2_});
+    } 
+    
     ros::Duration(0.5).sleep();
   };
 
-  // Restore selected constraint instead of move_parallel
-  //move_group_->setPathConstraints(moveit_constraint);
-  move_group_->clearPathConstraints();
-  // Check if goal is active and Plan to target goal
-  if (!place_on_as_->isActive()) return;
+  // Remove box collision object from moveit 
+  object_.operation = object_.REMOVE;
+  handle_.operation = handle_.REMOVE;
 
-  //Plan to pre-position goal
-  waypoints.clear();
-  waypoint_cartesian_pose = pre_place_pose.pose;
-
-  waypoints.push_back(waypoint_cartesian_pose);  
-  move_group_->setPoseReferenceFrame(pre_place_pose.header.frame_id );
-  success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
-  cartesian_plan.trajectory_ = trajectory;
+  std::vector<moveit_msgs::CollisionObject> add_collision_objects_;
+  add_collision_objects_.push_back(object_);
+  add_collision_objects_.push_back(handle_);
+  planning_scene_interface_->applyCollisionObjects(add_collision_objects_);
 
   // Restore collision checking between end effector and handle
   acm_ = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
@@ -1076,14 +1336,31 @@ void ComponentSorting::place_chain_movement(std::string place_position)
   planning_scene_msg.is_diff = true;
   planning_scene_interface_->applyPlanningScene(planning_scene_msg);
 
-  // Remove box collision object from moveit 
-  box_.operation = box_.REMOVE;
-  handle_.operation = handle_.REMOVE;
 
-  std::vector<moveit_msgs::CollisionObject> add_collision_objects_;
-  add_collision_objects_.push_back(box_);
-  add_collision_objects_.push_back(handle_);
-  planning_scene_interface_->applyCollisionObjects(add_collision_objects_);
+  // Restore selected constraint instead of move_parallel
+  //move_group_->setPathConstraints(moveit_constraint);
+  move_group_->clearPathConstraints();
+  // Check if goal is active and Plan to target goal
+  if (!place_on_as_->isActive()) return;
+
+  //Plan to pre-position goal
+  current_pose= move_group_->getCurrentPose();
+  move_group_->setPoseTarget(current_pose);
+  move_group_->move();
+  waypoints.clear();
+  waypoint_cartesian_pose = pre_place_pose.pose;
+
+  waypoints.push_back(waypoint_cartesian_pose);  
+  move_group_->setPoseReferenceFrame(pre_place_pose.header.frame_id );
+
+  for (int i = 0; i < 5; i++)
+  { 
+	  ROS_INFO("Try to plan %d", i);
+  success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
+  if (success_cartesian_plan > 0.5) break;
+  }
+  cartesian_plan.trajectory_ = trajectory;
+
 
   //Restore collision checking between attached box and holder
   acm_.setEntry(place_position + "_holder_link", identified_box, false);
@@ -1133,66 +1410,44 @@ void ComponentSorting::place_chain_movement(std::string place_position)
 
 }
 
-void ComponentSorting::gripper_on(){
-
-
-  srv.request.fun = 1;
-  srv.request.pin = pin_1_;
-  srv.request.state =1;
-  if (gripper_client.call(srv))
-   {
-     ROS_INFO("Result: %d", srv.response.success);
-   }
-  else
-   {
-     ROS_ERROR("Failed to call service set/IO on pin %d: %s",pin_1_, gripper_client.getService().c_str());
-     return;
-   }
-  srv.request.fun = 1;
-  srv.request.pin = pin_2_;
-  srv.request.state =1;
-  if(multi_pin_){	
+void ComponentSorting::gripper_on(const std::vector<int>& pins){
+  for (auto const & pin: pins)
+  {
+    srv.request.fun = 1;
+    srv.request.pin = pin;
+    srv.request.state =1;
     if (gripper_client.call(srv))
      {
        ROS_INFO("Result: %d", srv.response.success);
      }
     else
      {
-       ROS_ERROR("Failed to call service set/IO on pin %d: %s", pin_2_, gripper_client.getService().c_str());
-       return;
-     }
-  } 
-}
-
-
-void ComponentSorting::gripper_off(){
-
-  srv.request.fun = 1;
-  srv.request.pin = pin_1_;
-  srv.request.state =0;
-  if (gripper_client.call(srv))
-   {
-     ROS_INFO("Result: %d", srv.response.success);
-   }
-  else
-   {
-     ROS_ERROR("Failed to call service set/IO on pin %d: %s",pin_1_, gripper_client.getService().c_str());
-     return;
-   }
-  srv.request.fun = 1;
-  srv.request.pin = pin_2_;
-  srv.request.state =0;
-  if(multi_pin_){	
-    if (gripper_client.call(srv))
-     {
-       ROS_INFO("Result: %d", srv.response.success);
-     }
-    else
-     {
-       ROS_ERROR("Failed to call service set/IO on pin %d: %s", pin_2_, gripper_client.getService().c_str());
+       ROS_ERROR("Failed to call service set/IO on pin %d: %s",pin, gripper_client.getService().c_str());
        return;
      }
   }
+
+}
+
+
+void ComponentSorting::gripper_off(const std::vector<int>& pins){
+
+  for (auto const & pin: pins)
+  {
+    srv.request.fun = 1;
+    srv.request.pin = pin;
+    srv.request.state = 0;
+    if (gripper_client.call(srv))
+     {
+       ROS_INFO("Result: %d", srv.response.success);
+     }
+    else
+     {
+       ROS_ERROR("Failed to call service set/IO on pin %d: %s",pin, gripper_client.getService().c_str());
+       return;
+     }
+  }
+
 }
 
 bool ComponentSorting::create_planning_scene()
