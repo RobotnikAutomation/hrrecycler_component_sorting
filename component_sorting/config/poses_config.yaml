@@ -4,6 +4,8 @@ positions_to_use:
   - robot_right
   - table
   - detection
+  - psu
+  - cooler
 
 
 robot_left:
@@ -53,10 +55,10 @@ robot_right:
     pose: [[0.0, 0.0, -0.423],[0.0, 0.0, 0.0]]
   pre_pick_pose:
     frame_id: robot_right_holder_oriented_link
-    link: [[0.0, 0.0, -0.70],[0.0, 0.0, 0.0]]
+    pose: [[0.0, 0.0, -0.70],[0.0, 0.0, 0.0]]
   pick_pose:
     frame_id: robot_right_grab_link
-    pose: [[0.0, 0.0, -0.148],[0.0, 0.0, 0.0]]
+    pose: [[0.0, 0.0, -0.147],[0.0, 0.0, 0.0]]
 
 table:
   approach_pose:
@@ -75,16 +77,39 @@ table:
     frame_id: box_grab_qr
     pose: [[0.0, 0.0, -0.148],[0.0, 0.0, 0.0]]
 
+psu:
+  pre_place_pose:
+    frame_id: robot_base_footprint
+    pose: [[0.775, -0.413, 1.053],[3.125, 0.0, -2.447]]
+  place_pose:
+    frame_id: robot_base_footprint
+    pose: [[0.771, -0.410, 0.76],[3.125, 0.0, -2.447]]
+  pre_pick_pose:
+    frame_id: pc_tower_qr
+    pose: [[-0.256, 0.087, -0.473],[0.0, 0.0, -0.565]]
+  pick_pose:
+    frame_id: pc_tower_qr
+    pose: [[-0.256, 0.087, -0.163],[0.0, 0.0, -0.565]]
+
+cooler:
+  pre_place_pose:
+    frame_id: robot_base_footprint
+    pose: [[0.714, -0.580, 1.053],[3.125, 0.0, -2.447]]
+  place_pose:
+    frame_id: robot_base_footprint
+    pose: [[0.714, -0.580, 0.76],[3.125, 0.0, -2.447]] #x: 0.714
+  pre_pick_pose:
+    frame_id: pc_tower_qr
+    pose: [[-0.228, 0.171, -0.478],[0.0, 0.0, -0.535]]  # 10cm away
+  pick_pose:
+    frame_id: pc_tower_qr
+    pose: [[-0.228, 0.171, -0.168],[0.0, 0.0, -0.535]] #-0.178
+
+
 detection:
   approach_pose:
     frame_id: robot_base_footprint
     pose: [[0.379, 0.035, 1.179],[-2.145, 0.0, -1.478]] # xyz, rpy
-
-   
-
-
-
-
 
 table_right:
   approach_pose:
