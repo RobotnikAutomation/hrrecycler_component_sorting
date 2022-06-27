@@ -76,8 +76,8 @@ protected:
 
   // MoveIt stuff
   bool create_planning_scene();
-  void gripper_on(const std::vector<int>& pins);
-  void gripper_off(const std::vector<int>& pins);
+  bool gripper_on(const std::vector<int>& pins);
+  bool gripper_off(const std::vector<int>& pins);
 
   std::string group_name_;
   ros::WallDuration move_group_timeout_;

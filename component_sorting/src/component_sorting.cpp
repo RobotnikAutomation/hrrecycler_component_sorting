@@ -379,7 +379,13 @@ void ComponentSorting::preemptCB()
 {
   RCOMPONENT_INFO_STREAM("ACTION: Preempted");
   move_group_->stop();
-  pickup_from_as_->setPreempted();
+  if(pickup_from_as_->isActive())
+  {
+    // Call move_to function
+    move_to("pc_tower_home");
+    pickup_from_as_->setPreempted();
+  }
+
   place_on_as_->setPreempted();
   move_to_as_->setPreempted();
   move_to_pose_as_->setPreempted();
@@ -888,17 +894,38 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     //Activate gripper
     if(pick_position == "psu")
     {
-      gripper_on({pin_2_});
+      if(!gripper_on({pin_2_}))
+      {
+          //Cancel the goal if suction action is not succeeded
+          pick_result_.success = false;
+          pick_result_.message = "Could not activate the gripper";
+          pickup_from_as_->setAborted(pick_result_);
+          return;
+      }
     }
 
     else if(pick_position == "cooler")
     {
-      gripper_on({pin_1_});
+      if(!gripper_on({pin_1_}))
+      {
+          //Cancel the goal if suction action is not succeeded
+          pick_result_.success = false;
+          pick_result_.message = "Could not activate the gripper";
+          pickup_from_as_->setAborted(pick_result_);
+          return;
+      }
     } 
 
     else
     {
-      gripper_on({pin_1_, pin_2_});
+      if(!gripper_on({pin_1_, pin_2_}))
+      {
+          //Cancel the goal if suction action is not succeeded
+          pick_result_.success = false;
+          pick_result_.message = "Could not activate the gripper";
+          pickup_from_as_->setAborted(pick_result_);
+          return;
+      }
     } 
     
     ros::Duration(0.5).sleep();
@@ -1417,27 +1444,28 @@ void ComponentSorting::place_chain_movement(std::string place_position)
 
 }
 
-void ComponentSorting::gripper_on(const std::vector<int>& pins){
+bool ComponentSorting::gripper_on(const std::vector<int>& pins){
   for (auto const & pin: pins)
   {
     srv.request.fun = 1;
     srv.request.pin = pin;
-    srv.request.state =1;
+    srv.request.state = 1;
     if (gripper_client.call(srv))
      {
        ROS_INFO("Result: %d", srv.response.success);
+       return true;
      }
     else
      {
        ROS_ERROR("Failed to call service set/IO on pin %d: %s",pin, gripper_client.getService().c_str());
-       return;
+       return false;
      }
   }
 
 }
 
 
-void ComponentSorting::gripper_off(const std::vector<int>& pins){
+bool ComponentSorting::gripper_off(const std::vector<int>& pins){
 
   for (auto const & pin: pins)
   {
@@ -1447,11 +1475,12 @@ void ComponentSorting::gripper_off(const std::vector<int>& pins){
     if (gripper_client.call(srv))
      {
        ROS_INFO("Result: %d", srv.response.success);
+       return true;
      }
     else
      {
        ROS_ERROR("Failed to call service set/IO on pin %d: %s",pin, gripper_client.getService().c_str());
-       return;
+       return false;
      }
   }
 
