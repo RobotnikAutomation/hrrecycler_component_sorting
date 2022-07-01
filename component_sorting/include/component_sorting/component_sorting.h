@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 
 #include <std_srvs/Empty.h>
+#include <std_msgs/Bool.h>
 
 #include <rcomponent/rcomponent.h>
 
@@ -20,6 +21,7 @@
 
 #include <moveit_msgs/PickupAction.h>
 #include <moveit_msgs/PlaceAction.h>
+#include <moveit_msgs/RobotTrajectory.h>
 #include <component_sorting_msgs/PickupFromAction.h>
 #include <component_sorting_msgs/PlaceOnAction.h>
 #include <component_sorting_msgs/InitHolderAction.h>
@@ -129,6 +131,13 @@ protected:
   void move_to(std::string move_to_position);
   void move_to_pose(geometry_msgs::PoseStamped pose);
   void scan(std::string scanning_position);
+
+  // Hololens integration
+  void hololensCommandCB(const std_msgs::Bool& allow_execute);
+  ros::Subscriber hololens_command_sub_;
+  bool allow_execute_;
+  bool wait_;
+  ros::Publisher planned_traj_pub_;
 
   // Services
   ros::ServiceServer spawn_table;

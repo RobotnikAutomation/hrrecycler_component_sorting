@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   gazebo_ros_link_attacher
   tf2_ros
   tf2
+  std_msgs
 )
 
 catkin_package(

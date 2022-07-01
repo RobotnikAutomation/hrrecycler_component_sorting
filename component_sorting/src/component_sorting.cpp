@@ -65,6 +65,9 @@ void ComponentSorting::rosReadParams()
 
   box_tf_watchdog_ = 5.0;
   readParam(pnh_, "box_tf_watchdog", box_tf_watchdog_, box_tf_watchdog_, not_required);
+    
+  wait_ = false;
+  readParam(pnh_, "wait", wait_, wait_, required);	
 }
 
 int ComponentSorting::rosSetup()
@@ -164,6 +167,12 @@ int ComponentSorting::rosSetup()
   gripper_client = nh_.serviceClient<ur_msgs::SetIO>("arm/ur_hardware_interface/set_io");
   // Octomap service 
   octomap_client = nh_.serviceClient<std_srvs::Empty>("/clear_octomap");
+
+  // Subscribe to hololens allow execution topic
+  hololens_command_sub_ = nh_.subscribe("hololens_command",1, &ComponentSorting::hololensCommandCB, this);
+
+  // Planned trajectory publisher
+  planned_traj_pub_ = nh_.advertise<moveit_msgs::RobotTrajectory>("component_sorting_planned_path", 1);
 
   // TF Listener and Broadcaster
   tf_listener_ = new  tf2_ros::TransformListener(tfBuffer);
@@ -295,6 +304,9 @@ void ComponentSorting::readyState()
     return;
   }
 
+  // Initialize execute flag
+  allow_execute_ = false;
+
   ROS_INFO_THROTTLE(3, "I have a new goal!");
 
   //Check which server is active 
@@ -391,6 +403,11 @@ void ComponentSorting::preemptCB()
   move_to_pose_as_->setPreempted();
 }
 
+void ComponentSorting::hololensCommandCB(const std_msgs::Bool& allow_execute)
+{
+  allow_execute_ = allow_execute.data;
+}
+
 bool ComponentSorting::spawn_table_cb(component_sorting_msgs::SpawnTable::Request &req, component_sorting_msgs::SpawnTable::Response &res)
 {
   std::vector<moveit_msgs::CollisionObject> add_collision_objects_;
@@ -477,26 +494,34 @@ void ComponentSorting::move_to_pose(geometry_msgs::PoseStamped pose){
     move_to_pose_feedback_.state = "Plan to desired position computed";
     move_to_pose_as_->publishFeedback(move_to_pose_feedback_);
 
-    //Check if goal is active and move to pre-position goal
+    planned_traj_pub_.publish(plan.trajectory_);
+
+    while(move_to_pose_as_->isActive()){
+      if(allow_execute_ || !wait_){
+        allow_execute_ = false;
+        //Check if goal is active and move to pre-position goal
+        if (!move_to_pose_as_->isActive()) return;
+        success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+        //Check if execute is successful
+        if(success_execute){
+          move_to_pose_feedback_.state.clear();
+          move_to_pose_feedback_.state = "Moved end-effector to desired pose";
+          move_to_pose_as_->publishFeedback(move_to_pose_feedback_);
+
+          move_to_pose_result_.success = true;
+          move_to_pose_result_.message = "Move end-effector to desired pose action: SUCCESSFUL";
+          move_to_pose_as_->setSucceeded(move_to_pose_result_);
+          return;
+        }else{
+          move_to_pose_result_.success = false;
+          move_to_pose_result_.message = "Could not move end-effector to desired pose";
+          move_to_pose_as_->setAborted(move_to_pose_result_);
+          return;
+        }
+      }
+    }    
     if (!move_to_pose_as_->isActive()) return;
-    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-
-    //Check if execute is successful
-    if(success_execute){
-      move_to_pose_feedback_.state.clear();
-      move_to_pose_feedback_.state = "Moved end-effector to desired pose";
-      move_to_pose_as_->publishFeedback(move_to_pose_feedback_);
-
-      move_to_pose_result_.success = true;
-      move_to_pose_result_.message = "Move end-effector to desired pose action: SUCCESSFUL";
-      move_to_pose_as_->setSucceeded(move_to_pose_result_);
-      return;
-    }else{
-      move_to_pose_result_.success = false;
-      move_to_pose_result_.message = "Could not move end-effector to desired pose";
-      move_to_pose_as_->setAborted(move_to_pose_result_);
-      return;
-    }
           
   }else{
     move_to_pose_result_.success = false;
@@ -552,26 +577,35 @@ void ComponentSorting::move_to(std::string move_to_position)
     move_to_feedback_.state = "Plan to desired position computed";
     move_to_as_->publishFeedback(move_to_feedback_);
 
-    //Check if goal is active and move to pre-position goal
+    planned_traj_pub_.publish(plan.trajectory_);
+
+    while(move_to_as_->isActive()){
+      if(allow_execute_ || !wait_)
+      { 
+        allow_execute_ = false;
+        //Check if goal is active and move to pre-position goal
+        if (!move_to_as_->isActive()) return;
+        success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+        //Check if execute is successful
+        if(success_execute){
+          move_to_feedback_.state.clear();
+          move_to_feedback_.state = "Moved end-effector to desired position";
+          move_to_as_->publishFeedback(move_to_feedback_);
+
+          move_to_result_.success = true;
+          move_to_result_.message = "Move end-effector to desired position action: SUCCESSFUL";
+          move_to_as_->setSucceeded(move_to_result_);
+          return;
+        }else{
+          move_to_result_.success = false;
+          move_to_result_.message = "Could not move end-effector to desired position";
+          move_to_as_->setAborted(move_to_result_);
+          return;
+        }
+      }
+    }    
     if (!move_to_as_->isActive()) return;
-    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-
-    //Check if execute is successful
-    if(success_execute){
-      move_to_feedback_.state.clear();
-      move_to_feedback_.state = "Moved end-effector to desired position";
-      move_to_as_->publishFeedback(move_to_feedback_);
-
-      move_to_result_.success = true;
-      move_to_result_.message = "Move end-effector to desired position action: SUCCESSFUL";
-      move_to_as_->setSucceeded(move_to_result_);
-      return;
-    }else{
-      move_to_result_.success = false;
-      move_to_result_.message = "Could not move end-effector to desired position";
-      move_to_as_->setAborted(move_to_result_);
-      return;
-    }
           
   }else{
     move_to_result_.success = false;
@@ -689,17 +723,27 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   if(pick_position == "table"){
     move_group_->setNamedTarget(pick_position + "_intermediate");
     // Plan to joint pre-position goal
-  for (int i = 0; i < 5; i++)
-  { 
-	  ROS_INFO("Try to plan %d", i);
-    success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-  if (success_plan == true) break;
-  }
+    for (int i = 0; i < 5; i++)
+    { 
+	    ROS_INFO("Try to plan %d", i);
+      success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+      if (success_plan == true) break;
+    }
+
     // If plan is successful execute trajectory
     if(success_plan){
-      success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+      planned_traj_pub_.publish(plan.trajectory_);
+
+      while(pickup_from_as_->isActive()){
+        if(allow_execute_ || !wait_){ 
+          allow_execute_ = false;
+          success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+          break;
+        }
+      }
+      if (!pickup_from_as_->isActive()) return;  
     } 
-  }
+ }  
   
   // Set joint pre-position goal
   move_group_->setNamedTarget(pick_position);
@@ -711,11 +755,21 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
   if (success_plan == true) break;
   }
-  // If plan is successful execute trajectory
-  if(success_plan){
-    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-  }  
 
+  // If plan is successful execute trajectory
+  if(success_plan)
+  {
+    planned_traj_pub_.publish(plan.trajectory_);
+
+    while(pickup_from_as_->isActive()){
+      if(allow_execute_ || !wait_){ 
+        allow_execute_ = false;
+        success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+        break;
+      }
+    }
+    if (!pickup_from_as_->isActive()) return;  
+  } 
 
   // Set pre-pick pose as goal and compute plan
   move_group_->setPoseTarget(pre_pick_pose);
@@ -732,9 +786,21 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     pick_feedback_.state = "Plan to desired pre-position computed";
     pickup_from_as_->publishFeedback(pick_feedback_);
 
+    planned_traj_pub_.publish(plan.trajectory_);
+
     //Check if goal is active and move to pre-position goal
     if (!pickup_from_as_->isActive()) return;
-    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+    
+
+    while(pickup_from_as_->isActive()){
+      if(allow_execute_ || !wait_){ 
+        allow_execute_ = false;
+        success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+        break;
+      }
+    }
+    if (!pickup_from_as_->isActive()) return;  
+
     //ros::Duration(1).sleep();
 
     //Check if execute is successful
@@ -837,9 +903,20 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     pick_feedback_.state = "Plan to desired position computed";
     pickup_from_as_->publishFeedback(pick_feedback_);
 
+    planned_traj_pub_.publish(plan.trajectory_);
+
     //Check if goal is active and move to target goal
     if (!pickup_from_as_->isActive()) return;
-    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+    while(pickup_from_as_->isActive()){
+      if(allow_execute_ || !wait_){ 
+        allow_execute_ = false;
+        success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+        break;
+      }
+    }
+    if (!pickup_from_as_->isActive()) return;  
+  
     ros::Duration(1).sleep();
 
     //Check if execute is successful
@@ -954,7 +1031,18 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
   move_group_->setPoseReferenceFrame(current_pose.header.frame_id);
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
-  move_group_->execute(cartesian_plan);
+
+  planned_traj_pub_.publish(cartesian_plan.trajectory_);
+
+  while(pickup_from_as_->isActive()){
+    if(allow_execute_ || !wait_){ 
+      allow_execute_ = false;
+      success_execute = (move_group_->execute(cartesian_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+      break;
+    }
+  }
+  if (!pickup_from_as_->isActive()) return;  
+
 
   //Attach moveit collision object identified as box
   if(move_group_->attachObject(identified_box, end_effector_link_)){
@@ -997,9 +1085,18 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     pick_feedback_.state = "Plan back to pre-position computed";
     pickup_from_as_->publishFeedback(pick_feedback_);
 
+    planned_traj_pub_.publish(cartesian_plan.trajectory_);
+
     //Check if goal is active and move to target goal
     if (!pickup_from_as_->isActive()) return;
-    success_execute = (move_group_->execute(cartesian_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+    while(pickup_from_as_->isActive()){
+      if(allow_execute_ || !wait_){ 
+        allow_execute_ = false;
+        success_execute = (move_group_->execute(cartesian_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+        break;
+      }
+    }
+    if (!pickup_from_as_->isActive()) return;  
     //ros::Duration(3).sleep();
 
     //Check if execute is successful
@@ -1193,14 +1290,24 @@ void ComponentSorting::place_chain_movement(std::string place_position)
   for (int i = 0; i < 5; i++)
   { 
 	  ROS_INFO("Try to plan %d", i);
-  success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-  if (success_plan == true) break;
+    success_plan = (move_group_->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+    if (success_plan == true) break;
   }
+
   // If plan is successful execute trajectory
   if(success_plan){
-    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+    planned_traj_pub_.publish(plan.trajectory_);
+
+    while(place_on_as_->isActive()){
+      if(allow_execute_ || !wait_){ 
+        allow_execute_ = false;
+        success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+        break;
+      }
+    }
   } 
-  
+  if (!place_on_as_->isActive()) return;  
   
   // Set pre-position goal and compute plan
   move_group_->setPoseTarget(pre_place_pose);
@@ -1216,9 +1323,21 @@ void ComponentSorting::place_chain_movement(std::string place_position)
     place_feedback_.state = "Plan to desired pre-position computed";
     place_on_as_->publishFeedback(place_feedback_);
 
+    planned_traj_pub_.publish(plan.trajectory_);
+
     //Check if goal is active and move to target goal
     if (!place_on_as_->isActive()) return;
-    success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+    
+    // If plan is successful execute trajectory
+    while(place_on_as_->isActive()){
+      if(allow_execute_ || !wait_){ 
+        allow_execute_ = false;
+        success_execute = (move_group_->execute(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+        break;
+      }
+    }
+
+    if (!place_on_as_->isActive()) return;  
     ros::Duration(1).sleep();
 
     //Check if execute is successful
@@ -1268,9 +1387,20 @@ void ComponentSorting::place_chain_movement(std::string place_position)
     place_feedback_.state = "Plan to desired position computed";
     place_on_as_->publishFeedback(place_feedback_);
 
+    planned_traj_pub_.publish(cartesian_plan.trajectory_);
+
     //Check if goal is active and move to target goal
     if (!place_on_as_->isActive()) return;
-    success_execute = (move_group_->execute(cartesian_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+    // If plan is successful execute trajectory
+    while(place_on_as_->isActive()){
+      if(allow_execute_ || !wait_){ 
+        allow_execute_ = false;
+        success_execute = (move_group_->execute(cartesian_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+        break;
+      }
+    }
+    if (!place_on_as_->isActive()) return;  
     ros::Duration(2).sleep();
 
     //Check if execute is successful
@@ -1321,7 +1451,18 @@ void ComponentSorting::place_chain_movement(std::string place_position)
   move_group_->setPoseReferenceFrame(current_pose.header.frame_id);
   success_cartesian_plan = move_group_->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory, true);
   cartesian_plan.trajectory_ = trajectory;
-  move_group_->execute(cartesian_plan);
+
+  planned_traj_pub_.publish(cartesian_plan.trajectory_);
+
+  while(place_on_as_->isActive()){
+    if(allow_execute_ || !wait_){ 
+      allow_execute_ = false;
+      success_execute = (move_group_->execute(cartesian_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+      break;
+    }
+  }
+  if (!place_on_as_->isActive()) return; 
+  
 
   move_group_->detachObject(identified_handle);
 
@@ -1413,9 +1554,18 @@ void ComponentSorting::place_chain_movement(std::string place_position)
     place_feedback_.state = "Plan back to pre-position computed";
     place_on_as_->publishFeedback(place_feedback_);
 
+    planned_traj_pub_.publish(cartesian_plan.trajectory_);
+
     //Check if goal is active and move to target goal
     if (!place_on_as_->isActive()) return;
-    success_execute = (move_group_->execute(cartesian_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+    while(place_on_as_->isActive()){
+      if(allow_execute_ || !wait_){ 
+        allow_execute_ = false;
+        success_execute = (move_group_->execute(cartesian_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+        break;
+      }
+    }
+    if (!place_on_as_->isActive()) return; 
     //ros::Duration(3).sleep();
 
     //Check if execute is successful

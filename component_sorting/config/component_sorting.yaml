@@ -2,6 +2,9 @@
 group_name: arm
 move_group_timeout: 500 
 
+#Execution mode (wait to receive input from hololens)
+wait: true
+
 #Robot setup
 end_effector_link: robot_vgc10_vgc10_link
 robot_link: robot_base_footprint
