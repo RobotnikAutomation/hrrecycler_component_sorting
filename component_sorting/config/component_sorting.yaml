@@ -3,7 +3,10 @@ group_name: arm
 move_group_timeout: 500 
 
 #Execution mode (wait to receive input from hololens)
-wait: true
+wait: false
+
+#Disassembly operation
+disassembly : true
 
 #Robot setup
 end_effector_link: robot_vgc10_vgc10_link
@@ -31,8 +34,10 @@ simulation: false
 
 #Gripper IO
 multi_pin: false
-pin_1: 4
-pin_2: 5
+#pin_1: 4 
+#pin_2: 5
+pin_1: 999
+pin_2: 999
 
 #Moveit velocity
 scale_vel: 0.1
