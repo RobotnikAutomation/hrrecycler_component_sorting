@@ -98,7 +98,7 @@ protected:
   std::vector<moveit_msgs::CollisionObject> moveit_objects; // CHANGE
   map<std::string, Object_Builder> parsed_objects_;
 
-  moveit_msgs::CollisionObject box_, handle_, object_;
+  moveit_msgs::CollisionObject box_, handle_, object_, pc_tower_, disassembly_wall_;
 
   // Action servers
   std::string action_;
@@ -138,6 +138,9 @@ protected:
   bool allow_execute_;
   bool wait_;
   ros::Publisher planned_traj_pub_;
+
+  // Operation
+  bool disassembly_;		
 
   // Services
   ros::ServiceServer spawn_table;

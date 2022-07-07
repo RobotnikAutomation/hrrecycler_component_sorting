@@ -68,6 +68,10 @@ void ComponentSorting::rosReadParams()
     
   wait_ = false;
   readParam(pnh_, "wait", wait_, wait_, required);	
+
+  disassembly_ = false;
+  readParam(pnh_, "disassembly", disassembly_, disassembly_, required);	
+
 }
 
 int ComponentSorting::rosSetup()
@@ -252,6 +256,27 @@ int ComponentSorting::setup()
 
 void ComponentSorting::standbyState()
 {
+  std::vector<moveit_msgs::CollisionObject> add_collision_objects_;
+  if(disassembly_)
+  {
+   // Process psu collision object
+   try{
+      disassembly_wall_ = parsed_objects_.at("disassembly_wall").getObject();
+    }
+    catch (const std::out_of_range& e){
+      ROS_ERROR("Cannot find disassembly wall in objects config yaml file, needed when launching application in disassembly mode");
+      switchToState(robotnik_msgs::State::FAILURE_STATE);
+      return;
+    }    
+
+    disassembly_wall_.operation = disassembly_wall_.ADD;
+
+    // Add box and handle to frame identified by box visual detection algorithm
+    add_collision_objects_.push_back(disassembly_wall_);
+
+    planning_scene_interface_->applyCollisionObjects(add_collision_objects_);
+  }
+
   // Move to home position without selected constraints
   //move_group_->detachObject();  
   move_group_->clearPathConstraints();
@@ -297,7 +322,6 @@ void ComponentSorting::standbyState()
 
 void ComponentSorting::readyState()
 { 
-
   if (pickup_from_as_->isActive() == false && place_on_as_->isActive() == false && move_to_as_->isActive() == false && move_to_pose_as_->isActive() == false)
   {
     ROS_INFO_THROTTLE(3, "I do not have a goal");
@@ -391,13 +415,15 @@ void ComponentSorting::preemptCB()
 {
   RCOMPONENT_INFO_STREAM("ACTION: Preempted");
   move_group_->stop();
-  if(pickup_from_as_->isActive())
+
+/*   if(pickup_from_as_->isActive())
   {
     // Call move_to function
-    move_to("pc_tower_home");
+    move_group_->setNamedTarget("pc_tower_home");
+    move_group_->move();
     pickup_from_as_->setPreempted();
-  }
-
+  } */
+  pickup_from_as_->setPreempted();
   place_on_as_->setPreempted();
   move_to_as_->setPreempted();
   move_to_pose_as_->setPreempted();
@@ -641,6 +667,7 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
    // Process psu collision object
    try{
       object_ = parsed_objects_.at("psu").getObject();
+      pc_tower_ = parsed_objects_.at("pc_tower").getObject();
     }
     catch (const std::out_of_range& e){
       pick_result_.success = false;
@@ -649,6 +676,14 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
       ROS_WARN(pick_result_.message.c_str());
       return;
     }    
+
+    pc_tower_.operation = pc_tower_.ADD;
+
+    // Fill in handle collision object frame id
+    pc_tower_.header.frame_id = pick_pose.header.frame_id;
+
+    // Add box and handle to frame identified by box visual detection algorithm
+    add_collision_objects_.push_back(pc_tower_);
   }
 
   else if(pick_position == "cooler")
@@ -656,6 +691,7 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     // Process cooler collision object
    try{
       object_ = parsed_objects_.at("cooler").getObject();
+      pc_tower_ = parsed_objects_.at("pc_tower").getObject();
     }
     catch (const std::out_of_range& e){
       pick_result_.success = false;
@@ -663,7 +699,16 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
       pickup_from_as_->setAborted(pick_result_);
       ROS_WARN(pick_result_.message.c_str());
       return;
-    }    
+    }  
+
+    pc_tower_.operation = pc_tower_.ADD;
+
+    // Fill in handle collision object frame id
+    pc_tower_.header.frame_id = pick_pose.header.frame_id;
+
+    // Add box and handle to frame identified by box visual detection algorithm
+    add_collision_objects_.push_back(pc_tower_);
+      
   }
 
   else 
@@ -972,7 +1017,9 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     if(pick_position == "psu")
     {
       if(!gripper_on({pin_2_}))
-      {
+      {   
+          move_group_->setNamedTarget("pc_tower_home");
+          move_group_->move();
           //Cancel the goal if suction action is not succeeded
           pick_result_.success = false;
           pick_result_.message = "Could not activate the gripper";
@@ -985,6 +1032,8 @@ void ComponentSorting::pick_chain_movement(std::string pick_position)
     {
       if(!gripper_on({pin_1_}))
       {
+          move_group_->setNamedTarget("pc_tower_home");
+          move_group_->move();        
           //Cancel the goal if suction action is not succeeded
           pick_result_.success = false;
           pick_result_.message = "Could not activate the gripper";
@@ -1502,6 +1551,13 @@ void ComponentSorting::place_chain_movement(std::string place_position)
   std::vector<moveit_msgs::CollisionObject> add_collision_objects_;
   add_collision_objects_.push_back(object_);
   add_collision_objects_.push_back(handle_);
+
+  if(place_position == "psu" || place_position == "cooler" || place_position == "cooler_fail")
+  {
+    pc_tower_.operation = pc_tower_.REMOVE;
+    add_collision_objects_.push_back(object_);
+  }  
+
   planning_scene_interface_->applyCollisionObjects(add_collision_objects_);
 
   // Restore collision checking between end effector and handle
@@ -1595,44 +1651,55 @@ void ComponentSorting::place_chain_movement(std::string place_position)
 }
 
 bool ComponentSorting::gripper_on(const std::vector<int>& pins){
+  
   for (auto const & pin: pins)
   {
     srv.request.fun = 1;
     srv.request.pin = pin;
     srv.request.state = 1;
+    if (pin ==999)
+    {
+       ROS_ERROR("Failed to call service set/IO on pin %d: %s",pin, gripper_client.getService().c_str());
+       return false;
+    }
     if (gripper_client.call(srv))
      {
        ROS_INFO("Result: %d", srv.response.success);
-       return true;
      }
     else
      {
        ROS_ERROR("Failed to call service set/IO on pin %d: %s",pin, gripper_client.getService().c_str());
-       return false;
      }
   }
-
+  return true;
 }
 
 
 bool ComponentSorting::gripper_off(const std::vector<int>& pins){
+
 
   for (auto const & pin: pins)
   {
     srv.request.fun = 1;
     srv.request.pin = pin;
     srv.request.state = 0;
+
+    if (pin ==999)
+    {
+       ROS_ERROR("Failed to call service set/IO on pin %d: %s",pin, gripper_client.getService().c_str());
+       return false;
+    }
+
     if (gripper_client.call(srv))
      {
        ROS_INFO("Result: %d", srv.response.success);
-       return true;
      }
     else
      {
        ROS_ERROR("Failed to call service set/IO on pin %d: %s",pin, gripper_client.getService().c_str());
-       return false;
      }
   }
+  return true;
 
 }
 
