@@ -20,6 +20,9 @@ objects:
   - handle 
   - cooler 
   - psu
+  - pc_tower
+  - disassembly_wall
+  - disassembly_table
 
 safety_box:
   spawn: true
@@ -53,12 +56,22 @@ table:
       height: 0.365
   pose: [[0.865,0.0,0.425],[0.0,0.0,0.0]] # xyz, rpy
 
+disassembly_table:
+  spawn: true
+  frame_id: robot_base_footprint
+  geometry:
+    box:
+      height: 0.40 # 0.85
+      width: 0.90
+      length: 0.70
+  pose: [[0.865,0.0,0.20],[0.0,0.0,0.0]] # xyz, rpy  
+
 table_1:
   spawn: false
   frame_id: robot_base_footprint
   geometry:
     box:
-      height: 0.85
+      height: 0.70 # 0.85
       width: 0.63
       length: 0.63
   pose: [[0.865,0.0,0.425],[0.0,0.0,0.0]] # xyz, rpy
@@ -96,7 +109,7 @@ handle:
 cooler:
   spawn: false
   frame_id: ""
-  pose: [[-0.24,0.17,0.08],[0.0,0.0,0.0]] # xyz, rpy 0.08 + 0.03 para no contactar
+  pose: [[-0.17,0.136,0.08],[0.0,0.0,0.0]] # xyz, rpy 0.08 + 0.03 para no contactar
   geometry:
     box:
       height: 0.085
@@ -106,12 +119,32 @@ cooler:
 psu:
   spawn: false
   frame_id: ""
-  pose: [[-0.27,0.045,0.1],[0.0,0.0,0.0]] # xyz, rpy 0.07 + 0.03 para no contactar
+  pose: [[-0.20,0.046,0.1],[0.0,0.0,0.0]] # xyz, rpy 0.07 + 0.03 para no contactar
   geometry:
     box:
       height: 0.095
       width: 0.07
       length: 0.175
+
+pc_tower:
+  spawn: false
+  frame_id: ""
+  pose: [[0.0,0.20,0.1],[0.0,0.0,0.0]] # xyz, rpy 0.07 + 0.03 para no contactar
+  geometry:
+    box:
+      height: 0.19
+      width: 0.45
+      length: 0.18      
+
+disassembly_wall:
+  spawn: false
+  frame_id: "robot_base_footprint"
+  pose: [[0.35,0.54,0.95],[0.0,0.0,0.0]] # xyz, rpy 0.07 + 0.03 para no contactar
+  geometry:
+    box:
+      height: 1.5
+      width: 0.01
+      length: 2.0    
 
 
   
