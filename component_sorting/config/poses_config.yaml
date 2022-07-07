@@ -6,6 +6,8 @@ positions_to_use:
   - detection
   - psu
   - cooler
+  - cooler_fail
+  - back_fail
 
 
 robot_left:
@@ -80,31 +82,61 @@ table:
 psu:
   pre_place_pose:
     frame_id: robot_base_footprint
-    pose: [[0.775, -0.413, 1.053],[3.125, 0.0, -2.447]]
+    pose: [[0.845, -0.218, 1.124],[3.088, 0.0, -1.140]]
   place_pose:
     frame_id: robot_base_footprint
-    pose: [[0.771, -0.410, 0.76],[3.125, 0.0, -2.447]]
+    pose: [[0.845, -0.218, 0.824],[3.088, 0.0, -1.140]]
+#  pre_pick_pose:
+#    frame_id: pc_tower_qr
+#    pose: [[-0.256, 0.087, -0.473],[0.0, 0.0, -0.565]]
+#  pick_pose:
+#    frame_id: pc_tower_qr
+#    pose: [[-0.256, 0.087, -0.163],[0.0, 0.0, -0.565]]
   pre_pick_pose:
     frame_id: pc_tower_qr
-    pose: [[-0.256, 0.087, -0.473],[0.0, 0.0, -0.565]]
+    pose: [[-0.200, 0.046, -0.470],[0.0, 0.0, -0.435]]
   pick_pose:
     frame_id: pc_tower_qr
-    pose: [[-0.256, 0.087, -0.163],[0.0, 0.0, -0.565]]
+    pose: [[-0.200, 0.046, -0.160],[0.0, 0.0, -0.565]]
 
 cooler:
   pre_place_pose:
     frame_id: robot_base_footprint
-    pose: [[0.714, -0.580, 1.053],[3.125, 0.0, -2.447]]
+    pose: [[0.686, -0.218, 1.124],[3.088, 0.0, -1.140]]
   place_pose:
     frame_id: robot_base_footprint
-    pose: [[0.714, -0.580, 0.76],[3.125, 0.0, -2.447]] #x: 0.714
+    pose: [[0.686, -0.218, 0.824],[3.088, 0.0, -1.140]] #x: 0.714
+#  pre_pick_pose:
+#    frame_id: pc_tower_qr
+#    pose: [[-0.228, 0.171, -0.478],[0.0, 0.0, -0.535]]  # 10cm away
+#  pick_pose:
+#    frame_id: pc_tower_qr
+#    pose: [[-0.228, 0.171, -0.168],[0.0, 0.0, -0.535]] #-0.178
   pre_pick_pose:
     frame_id: pc_tower_qr
-    pose: [[-0.228, 0.171, -0.478],[0.0, 0.0, -0.535]]  # 10cm away
+    pose: [[-0.175, 0.136, -0.470],[0.0, 0.0, -0.435]]  # 10cm away
   pick_pose:
     frame_id: pc_tower_qr
-    pose: [[-0.228, 0.171, -0.168],[0.0, 0.0, -0.535]] #-0.178
+    pose: [[-0.175, 0.136, -0.160],[0.0, 0.0, -0.435]] #-0.178
 
+cooler_fail:
+  pre_place_pose:
+    frame_id: robot_base_footprint
+    pose: [[0.533, -0.517, 1.124],[-3.134, -0.0, -1.597]]
+  place_pose:
+    frame_id: robot_base_footprint
+    pose: [[0.533, -0.517, 0.824],[-3.134, -0.0, -1.597]] #x: 0.714    
+
+back_fail:
+  approach_pose:
+    frame_id: robot_base_footprint
+    pose: [[-0.581, 0.061, 1.124],[-3.136, 0.005, 1.611]]
+  pre_place_pose:
+    frame_id: robot_base_footprint
+    pose: [[-0.581, 0.061, 1.124],[-3.136, 0.005, 1.611]]
+  place_pose:
+    frame_id: robot_base_footprint
+    pose: [[-0.581, 0.061, 1.051],[-3.136, 0.005, 1.611]] #x: 0.714    
 
 detection:
   approach_pose:
