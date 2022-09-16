@@ -98,7 +98,7 @@ protected:
   std::vector<moveit_msgs::CollisionObject> moveit_objects; // CHANGE
   map<std::string, Object_Builder> parsed_objects_;
 
-  moveit_msgs::CollisionObject box_, handle_, object_, pc_tower_, disassembly_wall_;
+  moveit_msgs::CollisionObject box_, handle_, object_, pc_tower_, disassembly_wall_, disassembly_wall_2_, disassembly_table_;
 
   // Action servers
   std::string action_;

@@ -6,7 +6,7 @@ move_group_timeout: 500
 wait: false
 
 #Disassembly operation
-disassembly : true
+disassembly : false
 
 #Robot setup
 end_effector_link: robot_vgc10_vgc10_link
@@ -28,16 +28,17 @@ box: #Used to locate boxes in the Region of Interest
 box_handle_displacement: 0.04 #Used to recreate box/handle behaviour during transport in MoveIt
 
 #MoveIt constraint
-moveit_constraint: "" #Motion planning constraint to be used
+#moveit_constraint: "soft_downright" #Motion planning constraint to be used
+moveit_constraint: ""
 
 simulation: false 
 
 #Gripper IO
 multi_pin: false
-#pin_1: 4 
-#pin_2: 5
-pin_1: 999
-pin_2: 999
+pin_1: 4 
+pin_2: 5
+#pin_1: 999
+#pin_2: 999
 
 #Moveit velocity
 scale_vel: 0.1

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+    <group ns="robot">
+	    <node name="component_sorting" pkg="component_sorting" type="component_sorting_node" output="screen" clear_params="true">
+        <rosparam command="load" file="$(find component_sorting)/config/objects_config.yaml" />
+        <rosparam command="load" file="$(find component_sorting)/config/component_sorting.yaml" />
+        <rosparam command="load" file="$(find component_sorting)/config/poses_config.yaml" />
+    </node>
+    </group>
+</launch>

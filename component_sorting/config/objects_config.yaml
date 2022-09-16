@@ -18,10 +18,13 @@ objects:
   - safety_box_handle
   - box
   - handle 
+  - cover 
+  - capacitor
   - cooler 
   - psu
   - pc_tower
   - disassembly_wall
+  - disassembly_wall_2
   - disassembly_table
 
 safety_box:
@@ -49,42 +52,42 @@ table:
   frame_id: robot_base_footprint
   geometry:
     box:
-      height: 0.85
+      height: 0.73
       width: 0.63
       length: 0.63
     qr:
       height: 0.365
-  pose: [[0.865,0.0,0.425],[0.0,0.0,0.0]] # xyz, rpy
+  pose: [[0.865,0.0,0.365],[0.0,0.0,0.0]] # xyz, rpy
 
 disassembly_table:
-  spawn: true
-  frame_id: robot_base_footprint
-  geometry:
-    box:
-      height: 0.40 # 0.85
-      width: 0.90
-      length: 0.70
-  pose: [[0.865,0.0,0.20],[0.0,0.0,0.0]] # xyz, rpy  
-
-table_1:
   spawn: false
   frame_id: robot_base_footprint
   geometry:
     box:
-      height: 0.70 # 0.85
-      width: 0.63
-      length: 0.63
-  pose: [[0.865,0.0,0.425],[0.0,0.0,0.0]] # xyz, rpy
+      height: 0.625 # 0.85
+      width: 0.93
+      length: 0.70
+  pose: [[0.865,0.0,0.3125],[0.0,0.0,0.0]] # xyz, rpy  
 
 table_2:
   spawn: false
   frame_id: robot_base_footprint
   geometry:
     box:
-      height: 0.81
+      height: 0.73 # 0.85
       width: 0.63
       length: 0.63
-  pose: [[0.865,0.0,0.405],[0.0,0.0,0.0]] # xyz, rpy
+  pose: [[0.865,0.0,0.365],[0.0,0.0,0.0]] # xyz, rpy
+
+table_1:
+  spawn: false
+  frame_id: robot_base_footprint
+  geometry:
+    box:
+      height: 0.73
+      width: 0.63
+      length: 0.63
+  pose: [[0.865,0.0,0.365],[0.0,0.0,0.0]] # xyz, rpy
 
 box:
   spawn: false
@@ -116,6 +119,26 @@ cooler:
       width: 0.07
       length: 0.1
 
+cover:
+  spawn: false
+  frame_id: ""
+  pose: [[-0.043,-0.011,0.117],[0.0,0.0,0.0]] # xyz, rpy 0.08 + 0.03 para no contactar
+  geometry:
+    box:
+      height: 0.25
+      width: 0.26
+      length: 0.45
+
+capacitor:
+  spawn: false
+  frame_id: ""
+  pose: [[-0.164,0.138,-0.014],[0.0,0.0,0.0]] # xyz, rpy 0.08 + 0.03 para no contactar
+  geometry:
+    box:
+      height: 0.03
+      width: 0.06
+      length: 0.07
+
 psu:
   spawn: false
   frame_id: ""
@@ -139,12 +162,22 @@ pc_tower:
 disassembly_wall:
   spawn: false
   frame_id: "robot_base_footprint"
-  pose: [[0.35,0.54,0.95],[0.0,0.0,0.0]] # xyz, rpy 0.07 + 0.03 para no contactar
+  pose: [[1.15,0.58,0.97],[0.0,0.0,0.0]] # xyz, rpy 0.07 + 0.03 para no contactar
+  geometry:
+    box:
+      height: 1.9
+      width: 0.01
+      length: 1.30   
+
+disassembly_wall_2:
+  spawn: false
+  frame_id: "robot_base_footprint"
+  pose: [[1.15,0.58,1.34],[0.785,0.0,0.0]] # xyz, rpy 0.07 + 0.03 para no contactar
   geometry:
     box:
       height: 1.5
       width: 0.01
-      length: 2.0    
+      length: 1.30         
 
 
   

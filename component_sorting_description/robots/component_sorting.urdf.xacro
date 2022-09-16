@@ -27,7 +27,7 @@
     <xacro:arg name="table_width" default="0.63"/>
     <xacro:property name="table_width" value="${objects_config['table']['geometry']['box']['width']}" />
 
-    <xacro:arg name="table_height" default="0.75"/>
+    <xacro:arg name="table_height" default="0.73"/>
     <xacro:property name="table_height" value="${objects_config['table']['geometry']['box']['height']}" />
 
 

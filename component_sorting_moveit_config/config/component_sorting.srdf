@@ -109,14 +109,60 @@
         <joint name="robot_arm_wrist_2_joint" value="1.62263" />
         <joint name="robot_arm_wrist_3_joint" value="0.18861" />
     </group_state> -->
-    <group_state name="pc_tower_detection" group="arm">
+    <!--group_state name="pc_tower_detection" group="arm">  USED Interecycling
         <joint name="robot_arm_elbow_joint" value="-1.883323" />
         <joint name="robot_arm_shoulder_lift_joint" value="-1.269199" />
         <joint name="robot_arm_shoulder_pan_joint" value="0.4132464" />
         <joint name="robot_arm_wrist_1_joint" value="-1.401929" />
         <joint name="robot_arm_wrist_2_joint" value="1.4897499" />
         <joint name="robot_arm_wrist_3_joint" value="0.407819" />
+    </group_state-->
+    <group_state name="pc_tower_detection" group="arm">
+        <joint name="robot_arm_elbow_joint" value="-1.59342" />
+        <joint name="robot_arm_shoulder_lift_joint" value="-1.63830" />
+        <joint name="robot_arm_shoulder_pan_joint" value="0.10668" />
+        <joint name="robot_arm_wrist_1_joint" value="-1.28902" />
+        <joint name="robot_arm_wrist_2_joint" value="1.69847" />
+        <joint name="robot_arm_wrist_3_joint" value="0.10589" />
     </group_state>
+
+    <group_state name="microwave_detection" group="arm">
+        <joint name="robot_arm_elbow_joint" value="-1.07393" />
+        <joint name="robot_arm_shoulder_lift_joint" value="-1.621433" />
+        <joint name="robot_arm_shoulder_pan_joint" value="0.370655" />
+        <joint name="robot_arm_wrist_1_joint" value="-2.0420528" />
+        <joint name="robot_arm_wrist_2_joint" value="1.605077" />
+        <joint name="robot_arm_wrist_3_joint" value="0.361153" />
+    </group_state>
+
+    <group_state name="capacitor" group="arm">
+        <joint name="robot_arm_elbow_joint" value="-1.07393" />
+        <joint name="robot_arm_shoulder_lift_joint" value="-1.621433" />
+        <joint name="robot_arm_shoulder_pan_joint" value="0.370655" />
+        <joint name="robot_arm_wrist_1_joint" value="-2.0420528" />
+        <joint name="robot_arm_wrist_2_joint" value="1.605077" />
+        <joint name="robot_arm_wrist_3_joint" value="0.361153" />
+    </group_state>
+
+    <group_state name="capacitor_fail" group="arm">
+        <joint name="robot_arm_elbow_joint" value="-1.07393" />
+        <joint name="robot_arm_shoulder_lift_joint" value="-1.621433" />
+        <joint name="robot_arm_shoulder_pan_joint" value="0.370655" />
+        <joint name="robot_arm_wrist_1_joint" value="-2.0420528" />
+        <joint name="robot_arm_wrist_2_joint" value="1.605077" />
+        <joint name="robot_arm_wrist_3_joint" value="0.361153" />
+    </group_state>
+
+    <group_state name="cover" group="arm">
+        <joint name="robot_arm_elbow_joint" value="-1.07393" />
+        <joint name="robot_arm_shoulder_lift_joint" value="-1.621433" />
+        <joint name="robot_arm_shoulder_pan_joint" value="0.370655" />
+        <joint name="robot_arm_wrist_1_joint" value="-2.0420528" />
+        <joint name="robot_arm_wrist_2_joint" value="1.605077" />
+        <joint name="robot_arm_wrist_3_joint" value="0.361153" />
+    </group_state>
+
+
     <group_state name="cooler" group="arm">
         <joint name="robot_arm_elbow_joint" value="-1.621170" />
         <joint name="robot_arm_shoulder_lift_joint" value="-1.754931" />

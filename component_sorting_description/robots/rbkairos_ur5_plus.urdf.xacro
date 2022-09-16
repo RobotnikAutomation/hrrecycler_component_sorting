@@ -149,14 +149,14 @@
     </joint>
 
     <!-- OnRobot VGC-10               Task: COMPONENT SORTING -->
-    <!--xacro:vgc10 prefix="${prefix}vgc10" parent="${prefix}arm_tool0">
+    <xacro:vgc10 prefix="${prefix}vgc10" parent="${prefix}arm_tool0">
         <origin xyz="0 0 0.01" rpy="0 -${PI/2.0} ${PI/2}"/>
-    </xacro:vgc10-->
+    </xacro:vgc10>
 
     <!-- OnRobot VGC-10 with reamer   Task: DISASSEMBLY       -->
-    <xacro:vgc10_with_reamer prefix="${prefix}vgc10" parent="${prefix}arm_tool0">
+    <!--xacro:vgc10_with_reamer prefix="${prefix}vgc10" parent="${prefix}arm_tool0">
         <origin xyz="0 0 0" rpy="0 0 ${-M_PI/2}"/>
-    </xacro:vgc10_with_reamer>
+    </xacro:vgc10_with_reamer-->
 
     <!-- IMU -->
     <xacro:sensor_imu_hector prefix="${prefix}imu" parent="${prefix}base_link">
